@@ -1,10 +1,14 @@
 package org.goplanit.geoio.converter.network;
 
+import org.goplanit.converter.BaseWriterImpl;
+import org.goplanit.converter.IdMapperType;
 import org.goplanit.converter.NetworkIdMapper;
+import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.utils.exceptions.PlanItException;
+import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.network.layer.NetworkLayer;
@@ -14,18 +18,19 @@ import org.goplanit.utils.network.layer.physical.Nodes;
 import java.util.logging.Logger;
 
 /**
- * Writer to persist a PLANit network to disk in a geometry centric format such as Shape files.
+ * Writer to persist a PLANit network to disk in a geometry centric format such as Shape files. Id mapping default is
+ * set to internal ids (not XML ids) by default
  * 
  * @author markr
  *
  */
-public class GeometryNetworkWriter /*implements NetworkWriter*/ {
+public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryNetworkWriter.class.getCanonicalName());
 
-//  /** network writer settings to use */
-//  private final GeometryNetworkWriterSettings settings;
+  /** network writer settings to use */
+  private final GeometryNetworkWriterSettings settings;
 
   /* track logging prefix for current layer */
   private String currLayerLogPrefix;
@@ -97,7 +102,7 @@ public class GeometryNetworkWriter /*implements NetworkWriter*/ {
    *
    */
   protected GeometryNetworkWriter() {
-    this(null, CountryNames.GLOBAL);
+    this(".", CountryNames.GLOBAL);
   }
 
   /** Constructor
@@ -114,61 +119,60 @@ public class GeometryNetworkWriter /*implements NetworkWriter*/ {
    * @param countryName to optimise projection for (if available, otherwise ignore)
    */
   protected GeometryNetworkWriter(String networkPath, String countryName) {
-//    super(IdMapperType.XML);
-//    this.settings = new GeometryNetworkWriterSettings(networkPath, DEFAULT_NETWORK_FILE_NAME, countryName);
+    super(IdMapperType.ID);
+    this.settings = new GeometryNetworkWriterSettings(networkPath, countryName);
   }
 
-  /** default network file name to use */
-  public static final String DEFAULT_NETWORK_FILE_NAME = "network.shp";
+  /** default links file name to use */
+  public static final String DEFAULT_LINKS_FILE_NAME = "planit_links.shp";
+
+  /** default nodes file name to use */
+  public static final String DEFAULT_NODES_FILE_NAME = "planit_links.shp";
+
+  /** default nodes file name to use */
+  public static final String DEFAULT_LINK_SEGMENTS_FILE_NAME = "planit_link_segments.shp";
 
   /**
    * {@inheritDoc}
    */
 //  @Override
-  public void write(LayeredNetwork<?,?> network) throws PlanItException {
+  public void write(LayeredNetwork<?,?> network) {
     
-//    /* currently we only support macroscopic infrastructure networks */
-//    if(!(network instanceof MacroscopicNetwork)) {
-//      throw new PlanItRunTimeException("Currently the GeometryNetworkWriter only supports macroscopic infrastructure networks, the provided network is not of this type");
-//    }
-//    MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
-//
+    /* currently we only support macroscopic infrastructure networks */
+    if(!(network instanceof MacroscopicNetwork)) {
+      throw new PlanItRunTimeException("Currently the GeometryNetworkWriter only supports macroscopic infrastructure networks, the provided network is not of this type");
+    }
+    MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
+
+    //todo: refactor how we do id mapping across repos to fix this up
 //    /* initialise */
 //    this.networkIdMapper = new NetworkIdMapper(getSettings().getIdMappingType());
 //
 //    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());
 //    LOGGER.info(String.format("Persisting network geometry to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
 //    getSettings().logSettings();
-//
-//    /* network layers */
-//    writeNetworkLayers(macroscopicNetwork);
+
+    /* network layers */
+    writeNetworkLayers(macroscopicNetwork);
 
   }
   
   /**
    * {@inheritDoc}
    */
-//  @Override
-//  public void reset() {
-//    currLayerLogPrefix = null;
-//  }
+  @Override
+  public void reset() {
+    currLayerLogPrefix = null;
+  }
   
   // GETTERS/SETTERS
   
-//  /**
-//   * {@inheritDoc}
-//   */
-//  @Override
-//  public GeometryNetworkWriterSettings getSettings() {
-//    return this.settings;
-//  }
-//
-//  /** the country name of the network to write (if any is set)
-//   *
-//   * @return country name, null if unknown
-//   */
-//  public String getCountryName() {
-//    return getSettings().getCountry();
-//  }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public GeometryNetworkWriterSettings getSettings() {
+    return this.settings;
+  }
 
 }
