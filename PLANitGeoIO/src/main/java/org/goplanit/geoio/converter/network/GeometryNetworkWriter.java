@@ -1,13 +1,13 @@
 package org.goplanit.geoio.converter.network;
 
 import org.goplanit.converter.BaseWriterImpl;
-import org.goplanit.converter.IdMapperType;
-import org.goplanit.converter.NetworkIdMapper;
+import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.converter.idmapping.NetworkIdMapper;
+import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
@@ -34,9 +34,6 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
 
   /* track logging prefix for current layer */
   private String currLayerLogPrefix;
-
-  /** id mappers for network entities */
-  private NetworkIdMapper networkIdMapper;
 
   /**
    * Write the nodes
@@ -145,12 +142,12 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
 
     //todo: refactor how we do id mapping across repos to fix this up
-//    /* initialise */
-//    this.networkIdMapper = new NetworkIdMapper(getSettings().getIdMappingType());
-//
-//    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());
-//    LOGGER.info(String.format("Persisting network geometry to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
-//    getSettings().logSettings();
+    /* initialise */
+    this.networkIdMapper = new NetworkIdMapper(getSettings().getIdMappingType());
+
+    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());
+    LOGGER.info(String.format("Persisting network geometry to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+    getSettings().logSettings();
 
     /* network layers */
     writeNetworkLayers(macroscopicNetwork);
@@ -175,4 +172,11 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
     return this.settings;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public NetworkIdMapper getPrimaryIdMapper() {
+    return null;
+  }
 }
