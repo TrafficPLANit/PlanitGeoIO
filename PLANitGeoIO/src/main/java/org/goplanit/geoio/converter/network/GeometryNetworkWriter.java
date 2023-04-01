@@ -141,11 +141,9 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
     }
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
 
-    //todo: refactor how we do id mapping across repos to fix this up
     /* initialise */
-    this.networkIdMapper = new NetworkIdMapper(getSettings().getIdMappingType());
-
-    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem());
+    getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
+    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem()); //todo <-- refactor portion of PLANitIoNetwork writer that does this and make it generic
     LOGGER.info(String.format("Persisting network geometry to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
     getSettings().logSettings();
 
@@ -177,6 +175,6 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
    */
   @Override
   public NetworkIdMapper getPrimaryIdMapper() {
-    return null;
+    return getComponentIdMappers().getNetworkIdMappers();
   }
 }
