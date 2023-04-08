@@ -1,9 +1,8 @@
 package org.goplanit.geoio.converter.network;
 
-import org.goplanit.converter.BaseWriterImpl;
+import org.goplanit.converter.CrsWriterImpl;
 import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
-import org.goplanit.converter.idmapping.PlanitComponentIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
@@ -15,6 +14,7 @@ import org.goplanit.utils.network.layer.NetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinks;
 import org.goplanit.utils.network.layer.physical.Nodes;
 
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 /**
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * @author markr
  *
  */
-public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {
+public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryNetworkWriter.class.getCanonicalName());
@@ -92,9 +92,6 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
     }
   }
 
-
-
-
   /** Constructor
    *
    */
@@ -120,15 +117,6 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
     this.settings = new GeometryNetworkWriterSettings(networkPath, countryName);
   }
 
-  /** default links file name to use */
-  public static final String DEFAULT_LINKS_FILE_NAME = "planit_links.shp";
-
-  /** default nodes file name to use */
-  public static final String DEFAULT_NODES_FILE_NAME = "planit_links.shp";
-
-  /** default nodes file name to use */
-  public static final String DEFAULT_LINK_SEGMENTS_FILE_NAME = "planit_link_segments.shp";
-
   /**
    * {@inheritDoc}
    */
@@ -143,8 +131,12 @@ public class GeometryNetworkWriter extends BaseWriterImpl<LayeredNetwork<?,?>> i
 
     /* initialise */
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-    super.prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem()); //todo <-- refactor portion of PLANitIoNetwork writer that does this and make it generic
-    LOGGER.info(String.format("Persisting network geometry to: %s",Paths.get(getSettings().getOutputPathDirectory(), getSettings().getFileName()).toString()));
+    prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+
+    LOGGER.info(String.format("Persisting nodes geometry to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getNodesFileName()).toString()));
+    LOGGER.info(String.format("Persisting links geometry to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getLinksFileName()).toString()));
+    LOGGER.info(String.format("Persisting link segments geometry to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getLinkSegmentsFileName()).toString()));
+
     getSettings().logSettings();
 
     /* network layers */
