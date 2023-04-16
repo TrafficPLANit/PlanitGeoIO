@@ -1,5 +1,9 @@
 package org.goplanit.geoio.converter.network;
 
+import org.apache.commons.io.FilenameUtils;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.FileDataStoreFinder;
 import org.goplanit.converter.CrsWriterImpl;
 import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
@@ -8,13 +12,19 @@ import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.geo.PlanitEntityGeoUtils;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.misc.UrlUtils;
+import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.NetworkLayer;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinks;
-import org.goplanit.utils.network.layer.physical.Nodes;
+import org.opengis.feature.type.FeatureType;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -38,58 +48,75 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   /**
    * Write the nodes
    *
-   * @param nodes to persist
+   * @param network to persist nodes for
    */
-  private void writeNodes(Nodes nodes) {
+  private void writeNodes(MacroscopicNetwork network) {
+    network.getTransportLayers().streamSorted(getPrimaryIdMapper().getNetworkLayerIdMapper()).forEach( l -> {
+      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("layer: "+getPrimaryIdMapper().getNetworkLayerIdMapper().apply(l));
+      writeNetworkLayerNodes(l, currLayerLogPrefix);
+    });
+  }
+
+  /**
+   * Writer the network layer's nodes
+   *
+   * @param physicalNetworkLayer to persist nodes for
+   * @param layerLoggingPrefix prefix to use when logging to user
+   */
+  private void writeNetworkLayerNodes(MacroscopicNetworkLayer physicalNetworkLayer, final String layerLoggingPrefix) {
+    /* nodes */
+    LOGGER.info(String.format("%s Nodes: %d", currLayerLogPrefix, physicalNetworkLayer.getNodes().size()));
+
+    /* factory based on extension, implicit file type choice */
+    var factory = FileDataStoreFinder.getDataStoreFactory(FilenameUtils.getExtension(getSettings().getNodesFileName()));
+
+    // see https://docs.geotools.org/latest/userguide/library/data/datastore.html to proceed
+    Path nodesFilePath = Path.of(getSettings().getOutputDirectory(),
+            getSettings().getLayerPrefix()+"_"+
+                    getPrimaryIdMapper().getNetworkLayerIdMapper().apply(physicalNetworkLayer)+
+                    "_"+
+                    getSettings().getNodesFileName());
+    Map map = Collections.singletonMap( "url", UrlUtils.createFromPath(nodesFilePath.toAbsolutePath()));
+
+    try {
+      DataStore myData = factory.createNewDataStore(map);
+      // todo: all geometry supporting PLANit entities should implement an interface (perhaps as part of default interface implementation)
+      //  allows for:
+      // 1: construct the instance as a simple feature, 2: provides the feature type, constructs the PLANit instance from a feature
+      FeatureType featureType = DataUtilities.createType("my", "geom:Point,name:String,age:Integer,description:String");
+
+      myData.createSchema(DataUtilities.simple(featureType));
+    }catch (Exception e){
+      LOGGER.severe((e.getMessage()));
+      throw new PlanItRunTimeException("Unable to persist nodes", e.getCause());
+    }
   }
 
   /**
    * Write the links
    *
-   * @param links to persist
+   * @param network to persist links for
    */
-  private void writeLinks(MacroscopicLinks links) {
+  private void writeLinks(MacroscopicNetwork network) {
+    network.getTransportLayers().streamSorted(getPrimaryIdMapper().getNetworkLayerIdMapper()).forEach( l -> {
+      this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("layer: "+getPrimaryIdMapper().getNetworkLayerIdMapper().apply(l));
+      writeNetworkLayerLinks(l, currLayerLogPrefix);
+    });
   }
 
   /**
-   * Writer the network layer
+   * Writer the network layer's links
    *
-   * @param physicalNetworkLayer to persist
-   * @param network to extract from
+   * @param physicalNetworkLayer to persist links for
+   * @param layerLoggingPrefix prefix to use when logging to user
    */
-  protected void writeNetworkLayer(MacroscopicNetworkLayerImpl physicalNetworkLayer, MacroscopicNetwork network) {
+  protected void writeNetworkLayerLinks(MacroscopicNetworkLayer physicalNetworkLayer, final String layerLoggingPrefix) {
 
     /* links */
     LOGGER.info(String.format("%s Links: %d", currLayerLogPrefix, physicalNetworkLayer.getLinks().size()));
     LOGGER.info(String.format("%s Link segments: %d", currLayerLogPrefix, physicalNetworkLayer.getLinkSegments().size()));
-    writeLinks(physicalNetworkLayer.getLinks());
 
-    /* nodes */
-    LOGGER.info(String.format("%s Nodes: %d", currLayerLogPrefix, physicalNetworkLayer.getNodes().size()));
-    writeNodes(physicalNetworkLayer.getNodes());
-  }
 
-  /** Writer the available network layers
-   *
-   * @param network to extract layers from and populate xml
-   */
-  protected void writeNetworkLayers(MacroscopicNetwork network) {
-
-    LOGGER.info("Network layers:" + network.getTransportLayers().size());
-    for(NetworkLayer networkLayer : network.getTransportLayers()) {
-      if(networkLayer instanceof MacroscopicNetworkLayerImpl) {
-        MacroscopicNetworkLayerImpl physicalNetworkLayer = ((MacroscopicNetworkLayerImpl)networkLayer);
-
-        /* XML id */
-        //todo
-
-        this.currLayerLogPrefix = LoggingUtils.surroundwithBrackets("layer: "+physicalNetworkLayer.getXmlId());
-
-        writeNetworkLayer(physicalNetworkLayer, network);
-      }else {
-        LOGGER.severe(String.format("Unsupported macroscopic infrastructure layer %s encountered", networkLayer.getXmlId()));
-      }
-    }
   }
 
   /** Constructor
@@ -133,14 +160,16 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
     prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
 
-    LOGGER.info(String.format("Persisting nodes geometry to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getNodesFileName()).toString()));
-    LOGGER.info(String.format("Persisting links geometry to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getLinksFileName()).toString()));
-    LOGGER.info(String.format("Persisting link segments geometry to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getLinkSegmentsFileName()).toString()));
-
     getSettings().logSettings();
 
-    /* network layers */
-    writeNetworkLayers(macroscopicNetwork);
+    if(getSettings().isPersistNodes()) {
+      LOGGER.info(String.format("Persisting nodes geometry to: %s", Paths.get(getSettings().getOutputDirectory(), getSettings().getNodesFileName()).toString()));
+      writeNodes(macroscopicNetwork);
+    }
+    if(getSettings().isPersistLinks()){
+      LOGGER.info(String.format("Persisting links geometry to: %s",Paths.get(getSettings().getOutputDirectory(), getSettings().getLinksFileName()).toString()));
+      writeLinks(macroscopicNetwork);
+    }
 
   }
   

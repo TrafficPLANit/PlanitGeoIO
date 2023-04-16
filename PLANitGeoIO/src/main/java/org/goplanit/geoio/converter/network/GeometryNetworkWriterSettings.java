@@ -22,8 +22,14 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** nodes file name to use */
   private String nodesFileName = DEFAULT_NODES_FILE_NAME;
 
-  /** link segments file name to use */
-  private String linkSegmentsFileName = DEFAULT_LINK_SEGMENTS_FILE_NAME;
+  /** flag indicating whether to persist links or not */
+  private boolean persistLinks = DEFAULT_PERSIST_LINKS;
+
+  /** flag indicating whether to persist nodes or not */
+  private boolean persistNodes =  DEFAULT_PERSIST_NODES;
+
+  /** each layer gets a prefix prepended to the file name,e.g., #layer_prefix_#id_#filename */
+  private String layerPrefix = DEFAULT_LAYER_PREFIX;
 
   /** default links file name to use */
   public static final String DEFAULT_LINKS_FILE_NAME = "planit_links.shp";
@@ -31,8 +37,13 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** default nodes file name to use */
   public static final String DEFAULT_NODES_FILE_NAME = "planit_links.shp";
 
-  /** default link segments file name to use */
-  public static final String DEFAULT_LINK_SEGMENTS_FILE_NAME = "planit_link_segments.shp";
+  public static final String DEFAULT_LAYER_PREFIX = "layer";
+
+  /** default persist links flag value */
+  public static boolean DEFAULT_PERSIST_LINKS = true;
+
+  /** default persist nodes flag value */
+  public static boolean DEFAULT_PERSIST_NODES = true;
 
   /**
    * Default constructor
@@ -76,12 +87,20 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
     this.nodesFileName = nodesFileName;
   }
 
-  public String getLinkSegmentsFileName() {
-    return linkSegmentsFileName;
+  public boolean isPersistLinks() {
+    return persistLinks;
   }
 
-  public void setLinkSegmentsFileName(String linkSegmentsFileName) {
-    this.linkSegmentsFileName = linkSegmentsFileName;
+  public void setPersistLinks(boolean persistLinks) {
+    this.persistLinks = persistLinks;
+  }
+
+  public boolean isPersistNodes() {
+    return persistNodes;
+  }
+
+  public void setPersistNodes(boolean persistNodes) {
+    this.persistNodes = persistNodes;
   }
 
   /**
@@ -96,6 +115,13 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
    */
   public void reset() {
     super.reset();
-  }  
-    
+  }
+
+  public String getLayerPrefix() {
+    return layerPrefix;
+  }
+
+  public void setLayerPrefix(String layerPrefix) {
+    this.layerPrefix = layerPrefix;
+  }
 }
