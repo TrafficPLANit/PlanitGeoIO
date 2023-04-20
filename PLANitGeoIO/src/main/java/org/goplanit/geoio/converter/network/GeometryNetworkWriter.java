@@ -4,10 +4,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.Transaction;
 import org.goplanit.converter.CrsWriterImpl;
 import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
+import org.goplanit.geoio.util.GeoIODataStoreManager;
+import org.goplanit.geoio.util.GeoIoFeatureTypeManager;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.layer.macroscopic.MacroscopicNetworkLayerImpl;
@@ -18,6 +21,8 @@ import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.UrlUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.NetworkLayer;
+import org.goplanit.utils.network.layer.physical.Node;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 import java.io.File;
@@ -46,6 +51,22 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   private String currLayerLogPrefix;
 
   /**
+   * Construct consistent file path (with file name) based on desired output file name and settings configuration, taking the
+   * current layer into account
+   *
+   * @param outputfileName to use
+   * @param physicalNetworkLayer this applies to
+   * @return created path
+   */
+  private Path createFullPathFromFileName(String outputfileName, MacroscopicNetworkLayer physicalNetworkLayer){
+    return Path.of(getSettings().getOutputDirectory(),
+            getSettings().getLayerPrefix()+"_"+
+                    getPrimaryIdMapper().getNetworkLayerIdMapper().apply(physicalNetworkLayer)+
+                    "_"+
+                    getSettings().getNodesFileName());
+  }
+
+  /**
    * Write the nodes
    *
    * @param network to persist nodes for
@@ -67,25 +88,31 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
     /* nodes */
     LOGGER.info(String.format("%s Nodes: %d", currLayerLogPrefix, physicalNetworkLayer.getNodes().size()));
 
-    /* factory based on extension, implicit file type choice */
-    var factory = FileDataStoreFinder.getDataStoreFactory(FilenameUtils.getExtension(getSettings().getNodesFileName()));
+    DataStore nodeDataStore =
+            GeoIODataStoreManager.createDataStore(Node.class, createFullPathFromFileName(getSettings().getNodesFileName(), physicalNetworkLayer));
 
-    // see https://docs.geotools.org/latest/userguide/library/data/datastore.html to proceed
-    Path nodesFilePath = Path.of(getSettings().getOutputDirectory(),
-            getSettings().getLayerPrefix()+"_"+
-                    getPrimaryIdMapper().getNetworkLayerIdMapper().apply(physicalNetworkLayer)+
-                    "_"+
-                    getSettings().getNodesFileName());
-    Map map = Collections.singletonMap( "url", UrlUtils.createFromPath(nodesFilePath.toAbsolutePath()));
+    try{
+      SimpleFeatureType nodeFeatureType = GeoIoFeatureTypeManager.getSimpleFeatureType(Node.class);
+      if(nodeDataStore.getSchema(nodeFeatureType.getTypeName()) != null){
+        throw new PlanItRunTimeException("Feature type for nodes already registered on datastore, this shouldn't happen");
+      }
+      /* configure the datastore for the chosen feature type schema, so it can be populated */
+      nodeDataStore.createSchema(nodeFeatureType);
+    }catch (Exception e){
+      LOGGER.severe((e.getMessage()));
+      throw new PlanItRunTimeException("Unable to create node feature type schema for data store", e.getCause());
+    }
 
-    try {
-      DataStore myData = factory.createNewDataStore(map);
-      // todo: all geometry supporting PLANit entities should implement an interface (perhaps as part of default interface implementation)
-      //  allows for:
-      // 1: construct the instance as a simple feature, 2: provides the feature type, constructs the PLANit instance from a feature
-      FeatureType featureType = DataUtilities.createType("my", "geom:Point,name:String,age:Integer,description:String");
-
-      myData.createSchema(DataUtilities.simple(featureType));
+    /* the feature writer through which to provide each result row */
+    try ( var nodesFeatureWriter =
+                  nodeDataStore.getFeatureWriter(FilenameUtils.getBaseName(getSettings().getNodesFileName()), Transaction.AUTO_COMMIT)) {
+      for(var node : physicalNetworkLayer.getNodes()){
+        var nodeFeature = nodesFeatureWriter.next();
+        //todo: change the below in something that ties to the feature type in GeoIoFeatureTypeManager
+        nodeFeature.setAttribute("node_id", getPrimaryIdMapper().getVertexIdMapper().apply(node));
+        nodeFeature.setAttribute("name", node.getName());
+        nodeFeature.setAttribute("geom", node.getPosition());
+      }
     }catch (Exception e){
       LOGGER.severe((e.getMessage()));
       throw new PlanItRunTimeException("Unable to persist nodes", e.getCause());
@@ -140,8 +167,16 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
    * @param countryName to optimise projection for (if available, otherwise ignore)
    */
   protected GeometryNetworkWriter(String networkPath, String countryName) {
+    this(new GeometryNetworkWriterSettings(networkPath, countryName));
+  }
+
+  /** Constructor
+   *
+   * @param networkSettings to use
+   */
+  protected GeometryNetworkWriter(GeometryNetworkWriterSettings networkSettings){
     super(IdMapperType.ID);
-    this.settings = new GeometryNetworkWriterSettings(networkPath, countryName);
+    this.settings = networkSettings;
   }
 
   /**
@@ -171,6 +206,8 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
       writeLinks(macroscopicNetwork);
     }
 
+    /* disposes of any registered data stores */
+    GeoIODataStoreManager.reset();
   }
   
   /**
@@ -179,6 +216,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   @Override
   public void reset() {
     currLayerLogPrefix = null;
+    GeoIODataStoreManager.reset();
   }
   
   // GETTERS/SETTERS

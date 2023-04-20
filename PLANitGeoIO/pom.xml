@@ -43,6 +43,12 @@
 
         <!-- version inherited from parent -->
         <dependency>
+            <groupId>org.goplanit.io</groupId>
+            <artifactId>planit-io</artifactId>
+        </dependency>
+
+        <!-- version inherited from parent -->
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
