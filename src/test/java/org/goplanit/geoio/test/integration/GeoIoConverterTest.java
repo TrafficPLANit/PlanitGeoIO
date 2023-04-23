@@ -8,9 +8,14 @@ import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit test cases for the converters provided in the PlanitGeoIO format
@@ -63,7 +68,7 @@ public class GeoIoConverterTest {
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
-      fail();
+      fail("testPlanit2GeoIOShapeNetworkConverter");
     }
   }
 
