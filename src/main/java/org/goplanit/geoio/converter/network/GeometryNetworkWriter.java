@@ -108,6 +108,10 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
               Node.class, createFullPathFromFileName(getSettings().getNodesFileName(), physicalNetworkLayer));
     }
 
+    // todo make sure datastore AND feature type names for each PLANit entity are synced to see if this avoid the issue
+    // of the error SEVERE ] Schema 'planit_nodes' does not exist thrown by the creation of the feature writer
+    // perhaps the issue is in the datastore not finding the feature since the provided name does not match the shape files name of "layer_0_planit_nodes.shp"
+    // the latter I think is in fact what we provide when creating the datastore and NOT the feature type name...
     var nodeFeatureType = GeoIoFeatureTypeManager.getSimpleFeatureType(Node.class);
     GeoIODataStoreManager.registerFeatureOnDataStore(nodeDataStore, nodeFeatureType);
 

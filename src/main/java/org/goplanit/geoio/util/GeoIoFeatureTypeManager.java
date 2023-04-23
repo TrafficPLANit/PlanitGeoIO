@@ -6,6 +6,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.HashMap;
@@ -42,16 +43,8 @@ public final class GeoIoFeatureTypeManager {
     try {
       //todo add crs, see https://www.geomesa.org/documentation/2.0.2/user/datastores/attributes.html, and https://docs.geotools.org/latest/userguide/library/main/data.html
 
-      //todo replace with feature builder like so (see call to create type how to use it, this is more flexible and allows us to
-      // set the CRS explicitly:
-//      SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-//      builder.setName(name);
-//      builder.setNamespaceURI(namespace);
-//      String[] types = typeSpec.split(",");
-//      builder.setCRS((CoordinateReferenceSystem)null);
-
       var featureType = DataUtilities.createType(
-              "nodes", "node_id:java.lang.Long,name:String,*geom:Point"+sridCodeAddendum); //the * means it is the default geometry type otherwise that gets ignored
+              "planit_nodes", "node_id:java.lang.Long,name:String,*geom:Point"+sridCodeAddendum); //the * means it is the default geometry type otherwise that gets ignored
       simpleFeatureTypesByPlanitEntity.put(Node.class,featureType);
       //todo add other entities here
     }catch(Exception e){
