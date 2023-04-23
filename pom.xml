@@ -72,6 +72,12 @@
 		  <scope>test</scope>
 	  </dependency>
 
+		<!-- required for shape file datastore to be available by internal finder -->
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-shapefile</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>	

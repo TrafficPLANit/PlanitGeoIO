@@ -6,9 +6,12 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStoreFinder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.UrlUtils;
+import org.goplanit.utils.network.layer.physical.Node;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,14 +30,14 @@ public final class GeoIODataStoreManager {
   private static final Map<Class<?>, DataStore> dataStoreMap = new HashMap<>();
 
   /**
-   * Collect a registered datastore for a given PLANit entity class, if not available a run time exception will be thrown
+   * Collect a registered datastore for a given PLANit entity class, if not available null is returned
    *
    * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
    * @return the datastore
    */
   public static DataStore getDataStore(Class<?> dataStoreReferenceClass){
     if(!dataStoreMap.containsKey(dataStoreReferenceClass)){
-      throw new PlanItRunTimeException("Unable to locate datastore for provided class %s, abort",dataStoreReferenceClass.toString());
+      return null;
     }
     return dataStoreMap.get(dataStoreReferenceClass);
   }
@@ -78,4 +81,26 @@ public final class GeoIODataStoreManager {
     dataStoreMap.clear();
   }
 
+  /**
+   * Given a feature, register it on the datastore if not already available
+   *
+   * @param dataStore to register on
+   * @param feature feature to register
+   */
+  public static void registerFeatureOnDataStore(DataStore dataStore, SimpleFeatureType feature) {
+    PlanItRunTimeException.throwIfNull(feature, "Feature type null, unable to register on datastore, this shouldn't happen");
+
+    try{
+      /* trigger exception when not available to register schema once */
+      dataStore.getSchema(feature.getTypeName());
+    }catch (Exception e){
+      /* configure the datastore for the chosen feature type schema, so it can be populated */
+      try {
+        dataStore.createSchema(feature);
+      } catch (IOException ex) {
+        LOGGER.severe(ex.getMessage());
+        throw new PlanItRunTimeException("Unable to register schema on datastore");
+      }
+    }
+  }
 }

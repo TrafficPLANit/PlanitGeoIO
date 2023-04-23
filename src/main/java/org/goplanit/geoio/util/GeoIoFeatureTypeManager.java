@@ -26,7 +26,9 @@ public final class GeoIoFeatureTypeManager {
    */
   private static void initialiseSimpleFeatureTypes(){
     try {
-      simpleFeatureTypesByPlanitEntity.put(Node.class, DataUtilities.createType("node", "geom:Point, node_id: Long, name:String"));
+      //todo add crs, see https://www.geomesa.org/documentation/2.0.2/user/datastores/attributes.html, and https://docs.geotools.org/latest/userguide/library/main/data.html
+      //todo: typename appears to ha
+      simpleFeatureTypesByPlanitEntity.put(Node.class, DataUtilities.createType("nodes", "node_id:java.lang.Long,name:String,geom:Point"));
       //todo add other entities here
     }catch(Exception e){
       throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", GeoIoFeatureTypeManager.class.getCanonicalName());

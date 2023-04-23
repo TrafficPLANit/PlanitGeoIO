@@ -26,6 +26,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -88,20 +89,14 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
     /* nodes */
     LOGGER.info(String.format("%s Nodes: %d", currLayerLogPrefix, physicalNetworkLayer.getNodes().size()));
 
-    DataStore nodeDataStore =
-            GeoIODataStoreManager.createDataStore(Node.class, createFullPathFromFileName(getSettings().getNodesFileName(), physicalNetworkLayer));
-
-    try{
-      SimpleFeatureType nodeFeatureType = GeoIoFeatureTypeManager.getSimpleFeatureType(Node.class);
-      if(nodeDataStore.getSchema(nodeFeatureType.getTypeName()) != null){
-        throw new PlanItRunTimeException("Feature type for nodes already registered on datastore, this shouldn't happen");
-      }
-      /* configure the datastore for the chosen feature type schema, so it can be populated */
-      nodeDataStore.createSchema(nodeFeatureType);
-    }catch (Exception e){
-      LOGGER.severe((e.getMessage()));
-      throw new PlanItRunTimeException("Unable to create node feature type schema for data store", e.getCause());
+    DataStore nodeDataStore = GeoIODataStoreManager.getDataStore(Node.class);
+    if(nodeDataStore == null) {
+      nodeDataStore = GeoIODataStoreManager.createDataStore(
+              Node.class, createFullPathFromFileName(getSettings().getNodesFileName(), physicalNetworkLayer));
     }
+
+    var nodeFeatureType = GeoIoFeatureTypeManager.getSimpleFeatureType(Node.class);
+    GeoIODataStoreManager.registerFeatureOnDataStore(nodeDataStore, nodeFeatureType);
 
     /* the feature writer through which to provide each result row */
     try ( var nodesFeatureWriter =

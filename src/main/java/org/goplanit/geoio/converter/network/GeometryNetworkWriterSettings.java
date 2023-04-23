@@ -35,7 +35,7 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   public static final String DEFAULT_LINKS_FILE_NAME = "planit_links.shp";
 
   /** default nodes file name to use */
-  public static final String DEFAULT_NODES_FILE_NAME = "planit_links.shp";
+  public static final String DEFAULT_NODES_FILE_NAME = "planit_nodes.shp";
 
   public static final String DEFAULT_LAYER_PREFIX = "layer";
 
