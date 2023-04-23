@@ -1,0 +1,117 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  	
+	<parent>
+    <groupId>org.goplanit.parentpom</groupId>
+    <artifactId>planit-parentpom</artifactId>
+		<version>0.3.1a1</version>
+	</parent>
+
+	<groupId>org.goplanit.geoio</groupId>
+	<artifactId>planit-geoio</artifactId>
+	<description>PlanIt Code for default input and output</description>
+	<packaging>jar</packaging>
+
+	<name>planit-geoio</name>
+	<url>https://github.com/TrafficPLANit/PlanitGeoIO</url>
+	
+	<!-- license based on the one published on the website -->
+	<licenses>
+		<license>
+			<name>PLANit license based on modified BSD</name>
+			<url>${planit.website.url}/docs/licenses/LICENSE.txt</url>
+			<distribution>repo</distribution>
+			<comments>A slightly modified version of a modified BSD license</comments>
+		</license>
+	</licenses>
+
+	<dependencies>
+
+		<!-- version inherited from parent -->
+		<dependency>
+			<groupId>org.goplanit.utils</groupId>
+			<artifactId>planit-utils</artifactId>
+		</dependency>
+
+		<!-- version inherited from parent -->
+		<dependency>
+			<groupId>org.goplanit</groupId>
+			<artifactId>planit-core</artifactId>
+		</dependency>
+	
+		<!-- version inherited from parent -->
+		<dependency>
+			<groupId>org.goplanit.xml</groupId>
+			<artifactId>planit-xmlgenerator</artifactId>
+		</dependency>		
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<optional>true</optional>
+		</dependency>
+		
+	   <dependency>
+		  <groupId>org.hamcrest</groupId>
+		  <artifactId>hamcrest</artifactId>
+		  <scope>test</scope>
+	  </dependency>
+
+	</dependencies>
+
+	<build>	
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>javadoc-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<!--  place generated javadocs in /docs directory of root-->
+							<destDir>docs</destDir>
+							<includeDependencySources>false</includeDependencySources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>	    
+    </build>
+
+	<repositories>
+		<!-- PLANit repository to obtain parentpom from-->
+		<repository>
+			<id>planit-repository.goplanit.org</id>
+			<name>PLANit Repository</name>
+			<url>https://repository.goplanit.org</url>
+		</repository>
+	</repositories>
+
+</project>

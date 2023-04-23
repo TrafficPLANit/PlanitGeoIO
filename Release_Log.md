@@ -1,4 +1,5 @@
 # Release Log
-PlanItGeoIO Releases
 
-This project contains import/export implementations for geometry centric file formats such as shape files
+This project contains code to write networks to disk in various GIS formats based on PLANit memory model
+
+

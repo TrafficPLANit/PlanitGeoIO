@@ -8,14 +8,9 @@ import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.nio.file.Path;
 import java.util.logging.Logger;
-
-import static org.junit.Assert.fail;
 
 /**
  * JUnit test cases for the converters provided in the PlanitGeoIO format
@@ -30,14 +25,14 @@ public class GeoIoConverterTest {
 
   private static final Path testCasePath = Path.of("src","test","resources");
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
       LOGGER = Logging.createLogger(GeoIoConverterTest.class);
     } 
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
