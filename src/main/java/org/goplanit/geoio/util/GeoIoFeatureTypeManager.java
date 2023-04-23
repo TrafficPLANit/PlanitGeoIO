@@ -1,34 +1,58 @@
 package org.goplanit.geoio.util;
 
 import org.geotools.data.DataUtilities;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
-import org.w3.xlink.Simple;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Utility class that tracks all the feature type conversions for each PLANit entity that the GeoIO writer supports
  */
 public final class GeoIoFeatureTypeManager {
 
-  private static final Map<Class<?>, SimpleFeatureType> simpleFeatureTypesByPlanitEntity = new HashMap<>();
+  /** the logger to use */
+  private static final Logger LOGGER = Logger.getLogger(GeoIoFeatureTypeManager.class.getCanonicalName());
 
-  static{
-    initialiseSimpleFeatureTypes();
-  }
+  private static final Map<Class<?>, SimpleFeatureType> simpleFeatureTypesByPlanitEntity = new HashMap<>();
 
   /**
    * Initialise all known supported simple feature types
    */
-  private static void initialiseSimpleFeatureTypes(){
+  public static void initialiseSimpleFeatureTypes(CoordinateReferenceSystem destinationCoordinateReferenceSystem){
+    String sridCodeAddendum = "";
+    if(destinationCoordinateReferenceSystem == null){
+      LOGGER.warning("Destination CRS null, ignoring attaching it to PLANit feature types");
+    }else{
+      var identifiers = destinationCoordinateReferenceSystem.getIdentifiers();
+      if(identifiers == null || identifiers.isEmpty()){
+        LOGGER.warning(String.format("No identifiers to extract EPSG/SRID from Destination CRS %s, ignoring attaching it to PLANit feature types", destinationCoordinateReferenceSystem.getName()));
+      }else{
+        sridCodeAddendum = ":srid="+identifiers.stream().findFirst().get().getCode();
+      }
+
+    }
+
     try {
       //todo add crs, see https://www.geomesa.org/documentation/2.0.2/user/datastores/attributes.html, and https://docs.geotools.org/latest/userguide/library/main/data.html
-      //todo: typename appears to ha
-      simpleFeatureTypesByPlanitEntity.put(Node.class, DataUtilities.createType("nodes", "node_id:java.lang.Long,name:String,geom:Point"));
+
+      //todo replace with feature builder like so (see call to create type how to use it, this is more flexible and allows us to
+      // set the CRS explicitly:
+//      SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+//      builder.setName(name);
+//      builder.setNamespaceURI(namespace);
+//      String[] types = typeSpec.split(",");
+//      builder.setCRS((CoordinateReferenceSystem)null);
+
+      var featureType = DataUtilities.createType(
+              "nodes", "node_id:java.lang.Long,name:String,*geom:Point"+sridCodeAddendum); //the * means it is the default geometry type otherwise that gets ignored
+      simpleFeatureTypesByPlanitEntity.put(Node.class,featureType);
       //todo add other entities here
     }catch(Exception e){
       throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", GeoIoFeatureTypeManager.class.getCanonicalName());
@@ -37,14 +61,18 @@ public final class GeoIoFeatureTypeManager {
 
   /**
    * Collect the simple feature type that goes with the given PLANit entity. PlanItRunTimeException when no known
-   * feature type exists for the given parameter
+   * feature type exists for the given parameter.
+   * <p>
+   *   Make sure {@link #initialiseSimpleFeatureTypes(CoordinateReferenceSystem)} has been called to ensure the types are available for the chosen
+   *   coordinate reference system
+   * </p>
    *
-   * @param planitEntityClass to collect feature type for
+   * @param planitEntityClass                    to collect feature type for
    * @return feature type found
    */
   public static SimpleFeatureType getSimpleFeatureType(Class<?> planitEntityClass){
     if(!simpleFeatureTypesByPlanitEntity.containsKey(planitEntityClass)){
-      throw new PlanItRunTimeException("Unknown feature type schema requested for PLANit entity %s, abort", planitEntityClass.toString());
+      throw new PlanItRunTimeException("Unknown or uninitialised feature type schema requested for PLANit entity %s, abort", planitEntityClass.toString());
     }
 
     return simpleFeatureTypesByPlanitEntity.get(planitEntityClass);

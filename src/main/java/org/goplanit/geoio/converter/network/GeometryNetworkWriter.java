@@ -68,6 +68,19 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   }
 
   /**
+   * Initialise before actual writing starts. Called from {@link #write(LayeredNetwork)}
+   *
+   * @param macroscopicNetwork to writer
+   */
+  private void initialiseWrite(MacroscopicNetwork macroscopicNetwork) {
+    getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
+    prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+
+    /* ensure all geo features are set to the correct CRS once we start using them */
+    GeoIoFeatureTypeManager.initialiseSimpleFeatureTypes(getDestinationCoordinateReferenceSystem());
+  }
+
+  /**
    * Write the nodes
    *
    * @param network to persist nodes for
@@ -187,8 +200,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
     MacroscopicNetwork macroscopicNetwork = (MacroscopicNetwork)network;
 
     /* initialise */
-    getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-    prepareCoordinateReferenceSystem(macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+    initialiseWrite(macroscopicNetwork);
 
     getSettings().logSettings();
 
@@ -204,7 +216,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
     /* disposes of any registered data stores */
     GeoIODataStoreManager.reset();
   }
-  
+
   /**
    * {@inheritDoc}
    */
