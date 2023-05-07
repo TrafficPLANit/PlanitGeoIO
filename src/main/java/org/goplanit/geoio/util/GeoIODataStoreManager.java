@@ -56,7 +56,8 @@ public final class GeoIODataStoreManager {
     }
 
     /* factory based on extension, implicit file type choice */
-    var factory = FileDataStoreFinder.getDataStoreFactory(FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString()));
+    String fileType = FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString());
+    var factory = FileDataStoreFinder.getDataStoreFactory(fileType);
     if(factory == null){
       LOGGER.severe(String.format("Unable to create file data store factory for geo extension %s",FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString())));
     }
@@ -92,7 +93,12 @@ public final class GeoIODataStoreManager {
 
     try{
       /* trigger exception when not available to register schema once */
-      dataStore.getSchema(feature.getTypeName());
+      var alreadyAvailable = dataStore.getSchema(feature.getName());
+      if(alreadyAvailable != null){
+        LOGGER.info(String.format("OVERWRITE, SimpleFeature %s already present, overwritten", feature.getTypeName()));
+        dataStore.updateSchema(feature.getTypeName(), feature);
+        return;
+      }
     }catch (Exception e){
       /* configure the datastore for the chosen feature type schema, so it can be populated */
       try {

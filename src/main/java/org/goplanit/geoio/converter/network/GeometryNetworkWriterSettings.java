@@ -22,6 +22,9 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** nodes file name to use */
   private String nodesFileName = DEFAULT_NODES_FILE_NAME;
 
+  /** extension determining type of file */
+  private String fileExtension = DEFAULT_EXTENSION;
+
   /** flag indicating whether to persist links or not */
   private boolean persistLinks = DEFAULT_PERSIST_LINKS;
 
@@ -31,13 +34,15 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** each layer gets a prefix prepended to the file name,e.g., #layer_prefix_#id_#filename */
   private String layerPrefix = DEFAULT_LAYER_PREFIX;
 
-  /** default links file name to use */
-  public static final String DEFAULT_LINKS_FILE_NAME = "planit_links.shp";
+  /** default links file name to use (without extension)*/
+  public static final String DEFAULT_LINKS_FILE_NAME = "planit_links";
 
-  /** default nodes file name to use */
-  public static final String DEFAULT_NODES_FILE_NAME = "planit_nodes.shp";
+  /** default nodes file name to use (without extension) */
+  public static final String DEFAULT_NODES_FILE_NAME = "planit_nodes";
 
   public static final String DEFAULT_LAYER_PREFIX = "layer";
+
+  public static final String DEFAULT_EXTENSION = ".shp";
 
   /** default persist links flag value */
   public static boolean DEFAULT_PERSIST_LINKS = true;
@@ -123,5 +128,14 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   public void setLayerPrefix(String layerPrefix) {
     this.layerPrefix = layerPrefix;
+  }
+
+  /**
+   * File extension determining the type of file that is being generated
+   *
+   * @return file extension
+   */
+  public String getFileExtension() {
+    return fileExtension;
   }
 }
