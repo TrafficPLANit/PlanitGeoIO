@@ -1,19 +1,18 @@
 package org.goplanit.geoio.util;
 
 import org.geotools.data.DataUtilities;
+import org.goplanit.converter.idmapping.NetworkIdMapper;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
-import org.goplanit.utils.network.layer.NetworkLayer;
-import org.goplanit.utils.network.layer.physical.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Utility class that builds feature types for supported PLANit entities per layer and chosen destination CRS that
@@ -41,22 +40,6 @@ public final class GeoIoFeatureTypeBuilder {
   /** the geotools geometry attribute name used */
   public static final String GEOTOOLS_GEOMETRY_ATTRIBUTE = "the_geom";
 
-  /**
-   * Feature description for PLANit node. (default) geometry must be last as SRID addendum is appended
-   */
-  public static final List<Pair<String,String>> PLANIT_NODE_FEATURE_DESCRIPTION = List.of(
-          Pair.of("node_id", "java.lang.Long"),
-          Pair.of("name", "String"),
-          Pair.of("*geom", "Point")
-  );
-
-
-  /** Track all feature descriptions for the PLANit physical network */
-  public static final List<PlanitEntityFeatureTypeContext> PLANIT_PHYSICAL_NETWORK_FEATURE_DESCRIPTIONS = List.of(
-          PlanitEntityFeatureTypeContext.of(Node.class, PLANIT_NODE_FEATURE_DESCRIPTION)
-          //todo add the rest here
-  );
-
 
   /**
    * Create the addendum to each geometry entry to signify its srid based on the chosen destination CRS
@@ -81,59 +64,71 @@ public final class GeoIoFeatureTypeBuilder {
   }
 
   /**
-   * Initialise all known supported simple feature types for the physical network (for the given layer)
+   * Construct  feature type string based on the provided context information
    *
-   * @param layer to create the simple features for
+   * @param featureTypeContext to extract feature type information from
+   * @param destinationCoordinateReferenceSystem destination CRS
+   * @return created feature type string representative for this PLANit entity
+   */
+  private static String createFeatureTypeStringFromContext(
+          PlanitNodeFeatureTypeContext featureTypeContext,
+          CoordinateReferenceSystem destinationCoordinateReferenceSystem) {
+
+    String sridAddendum = createFeatureGeometrySridAddendum(destinationCoordinateReferenceSystem);
+
+    StringBuilder sb = new StringBuilder();
+    featureTypeContext.getAttributeDescription().forEach(e -> {
+      sb.append(String.join(FEATURE_KEY_VALUE_DELIMITER, e.first(), e.second()));
+      sb.append(FEATURE_DELIMITER);
+    });
+    /* now append the SRID addendum, assuming the feature ends with the geometry */
+    sb.append(sridAddendum);
+    return sb.toString();
+  }
+
+  /**
+   * Initialise all known supported simple feature types for the physical network (for the given layer). Schema names for
+   * each feature are constructed via {@link #createFeatureTypeSchemaName(MacroscopicNetworkLayer, Function, String)}. Hence,
+   * when registering on a datastore and then retrieving a feature writer for this feature, make sure to use the same schema name
+   * by using this method to retrieve the correct registered schema
+   *
+   * @param primaryIdMapper                      id mappers in use
+   * @param layer                                to create the simple features for
    * @param destinationCoordinateReferenceSystem to use
-   * @param planitEntityBaseFileNames to use which gets prefixed with layer information and post fixed with extension
-   * @param layerPrefixProducer function that provides a prefix to each layer created feature type's name (may be null)
+   * @param planitEntityBaseFileNames            to use which gets prefixed with layer information and post fixed with extension
+   * @param layerPrefixProducer                  function that provides a prefix to each layer created feature type's name (may be null)
    * @return the feature types that have been created by physical network layer and all supported PLANit entities
    */
-  public static Map<Class<?>, SimpleFeatureType> createPhysicalNetworkSimpleFeatureTypesByLayer(
+  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<?>>> createPhysicalNetworkSimpleFeatureTypesByLayer(
+          NetworkIdMapper primaryIdMapper,
           MacroscopicNetworkLayer layer,
           CoordinateReferenceSystem destinationCoordinateReferenceSystem,
           Map<Class<?>, String> planitEntityBaseFileNames,
           Function<MacroscopicNetworkLayer, String> layerPrefixProducer){
 
-    String sridAddendum = createFeatureGeometrySridAddendum(destinationCoordinateReferenceSystem);
-    String layerPrefix = (layerPrefixProducer!= null ? layerPrefixProducer.apply(layer) : "");
-
     /** track the created/registered feature types for their respective PLANit entity class */
-    final Map<Class<?>, SimpleFeatureType> simpleFeatureTypes = new HashMap<>();
+    final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<?>>>();
 
     try {
-      //todo add crs, see https://www.geomesa.org/documentation/2.0.2/user/datastores/attributes.html, and https://docs.geotools.org/latest/userguide/library/main/data.html
 
-      for(var featureTypeDescription : PLANIT_PHYSICAL_NETWORK_FEATURE_DESCRIPTIONS){
-        /* take description  and convert to single string */
-        String simpleFeatureTypeString = featureTypeDescription.getGeoDescription().stream().map(
-                e -> String.join(FEATURE_KEY_VALUE_DELIMITER, e.first(), e.second())).collect(Collectors.joining(FEATURE_DELIMITER));
+      var featureTypeContext =  PlanitNodeFeatureTypeContext.create(primaryIdMapper.getVertexIdMapper());
 
-        /* now append the SRID addendum, assuming the feature ends with the geometry */
-        simpleFeatureTypeString = simpleFeatureTypeString + sridAddendum;
+      /* take description  and convert to single string */
+      String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureTypeContext, destinationCoordinateReferenceSystem);
 
-        /* create layer aware feature type schema name corresponding to the file name */
-        String layerPrefixedSchemaName = createFeatureTypeSchemaName(
-                layer, layerPrefixProducer, planitEntityBaseFileNames.get(featureTypeDescription.getPlanitEntityClass()));
+      /* create layer aware feature type schema name corresponding to the file name */
+      String layerPrefixedSchemaName = createFeatureTypeSchemaName(
+              layer, layerPrefixProducer, planitEntityBaseFileNames.get(featureTypeContext.getPlanitEntityClass()));
 
-        /* execute creation of the type */
-        var featureType = DataUtilities.createType(layerPrefixedSchemaName, simpleFeatureTypeString);
-        simpleFeatureTypes.put(Node.class,featureType);
-      }
+      /* execute creation of the type */
+      var featureType = DataUtilities.createType(layerPrefixedSchemaName, simpleFeatureTypeString);
+      simpleFeatureTypes.add(Pair.of(featureType, featureTypeContext));
 
     }catch(Exception e){
       throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", GeoIoFeatureTypeBuilder.class.getCanonicalName());
     }
 
     return simpleFeatureTypes;
-  }
-
-  /** Provide all currently supported PLANit entity classes that are supported
-   *
-   * @return all supported classes
-   * */
-  public static Set<Class<?>> getPhysicalNetworkSupportedPlanitEntityClasses(){
-    return PLANIT_PHYSICAL_NETWORK_FEATURE_DESCRIPTIONS.stream().map(e -> e.getPlanitEntityClass()).collect(Collectors.toSet());
   }
 
   /**

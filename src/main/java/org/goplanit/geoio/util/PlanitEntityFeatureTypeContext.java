@@ -1,21 +1,24 @@
 package org.goplanit.geoio.util;
 
-import org.goplanit.utils.misc.Pair;
+import org.goplanit.utils.misc.Triple;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Track contextual relevant information for each PLANit entity that is persisted
  *
+ * @param <T> type of planit entity
  * @author markr
  */
-public class PlanitEntityFeatureTypeContext {
+public class PlanitEntityFeatureTypeContext<T> {
 
   /** the PLANit entity this instance pertains to */
-  private final Class<?> planitEntityClass;
+  private final Class<T> planitEntityClass;
 
-  /** feature description in attribute value pair combinations */
-  private final List<Pair<String,String>> geoFeatureDescription;
+  /** feature description in attribute value function mapping combinations */
+  private final List<Triple<String,String, Function<T,? extends Object>>> geoFeatureDescription;
 
   /**
    * Constructor
@@ -24,28 +27,17 @@ public class PlanitEntityFeatureTypeContext {
    * @param geoFeatureDescription to use
    */
   protected PlanitEntityFeatureTypeContext(
-          final Class<?> clazz, final List<Pair<String,String>> geoFeatureDescription){
+          final Class<T> clazz,
+          final List<Triple<String,String, Function<T, ? extends Object>>> geoFeatureDescription){
     this.planitEntityClass = clazz;
     this.geoFeatureDescription = geoFeatureDescription;
   }
 
-  /**
-   * Factory method
-   *
-   * @param clazz to use
-   * @param geoFeatureDescription to use
-   * @return created instance
-   */
-  public static PlanitEntityFeatureTypeContext of(
-          Class<?> clazz, List<Pair<String,String>> geoFeatureDescription){
-    return new PlanitEntityFeatureTypeContext(clazz, geoFeatureDescription);
-  }
-
-  public Class<?> getPlanitEntityClass() {
+  public Class<T> getPlanitEntityClass() {
     return planitEntityClass;
   }
 
-  public List<Pair<String, String>> getGeoDescription() {
+  public List<Triple<String,String, Function<T, ? extends Object>>> getAttributeDescription() {
     return geoFeatureDescription;
   }
 }
