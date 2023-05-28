@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Track contextual relevant information for PLANit node type that is persisted
+ * Track contextual relevant information for PLANit link type that is persisted
  *
  * @author markr
  */
@@ -56,11 +56,12 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * Factory method
    *
    * @param linkIdMapper to apply for creating each link's unique id when persisting
+   * @param nodeIdMapper to apply for creating node id references
    * @return created instance
    */
   public static PlanitLinkFeatureTypeContext create(Function<Link, String> linkIdMapper, Function<Vertex, String> nodeIdMapper){
     return new PlanitLinkFeatureTypeContext(
-            n -> linkIdMapper.apply(n) /* convert to link as type */,
+            l -> linkIdMapper.apply(l) /* convert to link as type */,
             n -> nodeIdMapper.apply(n) /* convert to node as type */);
   }
 

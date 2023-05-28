@@ -278,7 +278,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
       /* links */
       if(getSettings().isPersistLinks()){
         LOGGER.info(String.format("%sPersisting link geometries to: %s",
-                layerLogPrefix, createFullPathFromFileName(layer, getSettings().getNodesFileName()).toAbsolutePath()));
+                layerLogPrefix, createFullPathFromFileName(layer, getSettings().getLinksFileName()).toAbsolutePath()));
         var featureInfo = findFeaturePairForPlanitEntity(MacroscopicLink.class, geoFeatureTypesByPlanitEntity);
         writeNetworkLayerLinks(layer, featureInfo.first(), (PlanitLinkFeatureTypeContext) featureInfo.second(), layerLogPrefix);
       }
