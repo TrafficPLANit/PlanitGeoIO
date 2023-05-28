@@ -7,6 +7,7 @@ import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
@@ -22,6 +23,7 @@ import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
+import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.locationtech.jts.geom.Geometry;
@@ -65,8 +67,8 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   private static Map<Class<?>, String> extractPhysicalNetworkPlanitEntityBaseFileNames(GeometryNetworkWriterSettings settings) {
     return Map.ofEntries(
             entry(Node.class, settings.getNodesFileName()),
-            entry(MacroscopicLink.class, settings.getLinksFileName())
-            //todo add other types support
+            entry(MacroscopicLink.class, settings.getLinksFileName()),
+            entry(MacroscopicLinkSegment.class, settings.getLinkSegmentsFileName())
     );
   }
 
@@ -209,9 +211,9 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   }
 
   /**
-   * Writer the network layer's nodes
+   * Writer the network layer's links
    *
-   * @param physicalNetworkLayer          to persist nodes for
+   * @param physicalNetworkLayer          to persist links for
    * @param featureType to use
    * @param linkFeatureContext the context to convert instances to features
    * @param layerLogPrefix to use
@@ -244,6 +246,41 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   }
 
   /**
+   * Writer the network layer's link segments
+   *
+   * @param physicalNetworkLayer          to persist link segments for
+   * @param featureType to use
+   * @param linkSegmentFeatureContext the context to convert instances to features
+   * @param layerLogPrefix to use
+   */
+  private void writeNetworkLayerLinkSegments(MacroscopicNetworkLayer physicalNetworkLayer,
+                                      SimpleFeatureType featureType,
+                                      PlanitLinkSegmentFeatureTypeContext linkSegmentFeatureContext,
+                                      String layerLogPrefix) {
+    if(featureType==null || linkSegmentFeatureContext == null){
+      throw new PlanItRunTimeException("No Feature type description available for PLANit link segments, this shouldn't happen");
+    }
+    LOGGER.info(String.format("%s Link segments: %d", layerLogPrefix, physicalNetworkLayer.getLinkSegments().size()));
+
+    /* data store, e.g., underlying shape file(s) */
+    DataStore linkSegmentsDataStore = GeoIODataStoreManager.getDataStore(linkSegmentFeatureContext.getPlanitEntityClass());
+    if(linkSegmentsDataStore == null) {
+      linkSegmentsDataStore = GeoIODataStoreManager.createDataStore(
+              linkSegmentFeatureContext.getPlanitEntityClass(),
+              createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinkSegmentsFileName()));
+    }
+
+    /* the feature writer through which to provide each result row */
+    final var linkSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
+            physicalNetworkLayer, layerPrefixProducer, getSettings().getLinkSegmentsFileName());
+
+    /* perform persistence */
+    writeNetworkLayerForEntity(
+            featureType, linkSegmentFeatureContext, layerLogPrefix, linkSegmentsDataStore, linkSegmentsSchemaName, physicalNetworkLayer.getLinkSegments(), ls -> ls.getParentLink().getGeometry());
+
+  }
+
+  /**
    * Write layers of the network
    *
    * @param macroscopicNetwork to write layers for
@@ -269,7 +306,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
 
       /* nodes */
       if(getSettings().isPersistNodes()) {
-        LOGGER.info(String.format("%sPersisting node geometries to: %s",
+        LOGGER.info(String.format("%sPersisting nodes to: %s",
                 layerLogPrefix, createFullPathFromFileName(layer, getSettings().getNodesFileName()).toAbsolutePath()));
         var featureInfo = findFeaturePairForPlanitEntity(Node.class, geoFeatureTypesByPlanitEntity);
         writeNetworkLayerNodes(layer, featureInfo.first(), (PlanitNodeFeatureTypeContext) featureInfo.second(), layerLogPrefix);
@@ -277,17 +314,25 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
 
       /* links */
       if(getSettings().isPersistLinks()){
-        LOGGER.info(String.format("%sPersisting link geometries to: %s",
+        LOGGER.info(String.format("%sPersisting links to: %s",
                 layerLogPrefix, createFullPathFromFileName(layer, getSettings().getLinksFileName()).toAbsolutePath()));
         var featureInfo = findFeaturePairForPlanitEntity(MacroscopicLink.class, geoFeatureTypesByPlanitEntity);
         writeNetworkLayerLinks(layer, featureInfo.first(), (PlanitLinkFeatureTypeContext) featureInfo.second(), layerLogPrefix);
+      }
+
+      /* link segments */
+      if(getSettings().isPersistLinkSegments()){
+        LOGGER.info(String.format("%sPersisting link segments to: %s",
+                layerLogPrefix, createFullPathFromFileName(layer, getSettings().getLinkSegmentsFileName()).toAbsolutePath()));
+        var featureInfo = findFeaturePairForPlanitEntity(MacroscopicLinkSegment.class, geoFeatureTypesByPlanitEntity);
+        writeNetworkLayerLinkSegments(layer, featureInfo.first(), (PlanitLinkSegmentFeatureTypeContext) featureInfo.second(), layerLogPrefix);
       }
 
     }
 
   }
 
-  /** find feature and context absed on the class present in context
+  /** find feature and context based on the class present in context
    *
    * @param clazz to find feature for
    * @return found entry, null if not present

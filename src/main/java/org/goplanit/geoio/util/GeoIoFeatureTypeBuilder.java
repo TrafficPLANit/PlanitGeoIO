@@ -3,9 +3,9 @@ package org.goplanit.geoio.util;
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.StringUtils;
@@ -15,7 +15,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -90,12 +89,18 @@ public final class GeoIoFeatureTypeBuilder {
    * persistence
    *
    * @param primaryIdMapper to use for id conversion when persisting
+   * @param layer used for these features
    * @return available network entity feature context information
    */
-  private static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedNetworkFeatures(NetworkIdMapper primaryIdMapper){
+  private static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedNetworkLayerFeatures(
+          NetworkIdMapper primaryIdMapper, MacroscopicNetworkLayer layer){
     return Set.of(
+            /* nodes */
             PlanitNodeFeatureTypeContext.create(primaryIdMapper.getVertexIdMapper()),
-            PlanitLinkFeatureTypeContext.create(primaryIdMapper.getLinkIdMapper(), primaryIdMapper.getVertexIdMapper()));
+            /* links */
+            PlanitLinkFeatureTypeContext.create(primaryIdMapper.getLinkIdMapper(), primaryIdMapper.getVertexIdMapper()),
+            /* link segments */
+            PlanitLinkSegmentFeatureTypeContext.create(primaryIdMapper, layer.getSupportedModes()));
   }
 
   /**
@@ -123,7 +128,7 @@ public final class GeoIoFeatureTypeBuilder {
     final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
-      var supportedFeatures = createSupportedNetworkFeatures(primaryIdMapper);
+      var supportedFeatures = createSupportedNetworkLayerFeatures(primaryIdMapper, layer);
       for (var featureContext : supportedFeatures){
 
         /* take description  and convert to single string */

@@ -19,6 +19,9 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** links file name to use */
   private String linksFileName = DEFAULT_LINKS_FILE_NAME;
 
+  /** link segments file name to use */
+  private String linkSegmentsFileName = DEFAULT_LINKSEGMENTS_FILE_NAME;
+
   /** nodes file name to use */
   private String nodesFileName = DEFAULT_NODES_FILE_NAME;
 
@@ -27,6 +30,9 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   /** flag indicating whether to persist links or not */
   private boolean persistLinks = DEFAULT_PERSIST_LINKS;
+
+  /** flag indicating whether to persist link segments or not */
+  private boolean persistLinkSegments = DEFAULT_PERSIST_LINKSEGMENTS;
 
   /** flag indicating whether to persist nodes or not */
   private boolean persistNodes =  DEFAULT_PERSIST_NODES;
@@ -37,6 +43,9 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** default links file name to use (without extension)*/
   public static final String DEFAULT_LINKS_FILE_NAME = "planit_links";
 
+  /** default link segments file name to use (without extension)*/
+  public static final String DEFAULT_LINKSEGMENTS_FILE_NAME = "planit_linksegments";
+
   /** default nodes file name to use (without extension) */
   public static final String DEFAULT_NODES_FILE_NAME = "planit_nodes";
 
@@ -46,6 +55,10 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   /** default persist links flag value */
   public static boolean DEFAULT_PERSIST_LINKS = true;
+
+  /** default persist link segments flag value */
+  public static boolean DEFAULT_PERSIST_LINKSEGMENTS = true;
+
 
   /** default persist nodes flag value */
   public static boolean DEFAULT_PERSIST_NODES = true;
@@ -84,6 +97,14 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
     this.linksFileName = linksFileName;
   }
 
+  public String getLinkSegmentsFileName() {
+    return linkSegmentsFileName;
+  }
+
+  public void setLinkSegmentsFileName(String linkSegmentsFileName) {
+    this.linkSegmentsFileName = linkSegmentsFileName;
+  }
+
   public String getNodesFileName() {
     return nodesFileName;
   }
@@ -94,6 +115,10 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   public boolean isPersistLinks() {
     return persistLinks;
+  }
+
+  public boolean isPersistLinkSegments() {
+    return persistLinkSegments;
   }
 
   public void setPersistLinks(boolean persistLinks) {
