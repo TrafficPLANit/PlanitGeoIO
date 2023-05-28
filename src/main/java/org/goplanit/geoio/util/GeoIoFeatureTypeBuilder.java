@@ -2,16 +2,20 @@ package org.goplanit.geoio.util;
 
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ExternalIdAble;
+import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
+import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -24,12 +28,6 @@ public final class GeoIoFeatureTypeBuilder {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeoIoFeatureTypeBuilder.class.getCanonicalName());
-
-  /** layer and extension agnostic name for PLANit nodes output file */
-  public static final String PLANIT_NODES = "planit_nodes";
-
-  /** layer and extension agnostic name for PLANit links output file */
-  public static final String PLANIT_LINKS = "planit_links";
 
   /** delimiter for separating attribute key from its type within each feature */
   private static final String FEATURE_KEY_VALUE_DELIMITER = ":";
@@ -71,7 +69,7 @@ public final class GeoIoFeatureTypeBuilder {
    * @return created feature type string representative for this PLANit entity
    */
   private static String createFeatureTypeStringFromContext(
-          PlanitNodeFeatureTypeContext featureTypeContext,
+          PlanitEntityFeatureTypeContext<?> featureTypeContext,
           CoordinateReferenceSystem destinationCoordinateReferenceSystem) {
 
     String sridAddendum = createFeatureGeometrySridAddendum(destinationCoordinateReferenceSystem);
@@ -82,8 +80,22 @@ public final class GeoIoFeatureTypeBuilder {
       sb.append(FEATURE_DELIMITER);
     });
     /* now append the SRID addendum, assuming the feature ends with the geometry */
+    sb.deleteCharAt(sb.length()-1);
     sb.append(sridAddendum);
     return sb.toString();
+  }
+
+  /**
+   * Construct all PLANit entities that have an associated GIS feature context containing the information require for
+   * persistence
+   *
+   * @param primaryIdMapper to use for id conversion when persisting
+   * @return available network entity feature context information
+   */
+  private static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedNetworkFeatures(NetworkIdMapper primaryIdMapper){
+    return Set.of(
+            PlanitNodeFeatureTypeContext.create(primaryIdMapper.getVertexIdMapper()),
+            PlanitLinkFeatureTypeContext.create(primaryIdMapper.getLinkIdMapper(), primaryIdMapper.getVertexIdMapper()));
   }
 
   /**
@@ -99,7 +111,8 @@ public final class GeoIoFeatureTypeBuilder {
    * @param layerPrefixProducer                  function that provides a prefix to each layer created feature type's name (may be null)
    * @return the feature types that have been created by physical network layer and all supported PLANit entities
    */
-  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<?>>> createPhysicalNetworkSimpleFeatureTypesByLayer(
+  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>
+  createPhysicalNetworkSimpleFeatureTypesByLayer(
           NetworkIdMapper primaryIdMapper,
           MacroscopicNetworkLayer layer,
           CoordinateReferenceSystem destinationCoordinateReferenceSystem,
@@ -107,24 +120,26 @@ public final class GeoIoFeatureTypeBuilder {
           Function<MacroscopicNetworkLayer, String> layerPrefixProducer){
 
     /** track the created/registered feature types for their respective PLANit entity class */
-    final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<?>>>();
+    final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
+      var supportedFeatures = createSupportedNetworkFeatures(primaryIdMapper);
+      for (var featureContext : supportedFeatures){
 
-      var featureTypeContext =  PlanitNodeFeatureTypeContext.create(primaryIdMapper.getVertexIdMapper());
+        /* take description  and convert to single string */
+        String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
 
-      /* take description  and convert to single string */
-      String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureTypeContext, destinationCoordinateReferenceSystem);
+        /* create layer aware feature type schema name corresponding to the file name */
+        String layerPrefixedSchemaName = createFeatureTypeSchemaName(
+                layer, layerPrefixProducer, planitEntityBaseFileNames.get(featureContext.getPlanitEntityClass()));
 
-      /* create layer aware feature type schema name corresponding to the file name */
-      String layerPrefixedSchemaName = createFeatureTypeSchemaName(
-              layer, layerPrefixProducer, planitEntityBaseFileNames.get(featureTypeContext.getPlanitEntityClass()));
-
-      /* execute creation of the type */
-      var featureType = DataUtilities.createType(layerPrefixedSchemaName, simpleFeatureTypeString);
-      simpleFeatureTypes.add(Pair.of(featureType, featureTypeContext));
+        /* execute creation of the type */
+        var featureType = DataUtilities.createType(layerPrefixedSchemaName, simpleFeatureTypeString);
+        simpleFeatureTypes.add(Pair.of(featureType, featureContext));
+      }
 
     }catch(Exception e){
+      LOGGER.severe(e.getMessage());
       throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", GeoIoFeatureTypeBuilder.class.getCanonicalName());
     }
 
@@ -145,6 +160,14 @@ public final class GeoIoFeatureTypeBuilder {
           Function<MacroscopicNetworkLayer, String> layerPrefixProducer,
           String baseFileName){
     String layerPrefix = (layerPrefixProducer!= null ? layerPrefixProducer.apply(physicalNetworkLayer) : "");
+    if(StringUtils.isNullOrBlank(layerPrefix)){
+      LOGGER.warning(String.format("IGNORE: Layer prefix for PLANit feature is null or blank, this shouldn't happen", layerPrefix));
+      return null;
+    }
+    if(StringUtils.isNullOrBlank(baseFileName)){
+      LOGGER.warning(String.format("IGNORE: Feature name not provided for PLANit entity in layer (%s) feature schema, this shouldn't happen", layerPrefix));
+      return null;
+    }
     return String.join("_", layerPrefix, baseFileName);
   }
 

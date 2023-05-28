@@ -95,8 +95,9 @@ public final class GeoIODataStoreManager {
       /* trigger exception when not available to register schema once */
       var alreadyAvailable = dataStore.getSchema(feature.getName());
       if(alreadyAvailable != null){
-        LOGGER.info(String.format("OVERWRITE, SimpleFeature %s already present, overwritten", feature.getTypeName()));
-        dataStore.updateSchema(feature.getTypeName(), feature);
+        LOGGER.info(String.format("OVERWRITE datastore for feature %s already present, overwriting", feature.getTypeName()));
+        dataStore.removeSchema(feature.getTypeName());
+        dataStore.getSchema(feature.getTypeName());
         return;
       }
     }catch (Exception e){
