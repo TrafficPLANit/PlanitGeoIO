@@ -8,3 +8,4 @@
 /bin
 /doc
 *.class
+/test/resources/converter_test/outputs

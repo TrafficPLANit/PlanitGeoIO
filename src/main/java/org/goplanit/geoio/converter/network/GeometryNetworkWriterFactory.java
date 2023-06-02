@@ -29,7 +29,7 @@ public class GeometryNetworkWriterFactory {
   /** Create a GeometryNetworkWriter which persists PLANit networks in in common GIS formats
    * 
    * @param outputDirectory to use
-   * @param countryName country which the input file represents, used to determine defaults in case not specifically specified in OSM data, when left blank global defaults will be used
+   * @param countryName country which the input file represents, used to determine defaults in case not specifically specified, when left blank global defaults will be used
    * based on a right hand driving approach
    * @return created GeometryNetworkWriter
    */

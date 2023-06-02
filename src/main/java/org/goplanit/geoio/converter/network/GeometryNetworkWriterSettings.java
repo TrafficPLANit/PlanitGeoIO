@@ -25,9 +25,6 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** nodes file name to use */
   private String nodesFileName = DEFAULT_NODES_FILE_NAME;
 
-  /** extension determining type of file */
-  private String fileExtension = DEFAULT_EXTENSION;
-
   /** flag indicating whether to persist links or not */
   private boolean persistLinks = DEFAULT_PERSIST_LINKS;
 
@@ -155,12 +152,4 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
     this.layerPrefix = layerPrefix;
   }
 
-  /**
-   * File extension determining the type of file that is being generated
-   *
-   * @return file extension
-   */
-  public String getFileExtension() {
-    return fileExtension;
-  }
 }

@@ -1,10 +1,14 @@
 package org.goplanit.geoio.test.integration;
 
 import org.goplanit.converter.network.NetworkConverterFactory;
+import org.goplanit.converter.service.ServiceNetworkConverterFactory;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriter;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
+import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterFactory;
 import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
+import org.goplanit.io.converter.service.PlanitServiceNetworkReader;
+import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
@@ -52,16 +56,46 @@ public class GeoIoConverterTest {
       /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
       final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
       final String inputPath = Path.of(projectPath, "input").toString();
+      final String outputPath = Path.of(projectPath,"outputs").toString();
       
       /* reader */
       PlanitNetworkReader planitReader = PlanitNetworkReaderFactory.create();
       planitReader.getSettings().setInputDirectory(inputPath);
       
       /* writer */
-      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(projectPath, CountryNames.AUSTRALIA);
+      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(outputPath, CountryNames.AUSTRALIA);
       
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
+
+      //todo add assertions...
+
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail("testPlanit2GeoIOShapeNetworkConverter");
+    }
+  }
+
+  /**
+   * Test that reading a PLANit network in native format and then writing results in Shape file form
+   */
+  @Test
+  public void testPlanit2GeoIOShapeServiceNetworkConverter() {
+    try {
+      /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
+      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+      final String inputPath = Path.of(projectPath, "input").toString();
+      final String outputPath = Path.of(projectPath,"outputs").toString();
+
+      /* service network reader */
+      var planitReader = PlanitServiceNetworkReaderFactory.create(inputPath, PlanitNetworkReaderFactory.create(inputPath).read());
+
+      /* writer */
+      var geometryWriter = GeometryServiceNetworkWriterFactory.create(outputPath, CountryNames.AUSTRALIA);
+
+      /* convert */
+      ServiceNetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
       //todo add assertions...
 

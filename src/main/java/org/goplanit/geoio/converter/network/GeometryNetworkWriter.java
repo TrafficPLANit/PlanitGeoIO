@@ -1,42 +1,30 @@
 package org.goplanit.geoio.converter.network;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.Transaction;
-import org.goplanit.converter.CrsWriterImpl;
-import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
+import org.goplanit.geoio.converter.GeometryIoWriter;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
-import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.id.ExternalIdAble;
-import org.goplanit.utils.id.ManagedId;
-import org.goplanit.utils.id.ManagedIdEntities;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
-import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
+import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import javax.crypto.Mac;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static java.util.Map.entry;
 
@@ -47,16 +35,13 @@ import static java.util.Map.entry;
  * @author markr
  *
  */
-public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> implements NetworkWriter {
+public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>> implements NetworkWriter {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryNetworkWriter.class.getCanonicalName());
 
-  /** network writer settings to use */
-  private final GeometryNetworkWriterSettings settings;
-
   /** construct prefix for a given layer in String format */
-  private Function<MacroscopicNetworkLayer, String> layerPrefixProducer = null;
+  private Function<UntypedDirectedGraphLayer<?,?,?>, String> layerPrefixProducer = null;
 
   /**
    * Based on the settings construct the correct mapping between file names and the PLANit entities
@@ -72,20 +57,6 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
     );
   }
 
-  /**
-   * Given the feature contexts for the available GIS features, find the one where the context matches a given PLANit entity class
-   *
-   * @param planitEntityClass to find entry for
-   * @param geoFeatureTypesByPlanitEntity available entries to search in
-   * @return found entry or throw run time exception
-   */
-  private Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>> findFeaturePairForPlanitEntity(
-          Class<? extends ManagedId> planitEntityClass, List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> geoFeatureTypesByPlanitEntity) {
-    return geoFeatureTypesByPlanitEntity.stream().filter(
-            p -> p.second().getPlanitEntityClass().equals(planitEntityClass)).findFirst().orElseThrow(() ->
-            new PlanItRunTimeException("No feature information found for %s, available: [%s]", planitEntityClass.getName(),
-                    geoFeatureTypesByPlanitEntity.stream().map(p -> p.second().getPlanitEntityClass().getName()).collect(Collectors.joining(","))));
-  }
 
   /** validate before commencing actual write
    *
@@ -121,58 +92,11 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
   private void initialiseWrite(MacroscopicNetwork macroscopicNetwork) {
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
     layerPrefixProducer =
-            (MacroscopicNetworkLayer l) ->
-                    String.join("_", "layer", getPrimaryIdMapper().getNetworkLayerIdMapper().apply(l));
+            (UntypedDirectedGraphLayer<?,?,?> l) ->
+                    String.join("_", "layer", getPrimaryIdMapper().getNetworkLayerIdMapper().apply( (MacroscopicNetworkLayer) l));
 
     prepareCoordinateReferenceSystem(
             macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
-  }
-
-  /**
-   * Writer the network layer's nodes
-   *
-   * @param <T> type of PLANit entity to write
-   * @param featureType to use
-   * @param planitEntityFeatureContext the context to convert instances to features
-   * @param layerLogPrefix to use
-   * @param entityDataStore to use for persistence
-   * @param featureSchemaName the feature lives under on the datastore
-   * @param planitEntities container to persist
-   * @param entityToGeometry conversion from entity to geometry it contains
-   */
-  private <T extends ManagedId> void writeNetworkLayerForEntity(SimpleFeatureType featureType,
-                                                                PlanitEntityFeatureTypeContext<T> planitEntityFeatureContext,
-                                                                String layerLogPrefix,
-                                                                DataStore entityDataStore,
-                                                                String featureSchemaName,
-                                                                ManagedIdEntities<T> planitEntities,
-                                                                Function<T, Geometry> entityToGeometry) {
-
-    /* place feature on data store */
-    GeoIODataStoreManager.registerFeatureOnDataStore(entityDataStore, featureType);
-
-    try ( var featureWriter =
-                  entityDataStore.getFeatureWriter(featureSchemaName, Transaction.AUTO_COMMIT)) {
-      for(var planitEntity : planitEntities){
-        var entityFeature = featureWriter.next();
-        var attributeConversions = planitEntityFeatureContext.getAttributeDescription();
-        for(var attributeConversion : attributeConversions) {
-
-          if(attributeConversion.first().equals(planitEntityFeatureContext.getDefaultGeometryAttributeKey())) {
-            /* geometry attribute */
-            entityFeature.setAttribute(GeoIoFeatureTypeBuilder.GEOTOOLS_GEOMETRY_ATTRIBUTE, entityToGeometry.apply(planitEntity));
-          }else{
-            /* regular attribute */
-            entityFeature.setAttribute(attributeConversion.first(), attributeConversion.third().apply(planitEntity));
-          }
-        }
-        featureWriter.write();
-      }
-    }catch (Exception e){
-      LOGGER.severe((e.getMessage()));
-      throw new PlanItRunTimeException("%s Unable to persist PLANit entities for %s",
-              layerLogPrefix, planitEntities.getManagedIdClass().getName(), e.getCause());
-    }
   }
 
   /**
@@ -205,7 +129,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
             physicalNetworkLayer, layerPrefixProducer, getSettings().getNodesFileName());
 
     /* perform persistence */
-    writeNetworkLayerForEntity(
+    writeGeometryLayerForEntity(
             featureType, nodeFeatureContext, layerLogPrefix, nodeDataStore, nodesSchemaName, physicalNetworkLayer.getNodes(), Node::getPosition);
 
   }
@@ -240,7 +164,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
             physicalNetworkLayer, layerPrefixProducer, getSettings().getLinksFileName());
 
     /* perform persistence */
-    writeNetworkLayerForEntity(
+    writeGeometryLayerForEntity(
             featureType, linkFeatureContext, layerLogPrefix, linksDataStore, linksSchemaName, physicalNetworkLayer.getLinks(), MacroscopicLink::getGeometry);
 
   }
@@ -275,7 +199,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
             physicalNetworkLayer, layerPrefixProducer, getSettings().getLinkSegmentsFileName());
 
     /* perform persistence */
-    writeNetworkLayerForEntity(
+    writeGeometryLayerForEntity(
             featureType, linkSegmentFeatureContext, layerLogPrefix, linkSegmentsDataStore, linkSegmentsSchemaName, physicalNetworkLayer.getLinkSegments(), ls -> ls.getParentLink().getGeometry());
 
   }
@@ -290,19 +214,20 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
     /* Ensure all geo features are available and configured for the correct CRS once we start using them */
     for( var layer : macroscopicNetwork.getTransportLayers()) {
 
+      var supportedFeatures =
+          GeoIoFeatureTypeBuilder.createSupportedNetworkLayerFeatures(getPrimaryIdMapper(), layer);
+
       /* feature types per layer */
       var geoFeatureTypesByPlanitEntity =
-              GeoIoFeatureTypeBuilder.createPhysicalNetworkSimpleFeatureTypesByLayer(
-                      getPrimaryIdMapper(),
-                      layer,
-                      getDestinationCoordinateReferenceSystem(),
-                      extractPhysicalNetworkPlanitEntityBaseFileNames(getSettings()),
-                      layerPrefixProducer);
+              GeoIoFeatureTypeBuilder.createSimpleFeatureTypesByLayer(
+                  supportedFeatures,
+                  layer,
+                  getDestinationCoordinateReferenceSystem(),
+                  extractPhysicalNetworkPlanitEntityBaseFileNames(getSettings()),
+                  layerPrefixProducer);
 
       String layerLogPrefix = LoggingUtils.surroundwithBrackets(String.join(" ",
               "layer:",getPrimaryIdMapper().getNetworkLayerIdMapper().apply(layer)));
-
-      //todo: writing layer should become trivial now, so we can consolidate and group repeating aspects
 
       /* nodes */
       if(getSettings().isPersistNodes()) {
@@ -330,18 +255,6 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
 
     }
 
-  }
-
-  /** find feature and context based on the class present in context
-   *
-   * @param clazz to find feature for
-   * @return found entry, null if not present
-   */
-  private static <T extends ExternalIdAble> Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<T>> findFeature(
-          Class<T> clazz, Map<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ExternalIdAble>> geoFeatureTypes) {
-    var result =
-            geoFeatureTypes.entrySet().stream().filter(e -> e.getValue().getPlanitEntityClass().equals(clazz)).findFirst();
-    return result.isPresent() ? Pair.of(result.get().getKey(), (PlanitEntityFeatureTypeContext<T>) result.get().getValue()) : Pair.empty();
   }
 
   /** Constructor
@@ -373,8 +286,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
    * @param networkSettings to use
    */
   protected GeometryNetworkWriter(GeometryNetworkWriterSettings networkSettings){
-    super(IdMapperType.ID);
-    this.settings = networkSettings;
+    super(networkSettings);
   }
 
   /**
@@ -414,7 +326,7 @@ public class GeometryNetworkWriter extends CrsWriterImpl<LayeredNetwork<?,?>> im
    */
   @Override
   public GeometryNetworkWriterSettings getSettings() {
-    return this.settings;
+    return (GeometryNetworkWriterSettings) super.getSettings();
   }
 
   /**

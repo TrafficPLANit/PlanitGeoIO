@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
 
   /**
-   * The mapping from PLANIT link instance to fixed GIS attributes of link segment
+   * The mapping from PLANIT link segment instance to fixed GIS attributes of link segment
    *
    * @param networkIdMapper to apply
    * @return feature mapping

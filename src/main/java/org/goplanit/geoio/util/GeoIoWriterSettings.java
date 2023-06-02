@@ -22,6 +22,11 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeoIoWriterSettings.class.getCanonicalName());
 
+  /** extension determining type of file */
+  private String fileExtension = DEFAULT_EXTENSION;
+
+  public static final String DEFAULT_EXTENSION = ".shp";
+
   /**
    * Default constructor
    */
@@ -60,6 +65,15 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
    */
   public void reset() {
     super.reset();
-  }  
+  }
+
+  /**
+   * File extension determining the type of file that is being generated
+   *
+   * @return file extension
+   */
+  public String getFileExtension() {
+    return fileExtension;
+  }
     
 }

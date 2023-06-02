@@ -2,17 +2,19 @@ package org.goplanit.geoio.util;
 
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
-import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
-import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkSegmentFeatureTypeContext;
-import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
+import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
+import org.goplanit.geoio.converter.network.featurecontext.*;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
+import org.goplanit.utils.network.layer.ServiceNetworkLayer;
+import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -92,7 +94,7 @@ public final class GeoIoFeatureTypeBuilder {
    * @param layer used for these features
    * @return available network entity feature context information
    */
-  private static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedNetworkLayerFeatures(
+  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedNetworkLayerFeatures(
           NetworkIdMapper primaryIdMapper, MacroscopicNetworkLayer layer){
     return Set.of(
             /* nodes */
@@ -104,32 +106,50 @@ public final class GeoIoFeatureTypeBuilder {
   }
 
   /**
+   * Construct all PLANit entities that have an associated GIS feature context containing the information require for
+   * persistence
+   *
+   * @param primaryIdMapper  to use for id conversion when persisting
+   * @param layer            used for these features
+   * @param networkIdMappers used for parent ids related to the physical network
+   * @return available service network entity feature context information
+   */
+  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedServiceNetworkLayerFeatures(
+      ServiceNetworkIdMapper primaryIdMapper, ServiceNetworkLayer layer, NetworkIdMapper networkIdMappers) {
+    return Set.of(
+        /* service nodes */
+        PlanitServiceNodeFeatureTypeContext.create(primaryIdMapper.getServiceNodeIdMapper(), networkIdMappers.getVertexIdMapper()),
+        /* legs */
+        PlanitServiceLegFeatureTypeContext.create(primaryIdMapper.getServiceLegIdMapper(),primaryIdMapper.getServiceNodeIdMapper()),
+        /* leg segments */
+        PlanitServiceLegSegmentFeatureTypeContext.create(primaryIdMapper, networkIdMappers));
+  }
+
+  /**
    * Initialise all known supported simple feature types for the physical network (for the given layer). Schema names for
-   * each feature are constructed via {@link #createFeatureTypeSchemaName(MacroscopicNetworkLayer, Function, String)}. Hence,
+   * each feature are constructed via {@link #createFeatureTypeSchemaName(UntypedDirectedGraphLayer, Function, String)}. Hence,
    * when registering on a datastore and then retrieving a feature writer for this feature, make sure to use the same schema name
    * by using this method to retrieve the correct registered schema
    *
-   * @param primaryIdMapper                      id mappers in use
+   * @param layerFeatures                    write the provided supported features for the layer
    * @param layer                                to create the simple features for
    * @param destinationCoordinateReferenceSystem to use
    * @param planitEntityBaseFileNames            to use which gets prefixed with layer information and post fixed with extension
    * @param layerPrefixProducer                  function that provides a prefix to each layer created feature type's name (may be null)
    * @return the feature types that have been created by physical network layer and all supported PLANit entities
    */
-  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>
-  createPhysicalNetworkSimpleFeatureTypesByLayer(
-          NetworkIdMapper primaryIdMapper,
-          MacroscopicNetworkLayer layer,
+  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> createSimpleFeatureTypesByLayer(
+          Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> layerFeatures,
+          UntypedDirectedGraphLayer<?,?,?> layer,
           CoordinateReferenceSystem destinationCoordinateReferenceSystem,
           Map<Class<?>, String> planitEntityBaseFileNames,
-          Function<MacroscopicNetworkLayer, String> layerPrefixProducer){
+          Function<UntypedDirectedGraphLayer<?,?,?>, String> layerPrefixProducer){
 
     /** track the created/registered feature types for their respective PLANit entity class */
     final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
-      var supportedFeatures = createSupportedNetworkLayerFeatures(primaryIdMapper, layer);
-      for (var featureContext : supportedFeatures){
+      for (var featureContext : layerFeatures){
 
         /* take description  and convert to single string */
         String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
@@ -155,16 +175,16 @@ public final class GeoIoFeatureTypeBuilder {
    * Construct consistent file path (with file name) based on desired output file name and settings configuration, taking the
    * current layer into account
    *
-   * @param physicalNetworkLayer this applies to
+   * @param directedGraphlayer this applies to
    * @param layerPrefixProducer to use to convert layer into a prefix
    * @param baseFileName to combine with
    * @return created featureTypeSchemaName
    */
   public static String createFeatureTypeSchemaName(
-          MacroscopicNetworkLayer physicalNetworkLayer,
-          Function<MacroscopicNetworkLayer, String> layerPrefixProducer,
+          UntypedDirectedGraphLayer<?,?,?> directedGraphlayer,
+          Function<UntypedDirectedGraphLayer<?,?,?>, String> layerPrefixProducer,
           String baseFileName){
-    String layerPrefix = (layerPrefixProducer!= null ? layerPrefixProducer.apply(physicalNetworkLayer) : "");
+    String layerPrefix = (layerPrefixProducer!= null ? layerPrefixProducer.apply(directedGraphlayer) : "");
     if(StringUtils.isNullOrBlank(layerPrefix)){
       LOGGER.warning(String.format("IGNORE: Layer prefix for PLANit feature is null or blank, this shouldn't happen", layerPrefix));
       return null;

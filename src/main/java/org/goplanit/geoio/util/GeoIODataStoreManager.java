@@ -2,15 +2,11 @@ package org.goplanit.geoio.util;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.data.DataStore;
-import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStoreFinder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.UrlUtils;
-import org.goplanit.utils.network.layer.physical.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -61,7 +57,7 @@ public final class GeoIODataStoreManager {
     if(factory == null){
       LOGGER.severe(String.format("Unable to create file data store factory for geo extension %s",FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString())));
     }
-    Map map = Collections.singletonMap( "url", UrlUtils.createFromPath(outputFileNameWithPath));
+    Map map = Collections.singletonMap( "url", UrlUtils.createFromLocalPath(outputFileNameWithPath));
 
     try {
       DataStore theDataStore = factory.createNewDataStore(map);

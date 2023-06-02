@@ -20,7 +20,7 @@ public class PlanitNodeFeatureTypeContext extends PlanitEntityFeatureTypeContext
 
 
   /**
-   * The mapping from PLANIT link instance to GIS attributes
+   * The mapping from PLANIT node instance to GIS attributes
    *
    * @param nodeIdMapper to apply
    * @return feature mapping
