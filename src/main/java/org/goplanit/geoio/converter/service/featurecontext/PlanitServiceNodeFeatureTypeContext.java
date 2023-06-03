@@ -1,4 +1,4 @@
-package org.goplanit.geoio.converter.network.featurecontext;
+package org.goplanit.geoio.converter.service.featurecontext;
 
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.graph.Vertex;

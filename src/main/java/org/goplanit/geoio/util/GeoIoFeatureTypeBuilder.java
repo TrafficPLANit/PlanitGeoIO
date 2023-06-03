@@ -4,6 +4,9 @@ import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.geoio.converter.network.featurecontext.*;
+import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
+import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegmentFeatureTypeContext;
+import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
@@ -14,7 +17,6 @@ import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;

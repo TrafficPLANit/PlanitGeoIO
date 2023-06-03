@@ -1,11 +1,8 @@
-package org.goplanit.geoio.converter.network.featurecontext;
+package org.goplanit.geoio.converter.service.featurecontext;
 
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.graph.Vertex;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
-import org.goplanit.utils.network.layer.physical.Link;
-import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.service.ServiceLeg;
 import org.goplanit.utils.network.layer.service.ServiceNode;
 import org.locationtech.jts.geom.LineString;
@@ -36,7 +33,7 @@ public class PlanitServiceLegFeatureTypeContext extends PlanitEntityFeatureTypeC
             Triple.of("xml_id", "String", ServiceLeg::getXmlId),
             Triple.of("ext_id", "String", ServiceLeg::getExternalId),
             Triple.of("name", "String", (Function<ServiceLeg, String>) ServiceLeg::getName),
-            Triple.of("length_km", "java.lang.Double", ServiceLeg::getLengthKm),
+            Triple.of("length_km", "java.lang.Double", l -> l.getLengthKm(ServiceLeg.LengthType.AVERAGE)),
             Triple.of("snode_a", "String", l -> serviceNodeIdMapper.apply(l.getServiceNodeA())),
             Triple.of("snode_b", "String", l -> serviceNodeIdMapper.apply(l.getServiceNodeB())),
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", (Function<ServiceLeg, LineString>) ServiceLeg::getGeometry));

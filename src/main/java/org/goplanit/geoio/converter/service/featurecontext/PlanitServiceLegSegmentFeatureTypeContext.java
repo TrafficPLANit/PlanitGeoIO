@@ -1,21 +1,15 @@
-package org.goplanit.geoio.converter.network.featurecontext;
+package org.goplanit.geoio.converter.service.featurecontext;
 
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
-import org.goplanit.geoio.util.ModeShortNameConverter;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.locationtech.jts.geom.LineString;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Track contextual relevant information for PLANit service leg segment type that is persisted
@@ -46,7 +40,7 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
 
             /* geometry taken from parent link */
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
-                    (Function<ServiceLegSegment, LineString>) ls -> ls.getParent().getGeometry()));
+                    (Function<ServiceLegSegment, LineString>) ls -> ls.getGeometry()));
   }
 
   /**

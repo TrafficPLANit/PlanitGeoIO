@@ -1,29 +1,21 @@
 package org.goplanit.geoio.converter.service;
 
 import org.geotools.data.DataStore;
-import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.converter.service.ServiceNetworkWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
-import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
-import org.goplanit.geoio.converter.network.featurecontext.*;
+import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
+import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegmentFeatureTypeContext;
+import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
-import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
-import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
-import org.goplanit.utils.misc.Pair;
-import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.service.ServiceLeg;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.goplanit.utils.network.layer.service.ServiceNode;
@@ -166,15 +158,15 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     LOGGER.info(String.format("%s Service legs: %d", layerLogPrefix, serviceNetworkLayer.getLegs().size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore linksDataStore = GeoIODataStoreManager.getDataStore(serviceLegFeatureContext.getPlanitEntityClass());
-    if(linksDataStore == null) {
-      linksDataStore = GeoIODataStoreManager.createDataStore(
+    DataStore legDataStore = GeoIODataStoreManager.getDataStore(serviceLegFeatureContext.getPlanitEntityClass());
+    if(legDataStore == null) {
+      legDataStore = GeoIODataStoreManager.createDataStore(
               serviceLegFeatureContext.getPlanitEntityClass(),
               createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
     }
 
     /* the feature writer through which to provide each result row */
-    final var linksSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
+    final var legsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
             serviceNetworkLayer, layerPrefixProducer, getSettings().getServiceLegsFileName());
 
     /* perform persistence */
@@ -182,8 +174,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         featureType,
         serviceLegFeatureContext,
         layerLogPrefix,
-        linksDataStore,
-        linksSchemaName,
+        legDataStore,
+        legsSchemaName,
         serviceNetworkLayer.getLegs(),
         ServiceLeg::getGeometry);
   }
@@ -224,8 +216,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         layerLogPrefix,
         serviceLegSegmentsDataStore,
         serviceLegSegmentsSchemaName,
-        serviceNetworkLayer.getLegSegments(), sls -> sls.getParent().getGeometry());
-
+        serviceNetworkLayer.getLegSegments(),
+        ServiceLegSegment::getGeometry);
   }
 
   /**
