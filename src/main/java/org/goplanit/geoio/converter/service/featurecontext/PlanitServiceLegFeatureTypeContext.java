@@ -22,6 +22,7 @@ public class PlanitServiceLegFeatureTypeContext extends PlanitEntityFeatureTypeC
    * The mapping from PLANIT service leg instance to GIS attributes
    *
    * @param legIdMapper to apply
+   * @param serviceNodeIdMapper to apply
    * @return feature mapping
    */
   private static List<Triple<String,String, Function<ServiceLeg, ? extends Object>>> createFeatureDescription(

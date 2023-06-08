@@ -15,6 +15,7 @@ import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.id.ManagedIdEntities;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.Pair;
+import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -72,7 +73,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    * @param <T> type of PLANit entity to write
    * @param featureType to use
    * @param planitEntityFeatureContext the context to convert instances to features
-   * @param layerLogPrefix to use
+   * @param loggingPrefix to use
    * @param entityDataStore to use for persistence
    * @param featureSchemaName the feature lives under on the datastore
    * @param planitEntities container to persist
@@ -80,10 +81,10 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    */
   protected <T extends ManagedId> void writeGeometryLayerForEntity(SimpleFeatureType featureType,
                                                                    PlanitEntityFeatureTypeContext<T> planitEntityFeatureContext,
-                                                                   String layerLogPrefix,
+                                                                   String loggingPrefix,
                                                                    DataStore entityDataStore,
                                                                    String featureSchemaName,
-                                                                   ManagedIdEntities<T> planitEntities,
+                                                                   Iterable<T> planitEntities,
                                                                    Function<T, Geometry> entityToGeometry) {
 
     /* place feature on data store */
@@ -109,7 +110,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
     }catch (Exception e){
       LOGGER.severe((e.getMessage()));
       throw new PlanItRunTimeException("%s Unable to persist PLANit entities for %s",
-          layerLogPrefix, planitEntities.getManagedIdClass().getName(), e.getCause());
+          loggingPrefix, planitEntityFeatureContext.getPlanitEntityClass().getName(), e.getCause());
     }
   }
 

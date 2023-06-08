@@ -23,6 +23,7 @@ public class PlanitServiceNodeFeatureTypeContext extends PlanitEntityFeatureType
    * The mapping from PLANIT service node instance to GIS attributes
    *
    * @param serviceNodeIdMapper to apply
+   * @param parentNodeIdMapper to apply
    * @return feature mapping
    */
   private static List<Triple<String,String, Function<ServiceNode, ? extends Object>>> createFeatureDescription(

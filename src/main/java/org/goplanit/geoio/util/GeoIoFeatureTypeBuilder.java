@@ -3,10 +3,14 @@ package org.goplanit.geoio.util;
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
+import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.geoio.converter.network.featurecontext.*;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
+import org.goplanit.geoio.converter.zoning.featurecontext.PlanitOdZoneFeatureTypeContext;
+import org.goplanit.geoio.converter.zoning.featurecontext.PlanitTransferZoneFeatureTypeContext;
+import org.goplanit.geoio.converter.zoning.featurecontext.PlanitZoneFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
@@ -14,6 +18,10 @@ import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
+import org.goplanit.utils.zoning.OdZone;
+import org.goplanit.utils.zoning.TransferZone;
+import org.goplanit.utils.zoning.Zone;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -96,7 +104,7 @@ public final class GeoIoFeatureTypeBuilder {
    * @param layer used for these features
    * @return available network entity feature context information
    */
-  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedNetworkLayerFeatures(
+  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createNetworkLayerFeatureContexts(
           NetworkIdMapper primaryIdMapper, MacroscopicNetworkLayer layer){
     return Set.of(
             /* nodes */
@@ -116,7 +124,7 @@ public final class GeoIoFeatureTypeBuilder {
    * @param networkIdMappers used for parent ids related to the physical network
    * @return available service network entity feature context information
    */
-  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createSupportedServiceNetworkLayerFeatures(
+  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createServiceNetworkLayerFeatureContexts(
       ServiceNetworkIdMapper primaryIdMapper, ServiceNetworkLayer layer, NetworkIdMapper networkIdMappers) {
     return Set.of(
         /* service nodes */
@@ -125,6 +133,26 @@ public final class GeoIoFeatureTypeBuilder {
         PlanitServiceLegFeatureTypeContext.create(primaryIdMapper.getServiceLegIdMapper(),primaryIdMapper.getServiceNodeIdMapper()),
         /* leg segments */
         PlanitServiceLegSegmentFeatureTypeContext.create(primaryIdMapper, networkIdMappers));
+  }
+
+  /**
+   * Construct GIS feature context containing the information required for persistence of the given zone class and geometry type
+   *
+   * @param primaryIdMapper  to use for id conversion when persisting
+   * @return available service network entity feature context information
+   */
+  public static <Z extends Zone, T extends Geometry> PlanitZoneFeatureTypeContext<Z, T> createZoningFeatureContext(
+      ZoningIdMapper primaryIdMapper, Class<Z> zoneClazz, Class<T> geometryType) {
+    if (zoneClazz.equals(OdZone.class)) {
+      return (PlanitZoneFeatureTypeContext<Z, T>)
+          PlanitOdZoneFeatureTypeContext.create(primaryIdMapper.getZoneIdMapper(), geometryType);
+    }
+    if (zoneClazz.equals(TransferZone.class)) {
+      return (PlanitZoneFeatureTypeContext<Z, T>)
+          PlanitTransferZoneFeatureTypeContext.create(primaryIdMapper.getZoneIdMapper(), geometryType);
+    }
+    PlanItRunTimeException.throwNew("Zone type %s not yet added as supported Zone type, please add, aborting", zoneClazz.getCanonicalName());
+    return null;
   }
 
   /**
@@ -174,6 +202,32 @@ public final class GeoIoFeatureTypeBuilder {
   }
 
   /**
+   * Create a simple feature for the zoning feature context provided
+   *
+   * @param zoneFeatureContext                   create feature for the given context
+   * @param destinationCoordinateReferenceSystem to use
+   * @param planitZoneFileName                   the file name to use for the feature
+   * @return the feature types that have been created by physical network layer and all supported PLANit entities
+   */
+  public static SimpleFeatureType createSimpleZoningFeatureType(
+      PlanitZoneFeatureTypeContext<?,?> zoneFeatureContext,
+      CoordinateReferenceSystem destinationCoordinateReferenceSystem,
+      String planitZoneFileName){
+
+    try {
+        /* take description  and convert to single string */
+        String simpleFeatureTypeString = createFeatureTypeStringFromContext(zoneFeatureContext, destinationCoordinateReferenceSystem);
+
+        /* execute creation of the type */
+        return DataUtilities.createType(planitZoneFileName, simpleFeatureTypeString);
+
+    }catch(Exception e){
+      LOGGER.severe(e.getMessage());
+      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", zoneFeatureContext.getPlanitEntityClass());
+    }
+  }
+
+  /**
    * Construct consistent file path (with file name) based on desired output file name and settings configuration, taking the
    * current layer into account
    *
@@ -197,5 +251,6 @@ public final class GeoIoFeatureTypeBuilder {
     }
     return String.join("_", layerPrefix, baseFileName);
   }
+
 
 }

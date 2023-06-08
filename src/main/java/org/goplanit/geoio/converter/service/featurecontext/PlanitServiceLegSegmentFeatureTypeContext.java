@@ -10,6 +10,7 @@ import org.locationtech.jts.geom.LineString;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Track contextual relevant information for PLANit service leg segment type that is persisted
@@ -22,6 +23,7 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
    * The mapping from PLANIT service leg segment instance to fixed GIS attributes of link segment
    *
    * @param serviceNetworkIdMapper to apply
+   * @param networkIdMapper to apply
    * @return feature mapping
    */
   private static List<Triple<String,String, Function<ServiceLegSegment, ? extends Object>>> createFixedFeatureDescription(
@@ -34,7 +36,7 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
             Triple.of("ext_id", "String", ServiceLegSegment::getExternalId),
             Triple.of("parent_id", "String", sls -> serviceNetworkIdMapper.getServiceLegIdMapper().apply(sls.getParent())),
             Triple.of("phys_segs", "String", sls -> !sls.hasPhysicalParentSegments() ? "" :   /* physical parent segments that make up for the service leg segment */
-                    sls.getPhysicalParentSegments().stream().map( ls -> networkIdMapper.getLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls))),
+                    sls.getPhysicalParentSegments().stream().map( ls -> networkIdMapper.getLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(Collectors.joining(","))),
             Triple.of("snode_up", "String", sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getUpstreamServiceNode())),
             Triple.of("snode_down", "String", sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getDownstreamServiceNode())),
 

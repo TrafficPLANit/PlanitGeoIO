@@ -231,7 +231,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     for( var layer : serviceNetwork.getTransportLayers()) {
 
       var supportedFeatures =
-          GeoIoFeatureTypeBuilder.createSupportedServiceNetworkLayerFeatures(
+          GeoIoFeatureTypeBuilder.createServiceNetworkLayerFeatureContexts(
               getPrimaryIdMapper(), layer, getComponentIdMappers().getNetworkIdMappers());
 
       /* feature types per layer */

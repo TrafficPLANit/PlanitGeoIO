@@ -215,7 +215,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     for( var layer : macroscopicNetwork.getTransportLayers()) {
 
       var supportedFeatures =
-          GeoIoFeatureTypeBuilder.createSupportedNetworkLayerFeatures(getPrimaryIdMapper(), layer);
+          GeoIoFeatureTypeBuilder.createNetworkLayerFeatureContexts(getPrimaryIdMapper(), layer);
 
       /* feature types per layer */
       var geoFeatureTypesByPlanitEntity =
