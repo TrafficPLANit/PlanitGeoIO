@@ -5,6 +5,8 @@ import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.zoning.Zone;
 import org.locationtech.jts.geom.Geometry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -46,7 +48,7 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
     return Triple.of(
         DEFAULT_GEOMETRY_ATTRIBUTE_KEY,
         getGisTypeFromJtsGeometryClass(geometryClassType),
-        z -> geometryClassType.cast(z.getGeometry()));
+        z -> geometryClassType.cast(z.getGeometry(true)));
   }
 
   /**

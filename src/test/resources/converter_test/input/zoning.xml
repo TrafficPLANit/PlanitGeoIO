@@ -66,26 +66,56 @@
             <zone id="104" externalid="2000391" type="platform">
                 <name>Town Hall Station, Platform 1</name>
                 <platforms>1</platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578707.3073796544 -3923429.6903201314</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="105" externalid="2000393" type="platform">
                 <name>Town Hall Station, Platform 3</name>
                 <platforms>3</platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578694.1685066933 -3923431.4194789976</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="106" externalid="2000392" type="platform">
                 <name>Town Hall Station, Platform 2</name>
                 <platforms>2</platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578697.3829683748 -3923418.756381018</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="107" externalid="2000395" type="platform">
                 <name>Town Hall Station, Platform 5</name>
                 <platforms>5</platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578703.484816388 -3923438.303369911</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="108" externalid="2000394" type="platform">
                 <name>Town Hall Station, Platform 4</name>
                 <platforms>4</platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578713.8106489305 -3923424.328906605</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="109" externalid="2000396" type="platform">
                 <name>Town Hall Station, Platform 6</name>
                 <platforms>6</platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578692.8571438855 -3923424.308102758</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="11" externalid="2784763256,2000221" type="platform">
                 <name>Wynyard Station, Clarence St, Stand Q</name>
@@ -98,42 +128,92 @@
             <zone id="110" externalid="2000418" type="platform">
                 <name>Wynyard Station, Jamison St, Stand U</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578673.8235744706 -3922398.658589365</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="111" externalid="2000417" type="platform">
                 <name>Burns Philp Building, Bridge St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578971.2957676083 -3922366.4209232368</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="112" externalid="2000410" type="platform">
                 <name>St Mary's Cathedral, St Marys Rd</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579404.109656734 -3923219.33781018</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="113" externalid="2000459" type="platform">
                 <name>Town Hall Light Rail</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578697.2090311025 -3923451.6697328608</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="114" externalid="206143" type="platform">
                 <name>Olympic Dr before Alfred St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579505.9558211563 -3920948.0589040588</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="115" externalid="201143" type="platform">
                 <name>Bourke St at Charles St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579803.0253742922 -3923408.4013479427</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="116" externalid="2000191" type="platform">
                 <name>Chifley Tower, Bent St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579271.8632274934 -3922581.948485473</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="117" externalid="200018" type="platform">
                 <name>Sussex St before Erskine St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578503.253669713 -3922563.8523733313</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="118" externalid="200097" type="platform">
                 <name>Andrew (Boy) Charlton Pool, Mrs Macquaries Rd</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1580152.8989453693 -3922510.06989233</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="119" externalid="200096" type="platform">
                 <name>Bridge St at Gresham St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579112.642749957 -3922370.046545023</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="12" externalid="3038457733" type="platform">
                 <name>St James Station, Castlereagh St, Stand D</name>
@@ -147,42 +227,92 @@
             <zone id="120" externalid="2000458" type="platform">
                 <name>Town Hall Light Rail</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578703.939791129 -3923454.313263154</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="121" externalid="201144" type="platform">
                 <name>Bourke St opp Charles St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579798.3128783004 -3923364.041835094</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="122" externalid="201145" type="platform">
                 <name>Bourke St at Nicholson St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579875.238836795 -3923134.950349122</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="123" externalid="201159" type="platform">
                 <name>Riley St at Cathedral St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579529.5492443542 -3923409.029182405</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="124" externalid="2000130" type="platform">
                 <name>Hickson Rd opp Wharf Theatres</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578943.0494411443 -3921519.5187124284</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="125" externalid="2000228" type="platform">
                 <name>Sussex St after King St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578476.2906186844 -3922968.38936406</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="126" externalid="2000435" type="platform">
                 <name>Wynyard Station, York St, Stand G</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578714.2354536762 -3922714.880563846</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="127" externalid="2000232" type="platform">
                 <name>Martin Place Station, Elizabeth St, Stand G</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579155.6170330432 -3922763.3482136484</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="128" externalid="2000167" type="platform">
                 <name>Hyde Park, Elizabeth St, Stand A</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579001.686047984 -3923388.169055432</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="129" externalid="206113" type="platform">
                 <name>Milsons Point Station, Broughton St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579641.6355747886 -3920544.028658831</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="13" externalid="3174323910,2000133" type="platform">
                 <name>Lang Park, York St</name>
@@ -195,42 +325,92 @@
             <zone id="130" externalid="2000423" type="platform">
                 <name>Town Hall House, Druitt St, Stand L</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578494.1119466887 -3923322.356126782</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="131" externalid="2000179" type="platform">
                 <name>Hickson Rd opp Towns Pl</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578622.3230231977 -3921596.4127160856</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="132" externalid="200031" type="platform">
                 <name>Wynyard Station, York St, Stand J</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578715.593618415 -3922628.1967351595</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="133" externalid="206126" type="platform">
                 <name>Milsons Point Wharf, Side B</name>
                 <platforms>B</platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579446.868381061 -3920898.466891117</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="134" externalid="2000226" type="platform">
                 <name>Macquarie St opp The Royal Botanic Gardens</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579355.8700151548 -3922528.1660663188</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="135" externalid="2000136" type="platform">
                 <name>QVB, York St, Stand E</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578701.2954737593 -3923035.947771837</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="136" externalid="200041" type="platform">
                 <name>QVB, York St, Stand A</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578687.0126030166 -3923288.0338928727</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="137" externalid="200042" type="platform">
                 <name>QVB, York St, Stand B</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578687.3560744766 -3923274.096641944</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="138" externalid="200048" type="platform">
                 <name>Wynyard Station, York St, Stand P</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578726.5634479048 -3922441.653779927</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="139" externalid="201157" type="platform">
                 <name>Riley St opp Kennedy St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579488.37594638 -3923525.8096551006</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="14" externalid="3174323911" type="platform">
                 <name>Stand E, QVB, York St</name>
@@ -243,14 +423,29 @@
             <zone id="140" externalid="200099" type="platform">
                 <name>Argyle St at Kent St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578751.2168097952 -3921760.4937840807</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="141" externalid="2000144" type="platform">
                 <name>Art Gallery Rd opp Art Gallery of NSW</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1579807.7229399658 -3922841.070546362</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="142" externalid="2000148" type="platform">
                 <name>Exchange Square, Bridge St</name>
                 <platforms></platforms>
+                <centroid>
+                    <gml:Point>
+                        <gml:pos>1578991.2810669406 -3922345.3937064447</gml:pos>
+                    </gml:Point>
+                </centroid>
             </zone>
             <zone id="15" externalid="3814697123,2000421" type="platform">
                 <name>Stand C, Martin Place, Elizabeth Street</name>

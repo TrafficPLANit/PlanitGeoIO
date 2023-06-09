@@ -8,6 +8,7 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.locationtech.jts.geom.LineString;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;

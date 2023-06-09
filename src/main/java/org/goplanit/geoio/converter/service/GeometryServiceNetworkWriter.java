@@ -117,12 +117,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     LOGGER.info(String.format("%s Service nodes: %d", layerLogPrefix, serviceNetworkLayer.getServiceNodes().size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore serviceNodeDataStore = GeoIODataStoreManager.getDataStore(serviceNodeFeatureContext.getPlanitEntityClass());
-    if(serviceNodeDataStore == null) {
-      serviceNodeDataStore = GeoIODataStoreManager.createDataStore(
-              serviceNodeFeatureContext.getPlanitEntityClass(),
-              createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()));
-    }
+    DataStore serviceNodeDataStore =
+        findDataStore(serviceNodeFeatureContext, createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceNodesSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -135,8 +131,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         layerLogPrefix,
         serviceNodeDataStore,
         serviceNodesSchemaName,
-        serviceNetworkLayer.getServiceNodes(),
-        ServiceNode::getPosition);
+        serviceNetworkLayer.getServiceNodes());
 
   }
 
@@ -158,12 +153,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     LOGGER.info(String.format("%s Service legs: %d", layerLogPrefix, serviceNetworkLayer.getLegs().size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore legDataStore = GeoIODataStoreManager.getDataStore(serviceLegFeatureContext.getPlanitEntityClass());
-    if(legDataStore == null) {
-      legDataStore = GeoIODataStoreManager.createDataStore(
-              serviceLegFeatureContext.getPlanitEntityClass(),
-              createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
-    }
+    DataStore legDataStore =
+        findDataStore(serviceLegFeatureContext,  createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var legsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -176,8 +167,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         layerLogPrefix,
         legDataStore,
         legsSchemaName,
-        serviceNetworkLayer.getLegs(),
-        ServiceLeg::getGeometry);
+        serviceNetworkLayer.getLegs());
   }
 
   /**
@@ -198,12 +188,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     LOGGER.info(String.format("%s Service leg segments: %d", layerLogPrefix, serviceNetworkLayer.getLegSegments().size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore serviceLegSegmentsDataStore = GeoIODataStoreManager.getDataStore(serviceLegSegmentFeatureContext.getPlanitEntityClass());
-    if(serviceLegSegmentsDataStore == null) {
-      serviceLegSegmentsDataStore = GeoIODataStoreManager.createDataStore(
-              serviceLegSegmentFeatureContext.getPlanitEntityClass(),
-              createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()));
-    }
+    DataStore serviceLegSegmentsDataStore =
+        findDataStore(serviceLegSegmentFeatureContext,  createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceLegSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -216,8 +202,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         layerLogPrefix,
         serviceLegSegmentsDataStore,
         serviceLegSegmentsSchemaName,
-        serviceNetworkLayer.getLegSegments(),
-        ServiceLegSegment::getGeometry);
+        serviceNetworkLayer.getLegSegments());
   }
 
   /**

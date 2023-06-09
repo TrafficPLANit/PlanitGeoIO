@@ -117,12 +117,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     LOGGER.info(String.format("%s Nodes: %d", layerLogPrefix, physicalNetworkLayer.getNodes().size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore nodeDataStore = GeoIODataStoreManager.getDataStore(nodeFeatureContext.getPlanitEntityClass());
-    if(nodeDataStore == null) {
-      nodeDataStore = GeoIODataStoreManager.createDataStore(
-              nodeFeatureContext.getPlanitEntityClass(),
-              createFullPathFromFileName(physicalNetworkLayer, getSettings().getNodesFileName()));
-    }
+    DataStore nodeDataStore =
+        findDataStore(nodeFeatureContext, createFullPathFromFileName(physicalNetworkLayer, getSettings().getNodesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var nodesSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -130,7 +126,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
 
     /* perform persistence */
     writeGeometryLayerForEntity(
-            featureType, nodeFeatureContext, layerLogPrefix, nodeDataStore, nodesSchemaName, physicalNetworkLayer.getNodes(), Node::getPosition);
+            featureType, nodeFeatureContext, layerLogPrefix, nodeDataStore, nodesSchemaName, physicalNetworkLayer.getNodes());
 
   }
 
@@ -152,12 +148,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     LOGGER.info(String.format("%s Links: %d", layerLogPrefix, physicalNetworkLayer.getLinks().size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore linksDataStore = GeoIODataStoreManager.getDataStore(linkFeatureContext.getPlanitEntityClass());
-    if(linksDataStore == null) {
-      linksDataStore = GeoIODataStoreManager.createDataStore(
-              linkFeatureContext.getPlanitEntityClass(),
-              createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinksFileName()));
-    }
+    DataStore linksDataStore =
+        findDataStore(linkFeatureContext,   createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinksFileName()));
 
     /* the feature writer through which to provide each result row */
     final var linksSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -165,7 +157,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
 
     /* perform persistence */
     writeGeometryLayerForEntity(
-            featureType, linkFeatureContext, layerLogPrefix, linksDataStore, linksSchemaName, physicalNetworkLayer.getLinks(), MacroscopicLink::getGeometry);
+            featureType, linkFeatureContext, layerLogPrefix, linksDataStore, linksSchemaName, physicalNetworkLayer.getLinks());
 
   }
 
@@ -187,12 +179,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     LOGGER.info(String.format("%s Link segments: %d", layerLogPrefix, physicalNetworkLayer.getLinkSegments().size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore linkSegmentsDataStore = GeoIODataStoreManager.getDataStore(linkSegmentFeatureContext.getPlanitEntityClass());
-    if(linkSegmentsDataStore == null) {
-      linkSegmentsDataStore = GeoIODataStoreManager.createDataStore(
-              linkSegmentFeatureContext.getPlanitEntityClass(),
-              createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinkSegmentsFileName()));
-    }
+    DataStore linkSegmentsDataStore =
+        findDataStore(linkSegmentFeatureContext,  createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinkSegmentsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var linkSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -200,7 +188,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
 
     /* perform persistence */
     writeGeometryLayerForEntity(
-            featureType, linkSegmentFeatureContext, layerLogPrefix, linkSegmentsDataStore, linkSegmentsSchemaName, physicalNetworkLayer.getLinkSegments(), ls -> ls.getParentLink().getGeometry());
+            featureType, linkSegmentFeatureContext, layerLogPrefix, linkSegmentsDataStore, linkSegmentsSchemaName, physicalNetworkLayer.getLinkSegments());
 
   }
 
@@ -316,7 +304,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
    */
   @Override
   public void reset() {
-    GeoIODataStoreManager.reset();
+    super.reset();
   }
   
   // GETTERS/SETTERS

@@ -6,6 +6,8 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -26,7 +28,7 @@ public class PlanitEntityFeatureTypeContext<T> {
   private final Class<T> planitEntityClass;
 
   /** feature description in attribute value function mapping combinations */
-  private final List<Triple<String,String, Function<T,? extends Object>>> geoFeatureDescription;
+  private ArrayList<Triple<String,String, Function<T,? extends Object>>> geoFeatureDescription;
 
   /** append one or more additional entries to the description
    *
@@ -47,9 +49,9 @@ public class PlanitEntityFeatureTypeContext<T> {
    */
   protected PlanitEntityFeatureTypeContext(
           final Class<T> clazz,
-          final List<Triple<String,String, Function<T, ? extends Object>>> geoFeatureDescription){
+          Collection<Triple<String,String, Function<T, ? extends Object>>> geoFeatureDescription){
     this.planitEntityClass = clazz;
-    this.geoFeatureDescription = geoFeatureDescription;
+    this.geoFeatureDescription = new ArrayList<>(geoFeatureDescription);
   }
 
   /** geotools attribute key for default geometry attribute as used here across entities */

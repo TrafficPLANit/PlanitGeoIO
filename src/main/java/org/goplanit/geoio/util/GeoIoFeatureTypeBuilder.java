@@ -8,9 +8,7 @@ import org.goplanit.geoio.converter.network.featurecontext.*;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
-import org.goplanit.geoio.converter.zoning.featurecontext.PlanitOdZoneFeatureTypeContext;
-import org.goplanit.geoio.converter.zoning.featurecontext.PlanitTransferZoneFeatureTypeContext;
-import org.goplanit.geoio.converter.zoning.featurecontext.PlanitZoneFeatureTypeContext;
+import org.goplanit.geoio.converter.zoning.featurecontext.*;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
@@ -141,7 +139,7 @@ public final class GeoIoFeatureTypeBuilder {
    * @param primaryIdMapper  to use for id conversion when persisting
    * @return available service network entity feature context information
    */
-  public static <Z extends Zone, T extends Geometry> PlanitZoneFeatureTypeContext<Z, T> createZoningFeatureContext(
+  public static <Z extends Zone, T extends Geometry> PlanitZoneFeatureTypeContext<Z, T> createZoningZoneFeatureContext(
       ZoningIdMapper primaryIdMapper, Class<Z> zoneClazz, Class<T> geometryType) {
     if (zoneClazz.equals(OdZone.class)) {
       return (PlanitZoneFeatureTypeContext<Z, T>)
@@ -153,6 +151,24 @@ public final class GeoIoFeatureTypeBuilder {
     }
     PlanItRunTimeException.throwNew("Zone type %s not yet added as supported Zone type, please add, aborting", zoneClazz.getCanonicalName());
     return null;
+  }
+
+  /**
+   * Construct GIS feature contexts containing the information required for persistence of all Zoning entities
+   * (except the zone's which are serviced via {@link #createZoningZoneFeatureContext(ZoningIdMapper, Class, Class)} because they
+   * have geometry dependent contexts.
+   *
+   * @param primaryIdMapper  to use for id conversion when persisting
+   * @param networkIdMappers used for parent ids related to the physical network
+   * @return available service network entity feature context information
+   */
+  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createZoningFeatureContexts(
+      ZoningIdMapper primaryIdMapper, NetworkIdMapper networkIdMappers) {
+    return Set.of(
+        /* undirected connectoids */
+        PlanitUndirectedConnectoidFeatureTypeContext.create(primaryIdMapper, networkIdMappers),
+        /* directed connectoids */
+        PlanitDirectedConnectoidFeatureTypeContext.create(primaryIdMapper,networkIdMappers));
   }
 
   /**
@@ -202,28 +218,68 @@ public final class GeoIoFeatureTypeBuilder {
   }
 
   /**
-   * Create a simple feature for the zoning feature context provided
+   * Initialise all known supported simple feature types for the given contexts.
+   * When registering on a datastore and then retrieving a feature writer for this feature, make sure to use the same schema name
+   * as provided here
    *
-   * @param zoneFeatureContext                   create feature for the given context
+   * @param features                    write the provided supported features for the layer
    * @param destinationCoordinateReferenceSystem to use
-   * @param planitZoneFileName                   the file name to use for the feature
-   * @return the feature types that have been created by physical network layer and all supported PLANit entities
+   * @param planitEntitySchemaNames            to use for the feature
+   * @return the feature types that have been created for each context
    */
-  public static SimpleFeatureType createSimpleZoningFeatureType(
-      PlanitZoneFeatureTypeContext<?,?> zoneFeatureContext,
+  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> createSimpleFeatureTypes(
+      Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> features,
       CoordinateReferenceSystem destinationCoordinateReferenceSystem,
-      String planitZoneFileName){
+      Map<Class<?>, String> planitEntitySchemaNames){
+
+    /** track the created/registered feature types for their respective PLANit entity class */
+    final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
+      for (var featureContext : features){
+
         /* take description  and convert to single string */
-        String simpleFeatureTypeString = createFeatureTypeStringFromContext(zoneFeatureContext, destinationCoordinateReferenceSystem);
+        String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
+
+        /* create feature type schema name corresponding to the file name */
+        String schemaName = planitEntitySchemaNames.get(featureContext.getPlanitEntityClass());
 
         /* execute creation of the type */
-        return DataUtilities.createType(planitZoneFileName, simpleFeatureTypeString);
+        var featureType = DataUtilities.createType(schemaName, simpleFeatureTypeString);
+        simpleFeatureTypes.add(Pair.of(featureType, featureContext));
+      }
 
     }catch(Exception e){
       LOGGER.severe(e.getMessage());
-      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", zoneFeatureContext.getPlanitEntityClass());
+      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", GeoIoFeatureTypeBuilder.class.getCanonicalName());
+    }
+
+    return simpleFeatureTypes;
+  }
+
+  /**
+   * Create a simple feature for feature context provided
+   *
+   * @param featureContext                        create feature for the given context
+   * @param destinationCoordinateReferenceSystem  to use
+   * @param planitEntityFileName                  the file name to use for the feature
+   * @return the feature type that has been created
+   */
+  public static SimpleFeatureType createSimpleZoningFeatureType(
+      PlanitEntityFeatureTypeContext<?> featureContext,
+      CoordinateReferenceSystem destinationCoordinateReferenceSystem,
+      String planitEntityFileName){
+
+    try {
+        /* take description  and convert to single string */
+        String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
+
+        /* execute creation of the type */
+        return DataUtilities.createType(planitEntityFileName, simpleFeatureTypeString);
+
+    }catch(Exception e){
+      LOGGER.severe(e.getMessage());
+      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", featureContext.getPlanitEntityClass());
     }
   }
 
