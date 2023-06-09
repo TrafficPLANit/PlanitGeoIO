@@ -3,6 +3,7 @@ package org.goplanit.geoio.util;
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
+import org.goplanit.converter.idmapping.VirtualNetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.geoio.converter.network.featurecontext.*;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
@@ -26,6 +27,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Utility class that builds feature types for supported PLANit entities per layer and chosen destination CRS that
@@ -160,7 +162,7 @@ public final class GeoIoFeatureTypeBuilder {
    *
    * @param primaryIdMapper  to use for id conversion when persisting
    * @param networkIdMappers used for parent ids related to the physical network
-   * @return available service network entity feature context information
+   * @return available zoning entity feature context information
    */
   public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createZoningFeatureContexts(
       ZoningIdMapper primaryIdMapper, NetworkIdMapper networkIdMappers) {
@@ -169,6 +171,21 @@ public final class GeoIoFeatureTypeBuilder {
         PlanitUndirectedConnectoidFeatureTypeContext.create(primaryIdMapper, networkIdMappers),
         /* directed connectoids */
         PlanitDirectedConnectoidFeatureTypeContext.create(primaryIdMapper,networkIdMappers));
+  }
+
+  /**
+   * Construct GIS feature contexts containing the information required for persistence of all virtual network entities
+   *
+   * @param primaryIdMapper  to use for id conversion when persisting
+   * @return available virtual network entity feature context information
+   */
+  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createVirtualNetworkFeatureContexts(
+      VirtualNetworkIdMapper primaryIdMapper) {
+    return Set.of(
+        /* connectoid edge */
+        PlanitConnectoidEdgeFeatureTypeContext.create(primaryIdMapper),
+        /* connectoid segments */
+        PlanitConnectoidSegmentFeatureTypeContext.create(primaryIdMapper));
   }
 
   /**
@@ -251,7 +268,8 @@ public final class GeoIoFeatureTypeBuilder {
 
     }catch(Exception e){
       LOGGER.severe(e.getMessage());
-      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", GeoIoFeatureTypeBuilder.class.getCanonicalName());
+      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s",
+          planitEntitySchemaNames.keySet().stream().map(c -> c.getSimpleName()).collect(Collectors.joining(",")));
     }
 
     return simpleFeatureTypes;

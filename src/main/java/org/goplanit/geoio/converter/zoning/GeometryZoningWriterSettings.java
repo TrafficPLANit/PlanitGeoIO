@@ -24,6 +24,10 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
 
   private String transferConnectoidsFileName = DEFAULT_TRANSFER_CONNECTOIDS_FILE_NAME;
 
+  private String connectoidEdgesFileName = DEFAULT_CONNECTOID_EDGES_FILE_NAME;
+
+  private String connectoidSegmentsFileName = DEFAULT_CONNECTOID_SEGMENTS_FILE_NAME;
+
   private boolean persistOdZones = DEFAULT_PERSIST_OD_ZONES;
 
   private boolean persistOdConnectoids = DEFAULT_PERSIST_OD_CONNECTOIDS;
@@ -45,6 +49,12 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
 
   /** default transfer connectoids file name to use (without extension) */
   public static final String DEFAULT_TRANSFER_CONNECTOIDS_FILE_NAME = "planit_connectoids_transfer";
+
+  /** default connectoid edges file name to use (without extension) */
+  public static final String DEFAULT_CONNECTOID_EDGES_FILE_NAME = "planit_connectoid_edges";
+
+  /** default connectoid segments file name to use (without extension) */
+  public static final String DEFAULT_CONNECTOID_SEGMENTS_FILE_NAME = "planit_connectoid_segments";
 
   /** default persist OD zones flag value */
   public static boolean DEFAULT_PERSIST_OD_ZONES = true;
@@ -180,5 +190,21 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
 
   public void setTransferConnectoidsFileName(String transferConnectoidsFileName) {
     this.transferConnectoidsFileName = transferConnectoidsFileName;
+  }
+
+  public String getConnectoidEdgesFileName() {
+    return connectoidEdgesFileName;
+  }
+
+  public void setConnectoidEdgesFileName(String connectoidEdgesFileName) {
+    this.connectoidEdgesFileName = connectoidEdgesFileName;
+  }
+
+  public String getConnectoidSegmentsFileName() {
+    return connectoidSegmentsFileName;
+  }
+
+  public void setConnectoidSegmentsFileName(String connectoidSegmentsFileName) {
+    this.connectoidSegmentsFileName = connectoidSegmentsFileName;
   }
 }

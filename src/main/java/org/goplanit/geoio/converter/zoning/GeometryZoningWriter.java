@@ -5,17 +5,17 @@ import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterSettings;
-import org.goplanit.geoio.converter.zoning.featurecontext.PlanitConnectoidFeatureTypeContext;
-import org.goplanit.geoio.converter.zoning.featurecontext.PlanitDirectedConnectoidFeatureTypeContext;
-import org.goplanit.geoio.converter.zoning.featurecontext.PlanitUndirectedConnectoidFeatureTypeContext;
-import org.goplanit.geoio.converter.zoning.featurecontext.PlanitZoneFeatureTypeContext;
+import org.goplanit.geoio.converter.zoning.featurecontext.*;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.network.layer.service.ServiceLeg;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.goplanit.utils.network.layer.service.ServiceNode;
+import org.goplanit.utils.network.virtual.ConnectoidEdge;
+import org.goplanit.utils.network.virtual.ConnectoidSegment;
 import org.goplanit.utils.network.virtual.VirtualNetwork;
 import org.goplanit.utils.zoning.*;
 import org.goplanit.zoning.Zoning;
@@ -59,7 +59,21 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   }
 
   /**
-   * Construct combination of base file name supplemented with the geometry type incase multiple geometry types exist for the same PLANit entity
+   * Based on the settings construct the correct mapping between file names and the virtual network's PLANit entities
+   *
+   * @param settings to use
+   * @return mapping between PLANit entity class and the chosen file name
+   */
+  private static Map<Class<?>, String> extractVirtualNetworkPlanitEntitySchemaNames(GeometryZoningWriterSettings settings) {
+    return Map.ofEntries(
+        entry(ConnectoidEdge.class, settings.getConnectoidEdgesFileName()),
+        entry(ConnectoidSegment.class, settings.getConnectoidSegmentsFileName())
+    );
+  }
+
+
+  /**
+   * Construct combination of base file name supplemented with the geometry type in case multiple geometry types exist for the same PLANit entity
    *
    * @param outputFileName vanilla output name
    * @param geometryType geometry type
@@ -270,7 +284,95 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     writeConnectoids(zoning.getOdConnectoids(), featureType, featureDescription, getSettings().getOdConnectoidsFileName());
   }
 
+  /**
+   * Write connectoid edges of the zoning
+   *
+   * @param virtualNetwork to write connectoid edges for
+   * @param featureType to use
+   * @param featureDescription to use
+   */
+  protected void writeConnectoidEdges(VirtualNetwork virtualNetwork, SimpleFeatureType featureType, PlanitConnectoidEdgeFeatureTypeContext featureDescription) {
+    if(featureType==null || featureDescription == null){
+      throw new PlanItRunTimeException(
+          "No Feature type description available for PLANit virtual network connectoid edges (%s), this shouldn't happen", featureDescription.getPlanitEntityClass().getSimpleName());
+    }
+    LOGGER.info(String.format("Connectoid edges: %d", virtualNetwork.getConnectoidEdges().size()));
+
+    /* data store, e.g., underlying shape file(s) */
+    DataStore connectoidEdgesDataStore = findDataStore(featureDescription,  createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()));
+
+    /* perform persistence */
+    writeGeometryLayerForEntity(
+        featureType,
+        featureDescription,
+        connectoidEdgesDataStore,
+        getSettings().getConnectoidEdgesFileName(), /* schema name = file name */
+        virtualNetwork.getConnectoidEdges());
+  }
+
+  /**
+   * Write connectoid segments of the zoning
+   *
+   * @param virtualNetwork to write connectoid edges for
+   * @param featureType to use
+   * @param featureDescription to use
+   */
+  protected void writeConnectoidSegments(VirtualNetwork virtualNetwork, SimpleFeatureType featureType, PlanitConnectoidSegmentFeatureTypeContext featureDescription) {
+    if(featureType==null || featureDescription == null){
+      throw new PlanItRunTimeException(
+          "No Feature type description available for PLANit virtual network connectoid segments (%s), this shouldn't happen", featureDescription.getPlanitEntityClass().getSimpleName());
+    }
+    LOGGER.info(String.format("Connectoid segments: %d", virtualNetwork.getConnectoidEdges().size()));
+
+    /* data store, e.g., underlying shape file(s) */
+    DataStore connectoidSegmentsDataStore = findDataStore(featureDescription,  createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()));
+
+    /* perform persistence */
+    writeGeometryLayerForEntity(
+        featureType,
+        featureDescription,
+        connectoidSegmentsDataStore,
+        getSettings().getConnectoidSegmentsFileName(), /* schema name = file name */
+        virtualNetwork.getConnectoidSegments());
+  }
+
+  /**
+   * Persist the virtual network's edges and edge segments connecting the zones and their respective connectoids
+   *
+   * @param virtualNetwork to persist
+   */
   protected void writeVirtualNetwork(VirtualNetwork virtualNetwork) {
+    var supportedFeatures =
+      GeoIoFeatureTypeBuilder.createVirtualNetworkFeatureContexts(getComponentIdMappers().getVirtualNetworkIdMapper());
+
+      /* feature types per layer */
+      var geoFeatureTypesByPlanitEntity =
+        GeoIoFeatureTypeBuilder.createSimpleFeatureTypes(
+            supportedFeatures,
+            getDestinationCoordinateReferenceSystem(),
+            extractVirtualNetworkPlanitEntitySchemaNames(getSettings()));
+
+    if(virtualNetwork.hasConnectoidEdges()) {
+      LOGGER.info(String.format("Persisting connectoid edges to: %s",
+          createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()).toAbsolutePath()));
+      var featureInfo = findFeaturePairForPlanitEntity(ConnectoidEdge.class, geoFeatureTypesByPlanitEntity);
+
+      /* make sure that basic geometry is present, since for modelling purposes there is no need to keep track of geometry when vertices are defined */
+      virtualNetwork.getConnectoidEdges().stream().forEach( ce -> ce.populateBasicGeometry(false));
+
+      writeConnectoidEdges(virtualNetwork, featureInfo.first(), (PlanitConnectoidEdgeFeatureTypeContext)featureInfo.second());
+    }
+
+    if(virtualNetwork.hasConnectoidSegments()) {
+      LOGGER.info(String.format("Persisting connectoid segments to: %s",
+          createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()).toAbsolutePath()));
+      var featureInfo = findFeaturePairForPlanitEntity(ConnectoidSegment.class, geoFeatureTypesByPlanitEntity);
+
+      /* make sure that basic geometry is present (segment geometry is sourced from parent edge), since for modelling purposes there is no need to keep track of geometry when vertices are defined */
+      virtualNetwork.getConnectoidEdges().stream().forEach( ce -> ce.populateBasicGeometry(false));
+
+      writeConnectoidSegments(virtualNetwork, featureInfo.first(), (PlanitConnectoidSegmentFeatureTypeContext)featureInfo.second());
+    }
   }
 
   /**
@@ -319,6 +421,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
       }
     }
 
+    /* virtual network */
     if(getSettings().isPersistVirtualNetwork()){
       if(zoning.getVirtualNetwork().isEmpty()){
         LOGGER.info("IGNORE: Virtual network is empty, consider constructing integrated PLANit TransportModeNetwork before persisting, so virtual network is not empty");

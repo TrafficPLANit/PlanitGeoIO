@@ -74,6 +74,9 @@ public class GeoIoConverterTest {
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
+      /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
+      geometryWriter.setIdMapperType(IdMapperType.XML);
+
       //todo add assertions...
 
     } catch (Exception e) {
@@ -100,6 +103,9 @@ public class GeoIoConverterTest {
       /* writer */
       var geometryWriter = GeometryServiceNetworkWriterFactory.create(outputPath, CountryNames.AUSTRALIA);
 
+      /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
+      geometryWriter.setIdMapperType(IdMapperType.XML);
+
       /* convert */
       ServiceNetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
@@ -108,7 +114,7 @@ public class GeoIoConverterTest {
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
-      fail("testPlanit2GeoIOShapeNetworkConverter");
+      fail("testPlanit2GeoIOShapeServiceNetworkConverter");
     }
   }
 
@@ -136,9 +142,11 @@ public class GeoIoConverterTest {
 
       /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
       geometryWriter.getSettings().setPersistVirtualNetwork(true);
-      geometryWriter.setIdMapperType(IdMapperType.XML);
       /* make sure virtual network is populated by constructing integrated transport model network */
       new TransportModelNetwork(network, reader.read()).integrateTransportNetworkViaConnectoids();
+
+      /* id mapping based on XML, so modes are easier to read (and knowing XML ids are unique in this case*/
+      geometryWriter.setIdMapperType(IdMapperType.XML);
 
       /* convert */
       ZoningConverterFactory.create(reader, geometryWriter).convert();
@@ -148,7 +156,7 @@ public class GeoIoConverterTest {
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
-      fail("testPlanit2GeoIOShapeNetworkConverter");
+      fail("testPlanit2GeoIOShapeZoningConverter");
     }
   }
 
