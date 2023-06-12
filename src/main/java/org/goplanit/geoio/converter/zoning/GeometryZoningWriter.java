@@ -357,9 +357,6 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
           createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()).toAbsolutePath()));
       var featureInfo = findFeaturePairForPlanitEntity(ConnectoidEdge.class, geoFeatureTypesByPlanitEntity);
 
-      /* make sure that basic geometry is present, since for modelling purposes there is no need to keep track of geometry when vertices are defined */
-      virtualNetwork.getConnectoidEdges().stream().forEach( ce -> ce.populateBasicGeometry(false));
-
       writeConnectoidEdges(virtualNetwork, featureInfo.first(), (PlanitConnectoidEdgeFeatureTypeContext)featureInfo.second());
     }
 

@@ -49,7 +49,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
             Triple.of("lanes", "Integer", MacroscopicLinkSegment::getNumberOfLanes),
             Triple.of("cap_pcuh", "Float", MacroscopicLinkSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
             Triple.of("speed_kmh", "Float", MacroscopicLinkSegment::getPhysicalSpeedLimitKmH),   /* speed limit on sign, not mode dependent */
-            Triple.of("geom_opp", "Boolean", ls -> !ls.isParentGeometryInSegmentDirection()),     /* does geometry run in opposite direction to travel direction */
+            Triple.of("geom_opp", "Boolean", ls -> !ls.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
             Triple.of("node_up", "String", ls -> networkIdMapper.getVertexIdMapper().apply(ls.getUpstreamNode())),
             Triple.of("node_down", "String", ls -> networkIdMapper.getVertexIdMapper().apply(ls.getDownstreamNode())),
 

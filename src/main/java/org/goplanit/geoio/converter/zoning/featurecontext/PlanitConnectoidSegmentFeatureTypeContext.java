@@ -38,7 +38,7 @@ public class PlanitConnectoidSegmentFeatureTypeContext extends PlanitEntityFeatu
             Triple.of("ext_id", "String", ConnectoidSegment::getExternalId),
             Triple.of("parent_id", "String", cs -> virtualNetworkIdMapper.getConnectoidEdgeIdMapper().apply((ConnectoidEdge) cs.getParent())),
             Triple.of("cap_pcuh", "Float", ConnectoidSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
-            Triple.of("geom_opp", "Boolean", cs -> !cs.isParentGeometryInSegmentDirection()),     /* does geometry run in opposite direction to travel direction */
+            Triple.of("geom_opp", "Boolean", cs -> !cs.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
             Triple.of("vertx_up", "String", cs -> virtualNetworkIdMapper.getVertexIdMapper().apply(cs.getUpstreamVertex())),
             Triple.of("vertx_down", "String", cs -> virtualNetworkIdMapper.getVertexIdMapper().apply(cs.getDownstreamVertex())),
 
