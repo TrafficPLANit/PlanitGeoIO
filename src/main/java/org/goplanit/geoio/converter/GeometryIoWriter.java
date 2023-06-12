@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * Writer to persist a PLANit network to disk in a geometry centric format such as Shape files. Id mapping default is
- * set to internal ids (not XML ids) by default
+ * set to XML ids by default
  * 
  * @author markr
  *
@@ -167,7 +167,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    * @param settings to use
    */
   protected GeometryIoWriter(GeoIoWriterSettings settings){
-    super(IdMapperType.ID);
+    super(IdMapperType.XML);
     this.settings = settings;
   }
 

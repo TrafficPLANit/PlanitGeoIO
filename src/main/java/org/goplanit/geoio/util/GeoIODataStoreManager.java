@@ -6,6 +6,7 @@ import org.geotools.data.FileDataStoreFinder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.UrlUtils;
+import org.goplanit.utils.mode.Mode;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -28,7 +29,10 @@ public final class GeoIODataStoreManager {
   private static final Map<Class<?>, DataStore> dataStoreMap = new HashMap<>();
 
   /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by geometry type) that we might persist by their most specific class signature */
-  private static final Map<Pair<Class<?>,Class<? extends Geometry>>, DataStore> dataStoreMap2 = new HashMap<>();
+  private static final Map<Pair<Class<?>,Class<? extends Geometry>>, DataStore> dataStoreMapGeoType = new HashMap<>();
+
+  /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by mode) that we might persist by their most specific class signature */
+  private static final Map<Pair<Class<?>, Mode>, DataStore> dataStoreMapMode = new HashMap<>();
 
   /**
    * Create a datastore for the given file location
@@ -77,10 +81,26 @@ public final class GeoIODataStoreManager {
    */
   public static DataStore getDataStore(Class<?> dataStoreReferenceClass, Class<? extends Geometry> geometryTypeClass){
     var key = Pair.of(dataStoreReferenceClass, geometryTypeClass);
-    if(!dataStoreMap2.containsKey(key)){
+    if(!dataStoreMapGeoType.containsKey(key)){
       return null;
     }
-    return dataStoreMap2.get(key);
+    return dataStoreMapGeoType.get(key);
+  }
+
+  /**
+   * Collect a registered datastore for a given PLANit entity class and mode (in case multiple modes require multiple
+   * stores with one store per type), if not available null is returned.
+   *
+   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
+   * @param mode for the reference class
+   * @return the datastore
+   */
+  public static DataStore getDataStore(Class<?> dataStoreReferenceClass, Mode mode){
+    var key = Pair.of(dataStoreReferenceClass, mode);
+    if(!dataStoreMapMode.containsKey(key)){
+      return null;
+    }
+    return dataStoreMapMode.get(key);
   }
 
   /**
@@ -114,9 +134,9 @@ public final class GeoIODataStoreManager {
    */
   public static DataStore createDataStore(Class<?> dataStoreReferenceClass,  Class<? extends Geometry> geometryTypeClass, Path outputFileNameWithPath){
     Pair<Class<?>,Class<? extends Geometry>> key = Pair.of(dataStoreReferenceClass, geometryTypeClass);
-    if(dataStoreMap2.containsKey(key)){
+    if(dataStoreMapGeoType.containsKey(key)){
       LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, providing existing datastore", key));
-      return dataStoreMap2.get(key);
+      return dataStoreMapGeoType.get(key);
     }
 
     DataStore theDataStore = createDataStore(outputFileNameWithPath);
@@ -124,7 +144,31 @@ public final class GeoIODataStoreManager {
       throw new PlanItRunTimeException("Unable to create new datastore for class: %s, geometry type: ",
           dataStoreReferenceClass.toString(), geometryTypeClass.toString());
     }
-    dataStoreMap2.put(key, theDataStore);
+    dataStoreMapGeoType.put(key, theDataStore);
+    return theDataStore;
+  }
+
+  /**
+   * For a given PLANit entity that we persist to file, we track its datastore here to avoid overhead of recreating it
+   *
+   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
+   * @param mode for the reference class
+   * @param outputFileNameWithPath the output file path to persist to
+   * @return the datastore
+   */
+  public static DataStore createDataStore(Class<?> dataStoreReferenceClass,  Mode mode, Path outputFileNameWithPath){
+    Pair<Class<?>,Mode> key = Pair.of(dataStoreReferenceClass, mode);
+    if(dataStoreMapMode.containsKey(key)){
+      LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, providing existing datastore", key));
+      return dataStoreMapMode.get(key);
+    }
+
+    DataStore theDataStore = createDataStore(outputFileNameWithPath);
+    if(theDataStore == null){
+      throw new PlanItRunTimeException("Unable to create new datastore for class: %s, mode: ",
+          dataStoreReferenceClass.toString(), mode.toString());
+    }
+    dataStoreMapMode.put(key, theDataStore);
     return theDataStore;
   }
 
@@ -134,8 +178,10 @@ public final class GeoIODataStoreManager {
   public static void reset(){
     dataStoreMap.values().forEach(ds -> ds.dispose());
     dataStoreMap.clear();
-    dataStoreMap2.values().forEach(ds -> ds.dispose());
-    dataStoreMap2.clear();
+    dataStoreMapGeoType.values().forEach(ds -> ds.dispose());
+    dataStoreMapGeoType.clear();
+    dataStoreMapMode.values().forEach(ds -> ds.dispose());
+    dataStoreMapMode.clear();
   }
 
   /**

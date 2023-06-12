@@ -1,11 +1,9 @@
 package org.goplanit.geoio.util;
 
 import org.geotools.data.DataUtilities;
-import org.goplanit.converter.idmapping.NetworkIdMapper;
-import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
-import org.goplanit.converter.idmapping.VirtualNetworkIdMapper;
-import org.goplanit.converter.idmapping.ZoningIdMapper;
+import org.goplanit.converter.idmapping.*;
 import org.goplanit.geoio.converter.network.featurecontext.*;
+import org.goplanit.geoio.converter.service.featurecontext.PlanitRoutedServiceFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
@@ -14,9 +12,11 @@ import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.StringUtils;
+import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
+import org.goplanit.utils.service.routed.RoutedServicesLayer;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.Zone;
@@ -116,7 +116,7 @@ public final class GeoIoFeatureTypeBuilder {
   }
 
   /**
-   * Construct all PLANit entities that have an associated GIS feature context containing the information require for
+   * Construct all PLANit entities that have an associated GIS feature context containing the information required for
    * persistence
    *
    * @param primaryIdMapper  to use for id conversion when persisting
@@ -186,6 +186,23 @@ public final class GeoIoFeatureTypeBuilder {
         PlanitConnectoidEdgeFeatureTypeContext.create(primaryIdMapper),
         /* connectoid segments */
         PlanitConnectoidSegmentFeatureTypeContext.create(primaryIdMapper));
+  }
+
+  /**
+   * Construct all PLANit entities that have an associated GIS feature context containing the information required for
+   * persistence (for routed services entities).
+   *
+   * @param primaryIdMapper  to use for id conversion when persisting
+   * @param layerMode mode of the routed services with this mode to persist
+   * @param serviceNetworkIdMapper used for parent ids related to the service network
+   * @return available routed services entity feature context information
+   */
+  public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createRoutedServicesLayerFeatureContexts(
+      RoutedServicesIdMapper primaryIdMapper, Mode layerMode, ServiceNetworkIdMapper serviceNetworkIdMapper) {
+    return Set.of(
+        /* connectoid edge */
+        PlanitRoutedServiceFeatureTypeContext.create(primaryIdMapper));
+        // todo trip (schedule and frequency)
   }
 
   /**
@@ -325,6 +342,5 @@ public final class GeoIoFeatureTypeBuilder {
     }
     return String.join("_", layerPrefix, baseFileName);
   }
-
 
 }
