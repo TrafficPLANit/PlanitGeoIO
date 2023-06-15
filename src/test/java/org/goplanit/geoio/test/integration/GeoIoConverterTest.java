@@ -160,11 +160,6 @@ public class GeoIoConverterTest {
   @Test
   public void testPlanit2GeoIOShapeRoutedServicesConverter() {
     try {
-      /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
-      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
-      final String inputPath = Path.of(projectPath, "input").toString();
-      final String outputPath = Path.of(projectPath,"outputs").toString();
-
       /* PLANit reader */
       var reader = PlanitIntermodalReaderFactory.create(inputPath);
       var result = reader.readWithServices();
