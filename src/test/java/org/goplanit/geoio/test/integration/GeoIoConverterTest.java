@@ -29,7 +29,11 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * JUnit test cases for the converters provided in the PlanitGeoIO format
+ * JUnit test cases for the converters provided in the PlanitGeoIO format. This is currently not so much a test but more
+ * of an example on how to setup a simple GIS exporter for a PLANit saved network with or without services.
+ * <p>
+ *   Change the input or output path to persist either the Sydney or Melbourne network, respectively
+ * </p>
  * 
  * @author markr
  *
@@ -40,6 +44,12 @@ public class GeoIoConverterTest {
   private static Logger LOGGER = null;
 
   private static final Path testCasePath = Path.of("src","test","resources");
+
+  private final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+
+  /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
+  private final String inputPath = Path.of(projectPath, "input", "melbourne").toString();
+  private final String outputPath = Path.of(projectPath, "outputs","melbourne").toString();
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -60,11 +70,7 @@ public class GeoIoConverterTest {
   @Test
   public void testPlanit2GeoIOShapeNetworkConverter() {
     try {
-      /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
-      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
-      final String inputPath = Path.of(projectPath, "input").toString();
-      final String outputPath = Path.of(projectPath,"outputs").toString();
-      
+
       /* reader */
       PlanitNetworkReader planitReader = PlanitNetworkReaderFactory.create();
       planitReader.getSettings().setInputDirectory(inputPath);
@@ -78,7 +84,7 @@ public class GeoIoConverterTest {
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
 
-      //todo add assertions...
+      //todo used as an example rather than test
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
@@ -93,11 +99,6 @@ public class GeoIoConverterTest {
   @Test
   public void testPlanit2GeoIOShapeServiceNetworkConverter() {
     try {
-      /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
-      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
-      final String inputPath = Path.of(projectPath, "input").toString();
-      final String outputPath = Path.of(projectPath,"outputs").toString();
-
       /* service network reader */
       var planitReader = PlanitServiceNetworkReaderFactory.create(inputPath, PlanitNetworkReaderFactory.create(inputPath).read());
 
@@ -110,7 +111,7 @@ public class GeoIoConverterTest {
       /* convert */
       ServiceNetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
-      //todo add assertions...
+      //todo used as an example rather than test
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
@@ -125,11 +126,6 @@ public class GeoIoConverterTest {
   @Test
   public void testPlanit2GeoIOShapeZoningConverter() {
     try {
-      /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
-      final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
-      final String inputPath = Path.of(projectPath, "input").toString();
-      final String outputPath = Path.of(projectPath,"outputs").toString();
-
       /* PLANit network */
       var network = PlanitNetworkReaderFactory.create(inputPath).read();
 
@@ -149,7 +145,7 @@ public class GeoIoConverterTest {
       /* convert */
       ZoningConverterFactory.create(reader, geometryWriter).convert();
 
-      //todo add assertions...
+      //todo used as an example rather than test
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
