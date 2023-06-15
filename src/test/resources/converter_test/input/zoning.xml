@@ -1467,16 +1467,19 @@
             <connectoid tzrefs="140" lsref="998" id="177" modes="bus">
                 <length>0.0</length>
             </connectoid>
-            <connectoid tzrefs="141" lsref="1840" id="178" modes="bus">
+            <connectoid tzrefs="140" lsref="1455" id="178" modes="bus">
                 <length>0.0</length>
             </connectoid>
-            <connectoid tzrefs="142" lsref="2553" id="179" modes="bus">
+            <connectoid tzrefs="141" lsref="1840" id="179" modes="bus">
                 <length>0.0</length>
             </connectoid>
             <connectoid tzrefs="43" lsref="1026" id="18" modes="bus">
                 <length>0.0</length>
             </connectoid>
-            <connectoid tzrefs="142" lsref="2555" id="180" modes="bus">
+            <connectoid tzrefs="142" lsref="2553" id="180" modes="bus">
+                <length>0.0</length>
+            </connectoid>
+            <connectoid tzrefs="142" lsref="2555" id="181" modes="bus">
                 <length>0.0</length>
             </connectoid>
             <connectoid tzrefs="43" lsref="1126" id="19" modes="bus">
