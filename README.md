@@ -1,7 +1,6 @@
 # PLANitGeoIO
 
 ![Master Branch](https://github.com/TrafficPLANit/PLANitGeoIO/actions/workflows/maven_master.yml/badge.svg?branch=master)
-![Develop Branch](https://github.com/TrafficPLANit/PLANitGeoIO/actions/workflows/maven_develop.yml/badge.svg?branch=develop)
 
 Repository allowing one to write PLANit networks to disk in various GIS formats, e.g., shape, geopackage, etc.
 
@@ -9,14 +8,14 @@ Repository allowing one to write PLANit networks to disk in various GIS formats,
 
 ### Maven parent
 
-PLANit MATSim has the following PLANit specific dependencies (See pom.xml):
+PLANit Geo-Io has the following PLANit specific dependencies (See pom.xml):
 
 * planit-parentpom
 * planit-core
+* planit-io
 * planit-utils
 
 Dependencies (except parent-pom) will be automatically downloaded from the PLANit website, (www.repository.goplanit.org)[https://repository.goplanit.org], or alternatively can be checked-out locally for local development. The shared PLANit Maven configuration can be found in planit-parent-pom which is defined as the parent pom of each PLANit repository.
-
 
 ### Maven deploy
 
