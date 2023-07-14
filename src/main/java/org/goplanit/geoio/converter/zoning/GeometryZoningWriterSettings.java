@@ -104,34 +104,60 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
     super.reset();
   }
 
-  /** flag indicating whether to persist od zones or not */
+  /** flag indicating whether to persist od zones or not
+   *
+   * @return  true when persisting od zones, false otherwise
+   */
   public boolean isPersistOdZones() {
     return persistOdZones;
   }
 
+  /**
+   * Indicate whether to persist OD zones
+   *
+   * @param persistOdZones flag to set
+   */
   public void setPersistOdZones(boolean persistOdZones) {
     this.persistOdZones = persistOdZones;
   }
 
-  /** flag indicating whether to persist transfer zones or not */
+  /** flag indicating whether to persist transfer zones or not
+   *
+   * @return  true when persisting transfer zones, false otherwise
+   * */
   public boolean isPersistTransferZones() {
     return persistTransferZones;
   }
 
+  /**
+   * Indicate whether to persist transfer zones
+   *
+   * @param persistTransferZones flag to set
+   */
   public void setPersistTransferZones(boolean persistTransferZones) {
     this.persistTransferZones = persistTransferZones;
   }
 
-  /** od zones file name to use */
+  /** OD zones file name to use
+   *
+   * @return file name chosen */
   public String getOdZonesFileName() {
     return odZonesFileName;
   }
 
+  /**
+   * The OD zones file name to use
+   *
+   * @param odZonesFileName file name to use
+   */
   public void setOdZonesFileName(String odZonesFileName) {
     this.odZonesFileName = odZonesFileName;
   }
 
-  /** transfer zones file name to use */
+  /** transfer zones file name to use
+   *
+   * @return  the transfer zone file name used
+   * */
   public String getTransferZonesFileName() {
     return transferZonesFileName;
   }

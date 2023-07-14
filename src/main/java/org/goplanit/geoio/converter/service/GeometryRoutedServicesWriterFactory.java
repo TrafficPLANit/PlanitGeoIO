@@ -1,7 +1,5 @@
 package org.goplanit.geoio.converter.service;
 
-import org.goplanit.xml.generated.XMLElementRoutedServices;
-
 /**
  * Factory for creating PLANit Routed Services writers for GIS based output format(s), e.g., shape files
  * 

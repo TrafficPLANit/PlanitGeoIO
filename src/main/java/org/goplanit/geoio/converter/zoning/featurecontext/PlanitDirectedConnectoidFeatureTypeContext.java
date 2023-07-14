@@ -17,6 +17,8 @@ public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoid
 
   /**
    * Add any additional features unique to directed connectoids (and not available in base description) to feature description
+   *
+   * @param networkIdMapper to use
    */
   protected void appendDirectedConnectoidFeatureDescription(final NetworkIdMapper networkIdMapper){
     this.appendToFeatureTypeDescription(

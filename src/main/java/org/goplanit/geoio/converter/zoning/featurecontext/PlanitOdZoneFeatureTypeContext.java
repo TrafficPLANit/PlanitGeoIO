@@ -48,6 +48,7 @@ public class PlanitOdZoneFeatureTypeContext<T extends Geometry> extends PlanitZo
   /**
    * Factory method
    *
+   * @param <TT> the type of geometry
    * @param zoneIdMapper to apply for creating each od zone's unique id when persisting
    * @param geometryType to apply for this context
    * @return created instance

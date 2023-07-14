@@ -31,6 +31,7 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry> extends Pl
    * Constructor
    *
    * @param zoneIdMapper id mapper to apply
+   * @param geometryType  to use for this context
    */
   protected PlanitTransferZoneFeatureTypeContext(Function<TransferZone, String> zoneIdMapper, Class<T> geometryType){
     super(TransferZone.class, geometryType, zoneIdMapper);
@@ -45,7 +46,9 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry> extends Pl
   /**
    * Factory method
    *
+   * @param <TT> the type of geometry
    * @param zoneIdMapper to apply for creating each service node's unique id when persisting
+   * @param geometryType to use
    * @return created instance
    */
   public static <TT extends Geometry> PlanitTransferZoneFeatureTypeContext create(

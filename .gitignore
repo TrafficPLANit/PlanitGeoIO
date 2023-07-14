@@ -7,5 +7,6 @@
 /logs
 /bin
 /doc
+/docs
 *.class
 /src/test/resources/converter_test/outputs

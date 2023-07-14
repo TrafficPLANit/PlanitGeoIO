@@ -138,7 +138,11 @@ public final class GeoIoFeatureTypeBuilder {
   /**
    * Construct GIS feature context containing the information required for persistence of the given zone class and geometry type
    *
+   * @param <T> the type of geometry
+   * @param <Z> the type of zone
    * @param primaryIdMapper  to use for id conversion when persisting
+   * @param zoneClazz class signature of the zone
+   * @param geometryType to apply
    * @return available service network entity feature context information
    */
   public static <Z extends Zone, T extends Geometry> PlanitZoneFeatureTypeContext<Z, T> createZoningZoneFeatureContext(

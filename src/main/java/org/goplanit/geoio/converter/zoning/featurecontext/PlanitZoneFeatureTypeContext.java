@@ -24,6 +24,8 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
    * The mapping from PLANIT zone base GIS attributes (without geometry to allow for addition of other attributes until adding
    * geometry later via derived class using {@link #createGeometryFeatureDescription()}
    *
+   * @param <TT> the type of geometry
+   * @param <ZZ> the type of zone
    * @param zoneIdMapper to apply
    * @return feature mapping
    */
@@ -54,6 +56,8 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
   /**
    * Constructor
    *
+   * @param zoneClass to create this context for
+   * @param geometryClassType type of geometry to use
    * @param zoneIdMapper id mapper to apply
    */
   protected PlanitZoneFeatureTypeContext(

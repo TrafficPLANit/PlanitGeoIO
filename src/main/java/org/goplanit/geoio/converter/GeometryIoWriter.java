@@ -54,7 +54,9 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
 
   /** find feature and context based on the class present in context
    *
+   * @param <TT> the type of geometry
    * @param clazz to find feature for
+   * @param geoFeatureTypes to find from
    * @return found entry, null if not present
    */
   protected <TT extends ExternalIdAble> Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<TT>> findFeature(
@@ -109,7 +111,15 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
     }
   }
 
-  /** {@link #writeGeometryLayerForEntity(SimpleFeatureType, PlanitEntityFeatureTypeContext, String, DataStore, String, Iterable)} */
+  /** {@link #writeGeometryLayerForEntity(SimpleFeatureType, PlanitEntityFeatureTypeContext, String, DataStore, String, Iterable)}
+   *
+   * @param featureType to write
+   * @param planitEntityFeatureContext contextual information on feature type
+   * @param entityDataStore datastore to use
+   * @param featureSchemaName to use
+   * @param planitEntities to persist
+   * @param <TT> type of planit entity
+   */
   protected <TT extends ManagedId> void writeGeometryLayerForEntity(SimpleFeatureType featureType,
                                                                     PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
                                                                     DataStore entityDataStore,

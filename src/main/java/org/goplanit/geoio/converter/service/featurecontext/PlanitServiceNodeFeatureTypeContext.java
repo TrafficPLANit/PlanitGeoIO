@@ -53,6 +53,7 @@ public class PlanitServiceNodeFeatureTypeContext extends PlanitEntityFeatureType
    * Factory method
    *
    * @param serviceNodeIdMapper to apply for creating each service node's unique id when persisting
+   * @param parentNodeIdMapper id mapper to use
    * @return created instance
    */
   public static PlanitServiceNodeFeatureTypeContext create(Function<Vertex, String> serviceNodeIdMapper, Function<Vertex, String> parentNodeIdMapper){

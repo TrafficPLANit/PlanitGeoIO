@@ -227,6 +227,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   /**
    * Write zones container of the zoning
    *
+   * @param <Z> type of zone
    * @param zones to write
    * @param zoneClazz these zones pertain to
    * @param zoneFileName to use for persisting
@@ -461,6 +462,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   /** Constructor
    *
    * @param zoningSettings to use
+   * @param originCrs  to use
    */
   protected GeometryZoningWriter(GeometryZoningWriterSettings zoningSettings, final CoordinateReferenceSystem originCrs){
     super(zoningSettings);

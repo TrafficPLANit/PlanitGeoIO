@@ -27,6 +27,7 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid> extends Pl
    * The mapping from PLANIT connectoid base GIS attributes (without geometry to allow for addition of other attributes until adding
    * geometry later via derived class using {@link #createGeometryFeatureDescription()}
    *
+   * @param <CC> Connectoid type
    * @param zoningIdMapper to apply
    * @param networkIdMapper to apply
    * @return feature mapping
