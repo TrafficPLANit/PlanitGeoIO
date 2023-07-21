@@ -1,21 +1,26 @@
 package org.goplanit.geoio.test.integration;
 
 import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.converter.intermodal.IntermodalConverterFactory;
 import org.goplanit.converter.network.NetworkConverterFactory;
 import org.goplanit.converter.service.ServiceNetworkConverterFactory;
 import org.goplanit.converter.zoning.ZoningConverterFactory;
+import org.goplanit.geoio.converter.intermodal.GeometryIntermodalWriterFactory;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriter;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterFactory;
+import org.goplanit.geoio.converter.zoning.GeometryZoningWriter;
 import org.goplanit.geoio.converter.zoning.GeometryZoningWriterFactory;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
+import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.goplanit.logging.Logging;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.transport.TransportModelNetwork;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
@@ -43,13 +48,13 @@ public class GeoIoConverterTest {
   /** the logger */
   private static Logger LOGGER = null;
 
-  private static final Path testCasePath = Path.of("src","test","resources");
+  private static final Path TEST_CASE_PATH = Path.of("src","test","resources");
 
-  private final String projectPath = Path.of(testCasePath.toString(),"converter_test").toString();
+  private static final String PROJECT_PATH = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
 
   /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
-  private final String inputPath = Path.of(projectPath, "input", "melbourne").toString();
-  private final String outputPath = Path.of(projectPath, "outputs","melbourne").toString();
+  private static final String MELBOURNE_INPUT_PATH = Path.of(PROJECT_PATH, "input", "melbourne").toString();
+  private static final String MELBOURNE_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","melbourne").toString();
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -73,10 +78,10 @@ public class GeoIoConverterTest {
 
       /* reader */
       PlanitNetworkReader planitReader = PlanitNetworkReaderFactory.create();
-      planitReader.getSettings().setInputDirectory(inputPath);
+      planitReader.getSettings().setInputDirectory(MELBOURNE_INPUT_PATH);
       
       /* writer */
-      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(outputPath, CountryNames.AUSTRALIA);
+      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
       
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
@@ -100,10 +105,12 @@ public class GeoIoConverterTest {
   public void testPlanit2GeoIOShapeServiceNetworkConverter() {
     try {
       /* service network reader */
-      var planitReader = PlanitServiceNetworkReaderFactory.create(inputPath, PlanitNetworkReaderFactory.create(inputPath).read());
+      var planitReader = PlanitServiceNetworkReaderFactory.create(
+          MELBOURNE_INPUT_PATH, PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read());
 
       /* writer */
-      var geometryWriter = GeometryServiceNetworkWriterFactory.create(outputPath, CountryNames.AUSTRALIA);
+      var geometryWriter = GeometryServiceNetworkWriterFactory.create(
+          MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
 
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
@@ -127,15 +134,15 @@ public class GeoIoConverterTest {
   public void testPlanit2GeoIOShapeZoningConverter() {
     try {
       /* PLANit network */
-      var network = PlanitNetworkReaderFactory.create(inputPath).read();
+      var network = PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read();
 
       /* PLANit zoning reader */
       var reader = PlanitZoningReaderFactory.create(
-          new PlanitZoningReaderSettings(inputPath), network);
+          new PlanitZoningReaderSettings(MELBOURNE_INPUT_PATH), network);
 
       /* writer */
       var geometryWriter = GeometryZoningWriterFactory.create(
-          outputPath, CountryNames.AUSTRALIA, network.getCoordinateReferenceSystem());
+          MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA, network.getCoordinateReferenceSystem());
 
       /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
       geometryWriter.getSettings().setPersistVirtualNetwork(true);
@@ -161,11 +168,12 @@ public class GeoIoConverterTest {
   public void testPlanit2GeoIOShapeRoutedServicesConverter() {
     try {
       /* PLANit reader */
-      var reader = PlanitIntermodalReaderFactory.create(inputPath);
+      var reader = PlanitIntermodalReaderFactory.create(MELBOURNE_INPUT_PATH);
       var result = reader.readWithServices();
 
       /* GEO writer */
-      var geometryWriter = GeometryRoutedServicesWriterFactory.create(outputPath, CountryNames.AUSTRALIA);
+      var geometryWriter = GeometryRoutedServicesWriterFactory.create(
+          MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
 
       /* persist */
       geometryWriter.write(result.fourth());
@@ -176,6 +184,38 @@ public class GeoIoConverterTest {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
       fail("testPlanit2GeoIOShapeRoutedServicesConverter");
+    }
+  }
+
+  /** Test reading a complete PLANit network, zoning, service network, and routed services and then write results in Shape file form using
+   * intermodal writer
+   * */
+  @Test
+  public void testPlanit2GeoIOShapeIntermodalNetworkZoningConverter() {
+    try {
+
+      /* reader */
+      var planitReader = PlanitIntermodalReaderFactory.create();
+      planitReader.getSettings().setInputDirectory(MELBOURNE_INPUT_PATH);
+
+      /* writer */
+      var geometryWriter = GeometryIntermodalWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+
+      /* persist connectoids as well */
+      geometryWriter.getSettings().getZoningSettings().setPersistVirtualNetwork(true);
+
+      /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
+      geometryWriter.setIdMapperType(IdMapperType.XML);
+
+      /* convert */
+      IntermodalConverterFactory.create(planitReader, geometryWriter).convert();
+
+      //todo add assertions...
+
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail("testPlanit2GeoIOShapeNetworkConverter");
     }
   }
 
