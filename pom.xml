@@ -58,14 +58,7 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- version inherited from parent -->
-		<dependency>
-			<groupId>org.goplanit.io</groupId>
-			<artifactId>planit-io</artifactId>
-			<optional>true</optional>
-			<scope>test</scope>
-		</dependency>
-		
+
 	   <dependency>
 		  <groupId>org.hamcrest</groupId>
 		  <artifactId>hamcrest</artifactId>
