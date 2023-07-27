@@ -162,7 +162,6 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
    */  
   @Override
   public void reset() {
-    getSettings().reset();
   }
 
   /**

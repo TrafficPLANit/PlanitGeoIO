@@ -14,6 +14,7 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
+import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
@@ -78,10 +79,14 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
    * @return created path
    */
   private Path createFullPathFromFileName(MacroscopicNetworkLayer physicalNetworkLayer, String outputFileName){
-    return Path.of(
-            getSettings().getOutputDirectory(),
-            GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(physicalNetworkLayer, layerPrefixProducer, outputFileName)
-                    + getSettings().getFileExtension());
+    PlanItRunTimeException.throwIfNull(getSettings().getOutputDirectory(), "Output directory not set");
+    PlanItRunTimeException.throwIfNull(outputFileName, "Output file name not set");
+    PlanItRunTimeException.throwIfNull(getSettings().getFileExtension(), "file name extension not set");
+
+    var featureTypeSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(physicalNetworkLayer, layerPrefixProducer, outputFileName);
+    PlanItRunTimeException.throwIf(StringUtils.isNullOrBlank(featureTypeSchemaName), "Feature type schema name null or empty");
+
+    return Path.of(getSettings().getOutputDirectory(),featureTypeSchemaName + getSettings().getFileExtension());
   }
 
   /**

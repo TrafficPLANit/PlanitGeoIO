@@ -192,6 +192,7 @@ public final class GeoIODataStoreManager {
    */
   public static void registerFeatureOnDataStore(DataStore dataStore, SimpleFeatureType feature) {
     PlanItRunTimeException.throwIfNull(feature, "Feature type null, unable to register on datastore, this shouldn't happen");
+    PlanItRunTimeException.throwIfNull(dataStore, "Data store null, unable to register feature on datastore, this shouldn't happen");
 
     try{
       /* trigger exception when not available to register schema once */

@@ -208,14 +208,14 @@ public class GeoIoConverterTest {
       geometryWriter.setIdMapperType(IdMapperType.XML);
 
       /* convert */
-      IntermodalConverterFactory.create(planitReader, geometryWriter).convert();
+      IntermodalConverterFactory.create(planitReader, geometryWriter).convertWithServices();
 
       //todo add assertions...
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
-      fail("testPlanit2GeoIOShapeNetworkConverter");
+      fail("testPlanit2GeoIOShapeIntermodalNetworkZoningConverter");
     }
   }
 
