@@ -108,16 +108,20 @@ public class GeometryServiceNetworkWriterSettings extends GeoIoWriterSettings im
     this.serviceNodesFileName = serviceNodesFileName;
   }
 
+  public void setPersistServiceLegs(boolean persistServiceLegs) {
+    this.persistServiceLegs = persistServiceLegs;
+  }
+
   public boolean isPersistServiceLegs() {
     return persistServiceLegs;
   }
 
-  public boolean isPersistServiceLegSegments() {
-    return persistServiceLegSegments;
+  public void setPersistServiceLegSegments(boolean persistServiceLegSegments) {
+    this.persistServiceLegSegments = persistServiceLegSegments;
   }
 
-  public void setPersistServiceLegs(boolean persistServiceLegs) {
-    this.persistServiceLegs = persistServiceLegs;
+  public boolean isPersistServiceLegSegments() {
+    return persistServiceLegSegments;
   }
 
   public boolean isPersistServiceNodes() {

@@ -138,7 +138,7 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
     this.persistTransferZones = persistTransferZones;
   }
 
-  /** OD zones file name to use
+  /** File name to use (without extension or geometry type suffix)
    *
    * @return file name chosen */
   public String getOdZonesFileName() {
@@ -146,15 +146,15 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
   }
 
   /**
-   * The OD zones file name to use
+   * The file name to use  (without extension or geometry type suffix)
    *
-   * @param odZonesFileName file name to use
+   * @param fileName file name to use
    */
-  public void setOdZonesFileName(String odZonesFileName) {
-    this.odZonesFileName = odZonesFileName;
+  public void setOdZonesFileName(String fileName) {
+    this.odZonesFileName = fileName;
   }
 
-  /** transfer zones file name to use
+  /** transfer zones file name to use  (without extension or geometry type suffix)
    *
    * @return  the transfer zone file name used
    * */
@@ -162,8 +162,13 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
     return transferZonesFileName;
   }
 
-  public void setTransferZonesFileName(String transferZonesFileName) {
-    this.transferZonesFileName = transferZonesFileName;
+  /**
+   * The file name to use  (without extension or geometry type suffix)
+   *
+   * @param fileName file name to use
+   */
+  public void setTransferZonesFileName(String fileName) {
+    this.transferZonesFileName = fileName;
   }
 
   /** flag indicating whether we should persist the virtual network connecting the zones to a physical network
@@ -198,39 +203,76 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
     return persistTransferConnectoids;
   }
 
-  public void setPersistTransferConnectoids(boolean persistTransferConnectoids) {
-    this.persistTransferConnectoids = persistTransferConnectoids;
+  /**
+   * The file name to use  (without extension or geometry type suffix)
+   *
+   * @param fileName file name to use
+   */
+  public void setPersistTransferConnectoids(boolean fileName) {
+    this.persistTransferConnectoids = fileName;
   }
 
+  /** File name to use (without extension or geometry type suffix)
+   *
+   * @return file name chosen */
   public String getOdConnectoidsFileName() {
     return odConnectoidsFileName;
   }
 
-  public void setOdConnectoidsFileName(String odConnectoidsFileName) {
-    this.odConnectoidsFileName = odConnectoidsFileName;
+  /**
+   * The file name to use  (without extension or geometry type suffix)
+   *
+   * @param fileName file name to use
+   */
+  public void setOdConnectoidsFileName(String fileName) {
+    this.odConnectoidsFileName = fileName;
   }
 
+  /** File name to use (without extension or geometry type suffix)
+   *
+   * @return file name chosen */
   public String getTransferConnectoidsFileName() {
     return transferConnectoidsFileName;
   }
 
-  public void setTransferConnectoidsFileName(String transferConnectoidsFileName) {
-    this.transferConnectoidsFileName = transferConnectoidsFileName;
+  /**
+   * The file name to use  (without extension or geometry type suffix)
+   *
+   * @param fileName file name to use
+   */
+  public void setTransferConnectoidsFileName(String fileName) {
+    this.transferConnectoidsFileName = fileName;
   }
 
+  /** File name to use (without extension or geometry type suffix)
+   *
+   * @return file name chosen */
   public String getConnectoidEdgesFileName() {
     return connectoidEdgesFileName;
   }
 
-  public void setConnectoidEdgesFileName(String connectoidEdgesFileName) {
-    this.connectoidEdgesFileName = connectoidEdgesFileName;
+  /**
+   * The file name to use  (without extension or geometry type suffix)
+   *
+   * @param fileName file name to use
+   */
+  public void setConnectoidEdgesFileName(String fileName) {
+    this.connectoidEdgesFileName = fileName;
   }
 
+  /** File name to use (without extension or geometry type suffix)
+   *
+   * @return file name chosen */
   public String getConnectoidSegmentsFileName() {
     return connectoidSegmentsFileName;
   }
 
-  public void setConnectoidSegmentsFileName(String connectoidSegmentsFileName) {
-    this.connectoidSegmentsFileName = connectoidSegmentsFileName;
+  /**
+   * The file name to use  (without extension or geometry type suffix)
+   *
+   * @param fileName file name to use
+   */
+  public void setConnectoidSegmentsFileName(String fileName) {
+    this.connectoidSegmentsFileName = fileName;
   }
 }

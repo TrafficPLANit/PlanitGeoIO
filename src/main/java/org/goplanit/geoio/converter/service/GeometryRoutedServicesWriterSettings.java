@@ -20,7 +20,7 @@ public class GeometryRoutedServicesWriterSettings extends GeoIoWriterSettings im
 
   private String tripSchedulesFileName = DEFAULT_TRIP_SCHEDULES_FILE_NAME;
 
-  private String tripFrequenciesFileName = DEFAULT_TRIP_FREQUENCIES_FILE_NAME;
+  private String tripFrequencyFileName = DEFAULT_TRIP_FREQUENCIES_FILE_NAME;
 
   private boolean persistServices = DEFAULT_PERSIST_SERVICES;
 
@@ -111,16 +111,16 @@ public class GeometryRoutedServicesWriterSettings extends GeoIoWriterSettings im
     return tripSchedulesFileName;
   }
 
-  public void setTripSchedulesFileName(String tripSchedulesFileName) {
+  public void setTripsScheduleFileName(String tripSchedulesFileName) {
     this.tripSchedulesFileName = tripSchedulesFileName;
   }
 
   public String getTripsFrequencyFileName() {
-    return tripFrequenciesFileName;
+    return tripFrequencyFileName;
   }
 
-  public void setTripFrequenciesFileName(String tripFrequenciesFileName) {
-    this.tripFrequenciesFileName = tripFrequenciesFileName;
+  public void setTripsFrequencyFileName(String tripFrequencyFileName) {
+    this.tripFrequencyFileName = tripFrequencyFileName;
   }
 
   public boolean isPersistServices() {
