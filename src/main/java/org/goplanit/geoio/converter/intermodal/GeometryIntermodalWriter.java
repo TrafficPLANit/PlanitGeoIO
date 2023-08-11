@@ -68,7 +68,7 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
     /* zoning writer - with pt component via transfer zones */
     var zoningSettings = getSettings().getZoningSettings();
     var zoningWriter =
-            GeometryZoningWriterFactory.create(zoningSettings.getOutputDirectory(), zoningSettings.getCountry(), macroscopicNetwork.getCoordinateReferenceSystem());
+            GeometryZoningWriterFactory.create(zoningSettings.getOutputDirectory(), zoningSettings.getCountry());
     zoningWriter.setParentIdMappers(networkWriter.getPrimaryIdMapper()); // pass on parent ref mapping
     zoningWriter.setIdMapperType(getIdMapperType());
     zoningWriter.write(zoning);

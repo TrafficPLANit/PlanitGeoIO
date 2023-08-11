@@ -41,9 +41,6 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryZoningWriter.class.getCanonicalName());
 
-  /** origin crs of the zoning geometries */
-  private final CoordinateReferenceSystem originCrs;
-
   /**
    * Based on the settings construct the correct mapping between file names and the zoning PLANit entities (that have a fixed
    * geometry type)
@@ -151,11 +148,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    */
   private void initialiseWrite(Zoning zoning) {
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-//    layerPrefixProducer =
-//            (UntypedDirectedGraphLayer<?,?,?> l) ->
-//                    String.join("_", "layer", getPrimaryIdMapper().getServiceNetworkLayerIdMapper().apply( (ServiceNetworkLayer) l));
-
-    prepareCoordinateReferenceSystem(this.originCrs, getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+    prepareCoordinateReferenceSystem(zoning.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
   }
 
   /**
@@ -208,7 +201,8 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   private <C extends Connectoid> void writeConnectoids(
       Iterable<C> connectoids, SimpleFeatureType featureType, PlanitConnectoidFeatureTypeContext<C> featureDescription, String connectoidSchemaName) {
     if(featureType==null || featureDescription == null){
-      throw new PlanItRunTimeException("No Feature type description available for PLANit connectoids (%s), this shouldn't happen", featureDescription.getPlanitEntityClass().getSimpleName());
+      throw new PlanItRunTimeException("No Feature type description available for PLANit connectoids (%s), this shouldn't happen",
+          featureDescription.getPlanitEntityClass().getSimpleName());
     }
 
     /* data store, e.g., underlying shape file(s) */
@@ -433,40 +427,35 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
 
   /** Constructor
    *
-   * @param originCrs applied to zoning
    */
-  protected GeometryZoningWriter(final CoordinateReferenceSystem originCrs) {
-    this(".", CountryNames.GLOBAL, originCrs);
+  protected GeometryZoningWriter() {
+    this(".", CountryNames.GLOBAL);
   }
 
   /** Constructor
    *
    * @param outputPath to persist zoning on
-   * @param originCrs applied to zoning
    */
-  protected GeometryZoningWriter(String outputPath, final CoordinateReferenceSystem originCrs) {
-    this(outputPath, CountryNames.GLOBAL, originCrs);
+  protected GeometryZoningWriter(String outputPath) {
+    this(outputPath, CountryNames.GLOBAL);
   }
 
   /** Constructor
    *
    * @param outputPath to persist service zoning on
    * @param countryName to optimise projection for (if available, otherwise ignore)
-   * @param originCrs applied to zoning
    */
-  protected GeometryZoningWriter(String outputPath, String countryName, final CoordinateReferenceSystem originCrs) {
-    this(new GeometryZoningWriterSettings(outputPath, countryName), originCrs);
+  protected GeometryZoningWriter(String outputPath, String countryName) {
+    this(new GeometryZoningWriterSettings(outputPath, countryName));
   }
 
 
   /** Constructor
    *
    * @param zoningSettings to use
-   * @param originCrs  to use
    */
-  protected GeometryZoningWriter(GeometryZoningWriterSettings zoningSettings, final CoordinateReferenceSystem originCrs){
+  protected GeometryZoningWriter(GeometryZoningWriterSettings zoningSettings){
     super(zoningSettings);
-    this.originCrs = originCrs;
   }
 
   /**

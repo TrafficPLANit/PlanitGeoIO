@@ -141,8 +141,7 @@ public class GeoIoConverterTest {
           new PlanitZoningReaderSettings(MELBOURNE_INPUT_PATH), network);
 
       /* writer */
-      var geometryWriter = GeometryZoningWriterFactory.create(
-          MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA, network.getCoordinateReferenceSystem());
+      var geometryWriter = GeometryZoningWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
 
       /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
       geometryWriter.getSettings().setPersistVirtualNetwork(true);
