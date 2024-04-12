@@ -1,6 +1,6 @@
 package org.goplanit.geoio.test.integration;
 
-import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalConverterFactory;
 import org.goplanit.converter.network.NetworkConverterFactory;
 import org.goplanit.converter.service.ServiceNetworkConverterFactory;

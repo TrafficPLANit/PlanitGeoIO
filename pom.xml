@@ -70,8 +70,12 @@
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-shapefile</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.goplanit.utils</groupId>
+            <artifactId>planit-utils</artifactId>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<build>	
 

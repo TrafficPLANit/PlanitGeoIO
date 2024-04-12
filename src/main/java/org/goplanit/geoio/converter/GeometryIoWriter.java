@@ -3,7 +3,7 @@ package org.goplanit.geoio.converter;
 import org.geotools.data.DataStore;
 import org.geotools.data.Transaction;
 import org.goplanit.converter.CrsWriterImpl;
-import org.goplanit.converter.idmapping.IdMapperType;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;

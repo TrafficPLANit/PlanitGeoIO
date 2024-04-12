@@ -1,6 +1,5 @@
 package org.goplanit.geoio.converter.intermodal;
 
-import org.goplanit.converter.idmapping.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalWriter;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriter;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
@@ -12,6 +11,7 @@ import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
 import org.goplanit.network.transport.TransportModelNetwork;
 import org.goplanit.service.routed.RoutedServices;
+import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.zoning.Zoning;
 
