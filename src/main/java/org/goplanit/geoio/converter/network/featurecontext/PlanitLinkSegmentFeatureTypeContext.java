@@ -64,7 +64,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
   }
 
   /**
-   * The mapping from PLANIT link instance to GIS attributes
+   * The mapping from PLANit link instance to GIS attributes
    *
    * @param networkIdMapper to apply
    * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
