@@ -31,12 +31,12 @@ import java.util.stream.Stream;
 public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
 
   /**
-   * The mapping from PLANIT link segment instance to fixed GIS attributes of link segment
+   * The mapping from PLANIT link segment instance to fixed GIS attributes of link segment (without geometry)
    *
    * @param networkIdMapper to apply
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<MacroscopicLinkSegment, ? extends Object>>> createFixedFeatureDescription(
+  private static List<Triple<String,String, Function<MacroscopicLinkSegment, ?>>> createFixedFeatureDescription(
           final NetworkIdMapper networkIdMapper){
     return List.of(
             /* link segment info (fixed) */
@@ -56,11 +56,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
             /* link segment type info (fixed) */
             Triple.of("type_id", "String", ls -> networkIdMapper.getLinkSegmentTypeIdMapper().apply(ls.getLinkSegmentType())),
             Triple.of("type_name", "String", ls -> ls.getLinkSegmentType().getName()),
-            Triple.of("dens_pcukm", "Float", ls -> ls.getLinkSegmentType().getExplicitMaximumDensityPerLaneOrDefault()),
-
-            /* geometry taken from parent link */
-            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
-                    (Function<MacroscopicLinkSegment, LineString>) ls -> ls.getParentLink().getGeometry()));
+            Triple.of("dens_pcukm", "Float", ls -> ls.getLinkSegmentType().getExplicitMaximumDensityPerLaneOrDefault()));
   }
 
   /**
@@ -70,7 +66,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
    * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<MacroscopicLinkSegment, ? extends Object>>> createFeatureDescription(
+  private static List<Triple<String,String, Function<MacroscopicLinkSegment, ?>>> createFeatureDescription(
           final NetworkIdMapper networkIdMapper,
           Collection<? extends Mode> supportedModes){
     /* fixed features -  always present and non-variable number */
@@ -78,7 +74,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
             createFixedFeatureDescription(networkIdMapper);
 
     /* variable features - depends on modes present */
-    var modeSpecificFeatures = new ArrayList<Triple<String,String, Function<MacroscopicLinkSegment, ? extends Object>>>();
+    var modeSpecificFeatures = new ArrayList<Triple<String,String, Function<MacroscopicLinkSegment, ?>>>();
     for(final var mode : supportedModes){
       String modeAttributeShortName = ModeShortNameConverter.asShortName(mode, networkIdMapper.getModeIdMapper());
 
@@ -91,7 +87,14 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
     }
 
     /* features that depend on which modes are supported on the layer */
-    return Stream.concat(fixedFeatures.stream(),modeSpecificFeatures.stream()).collect(Collectors.toList());
+    var allFeatures = Stream.concat(fixedFeatures.stream(),modeSpecificFeatures.stream()).collect(Collectors.toList());
+
+    /* geometry taken from parent link, needs to be last to append srid */
+    Triple<String,String, Function<MacroscopicLinkSegment, ?>> geometryFeature =
+            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", ls -> ls.getParentLink().getGeometry());
+
+    allFeatures.add(geometryFeature);
+    return allFeatures;
   }
 
   /**

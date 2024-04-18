@@ -54,7 +54,9 @@ public class GeoIoConverterTest {
 
   /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
   private static final String MELBOURNE_INPUT_PATH = Path.of(PROJECT_PATH, "input", "melbourne").toString();
+  private static final String SYDNEY_INPUT_PATH = Path.of(PROJECT_PATH, "input", "sydney").toString();
   private static final String MELBOURNE_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","melbourne").toString();
+  private static final String SYDNEY_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","sydney").toString();
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -95,6 +97,35 @@ public class GeoIoConverterTest {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
       fail("testPlanit2GeoIOShapeNetworkConverter");
+    }
+  }
+
+  /**
+   * Test that reading a PLANit network in native format and then writing results in Shape file form
+   */
+  @Test
+  public void testPlanit2GeoIOShapeNetworkConverterSydney() {
+    try {
+
+      /* reader */
+      PlanitNetworkReader planitReader = PlanitNetworkReaderFactory.create();
+      planitReader.getSettings().setInputDirectory(SYDNEY_INPUT_PATH);
+
+      /* writer */
+      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(SYDNEY_OUTPUT_PATH, CountryNames.AUSTRALIA);
+
+      /* convert */
+      NetworkConverterFactory.create(planitReader, geometryWriter).convert();
+
+      /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
+      geometryWriter.setIdMapperType(IdMapperType.XML);
+
+      //todo used as an example rather than test
+
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail("testPlanit2GeoIOShapeNetworkConverterSydney");
     }
   }
 

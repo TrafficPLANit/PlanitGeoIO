@@ -75,7 +75,7 @@ public class PlanitEntityFeatureTypeContext<T> {
   }
 
   /**
-   * Given a type of JTS geometry in class form, provide the crresponding string representation for
+   * Given a type of JTS geometry in class form, provide the corresponding string representation for
    * GIS based persistence
    *
    * @param geometryClazz to get string representation for
