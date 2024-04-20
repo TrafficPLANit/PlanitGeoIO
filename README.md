@@ -1,6 +1,7 @@
 # PLANitGeoIO
 
 ![Master Branch](https://github.com/TrafficPLANit/PLANitGeoIO/actions/workflows/maven_master.yml/badge.svg?branch=master)
+![Development Branch](https://github.com/TrafficPLANit/PLANitGeoIO/actions/workflows/maven_master.yml/badge.svg?branch=develop)
 
 Repository allowing one to write PLANit networks to disk in various GIS formats, e.g., shape, geopackage, etc.
 
