@@ -55,7 +55,7 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
       }else{
         LOGGER.info("Virtual network not present on zoning, integrating network and zoning to be able to persist virtual network");
         // zoning virtual network populated as a result of the below integration
-        new TransportModelNetwork(macroscopicNetwork, zoning).integrateTransportNetworkViaConnectoids();
+        new TransportModelNetwork(macroscopicNetwork, zoning).integrateTransportNetworkViaConnectoids(false);
       }
     }
 

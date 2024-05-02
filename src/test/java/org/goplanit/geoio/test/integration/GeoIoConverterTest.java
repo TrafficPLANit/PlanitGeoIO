@@ -177,7 +177,7 @@ public class GeoIoConverterTest {
       /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
       geometryWriter.getSettings().setPersistVirtualNetwork(true);
       /* make sure virtual network is populated by constructing integrated transport model network */
-      new TransportModelNetwork(network, reader.read()).integrateTransportNetworkViaConnectoids();
+      new TransportModelNetwork(network, reader.read()).integrateTransportNetworkViaConnectoids(false);
 
       /* convert */
       ZoningConverterFactory.create(reader, geometryWriter).convert();
