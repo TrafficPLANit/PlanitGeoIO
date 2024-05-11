@@ -13,6 +13,7 @@ import org.goplanit.network.LayeredNetwork;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
+import org.goplanit.utils.misc.FileUtils;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
@@ -22,6 +23,8 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Function;
@@ -102,6 +105,12 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
 
     prepareCoordinateReferenceSystem(
             macroscopicNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+
+    // make sure directory exists before starting to write to it
+    boolean directoryAvailable = FileUtils.createDirectoryFrom(getSettings().getOutputDirectory());
+    if(!directoryAvailable){
+      throw new PlanItRunTimeException("Unable to persist in output location, %s not available", getSettings().getOutputDirectory());
+    }
   }
 
   /**
