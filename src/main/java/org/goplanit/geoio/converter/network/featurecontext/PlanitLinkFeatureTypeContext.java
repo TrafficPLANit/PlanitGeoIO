@@ -1,6 +1,8 @@
 package org.goplanit.geoio.converter.network.featurecontext;
 
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.utils.geo.PlanitJtsUtils;
+import org.goplanit.utils.graph.EdgeUtils;
 import org.goplanit.utils.graph.Vertex;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
@@ -19,6 +21,19 @@ import java.util.function.Function;
  */
 public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext<MacroscopicLink> {
 
+  /**
+   * Create or obtain link geometry. When no dedicated geometry is present it is created in AB direction from edge vertices
+   *
+   * @param link to use
+   * @return geometry found
+   */
+  public static LineString createOrGetLinkGeometry(MacroscopicLink link){
+    var geometry = link.getGeometry();
+    if(geometry == null){
+      geometry = EdgeUtils.createLineStringFromVertexLocations(link, true);
+    }
+    return geometry;
+  }
 
   /**
    * The mapping from PLANIT link instance to GIS attributes
@@ -39,7 +54,7 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
             Triple.of("length_km", "java.lang.Double", Link::getLengthKm),
             Triple.of("node_a", "String", l -> nodeIdMapper.apply(l.getNodeA())),
             Triple.of("node_b", "String", l -> nodeIdMapper.apply(l.getNodeB())),
-            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", (Function<MacroscopicLink, LineString>) MacroscopicLink::getGeometry));
+            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", PlanitLinkFeatureTypeContext::createOrGetLinkGeometry));
   }
 
   /**

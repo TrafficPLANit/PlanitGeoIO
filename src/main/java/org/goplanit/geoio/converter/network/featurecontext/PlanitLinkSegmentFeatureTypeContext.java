@@ -3,7 +3,9 @@ package org.goplanit.geoio.converter.network.featurecontext;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.util.ModeShortNameConverter;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.utils.graph.EdgeUtils;
 import org.goplanit.utils.graph.Vertex;
+import org.goplanit.utils.graph.directed.EdgeSegmentUtils;
 import org.goplanit.utils.id.ManagedIdEntities;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
@@ -29,6 +31,20 @@ import java.util.stream.Stream;
  * @author markr
  */
 public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
+
+  /**
+   * Create or obtain link geometry. When no dedicated geometry is present it is created in link segment direction from edge vertices
+   *
+   * @param linkSegment to use
+   * @return geometry found
+   */
+  public static LineString createOrGetLinkSegmentGeometry(MacroscopicLinkSegment linkSegment){
+    var geometry = linkSegment.getParentLink().getGeometry();
+    if(geometry == null){
+      geometry = EdgeUtils.createLineStringFromVertexLocations(linkSegment.getParentLink(), linkSegment.isDirectionAb());
+    }
+    return geometry;
+  }
 
   /**
    * The mapping from PLANIT link segment instance to fixed GIS attributes of link segment (without geometry)
@@ -91,7 +107,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
 
     /* geometry taken from parent link, needs to be last to append srid */
     Triple<String,String, Function<MacroscopicLinkSegment, ?>> geometryFeature =
-            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", ls -> ls.getParentLink().getGeometry());
+            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", PlanitLinkSegmentFeatureTypeContext::createOrGetLinkSegmentGeometry);
 
     allFeatures.add(geometryFeature);
     return allFeatures;
