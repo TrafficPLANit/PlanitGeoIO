@@ -241,7 +241,8 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
       /* zoning feature context is created per combination of zone and geometry type since shape files are only support one
        * type of geometry per file */
       var featureContext =
-          GeoIoFeatureTypeBuilder.createZoningZoneFeatureContext(getPrimaryIdMapper(), zoneClazz, geometryType);
+          GeoIoFeatureTypeBuilder.createZoningZoneFeatureContext(
+              getPrimaryIdMapper(), zoneClazz, geometryType, getDestinationCrsTransformer());
 
       /* feature type */
       var zoneSimpleFeature =
@@ -338,7 +339,8 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    */
   protected void writeVirtualNetwork(VirtualNetwork virtualNetwork) {
     var supportedFeatures =
-      GeoIoFeatureTypeBuilder.createVirtualNetworkFeatureContexts(getComponentIdMappers().getVirtualNetworkIdMapper());
+      GeoIoFeatureTypeBuilder.createVirtualNetworkFeatureContexts(
+          getComponentIdMappers().getVirtualNetworkIdMapper(), getDestinationCrsTransformer());
 
       /* feature types per layer */
       var geoFeatureTypesByPlanitEntity =
@@ -389,7 +391,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     {
       var supportedFeatures =
           GeoIoFeatureTypeBuilder.createZoningFeatureContexts(
-              getPrimaryIdMapper(), getComponentIdMappers().getNetworkIdMappers());
+              getPrimaryIdMapper(), getComponentIdMappers().getNetworkIdMappers(), getDestinationCrsTransformer());
 
       /* feature types per layer */
       var geoFeatureTypesByPlanitEntity =

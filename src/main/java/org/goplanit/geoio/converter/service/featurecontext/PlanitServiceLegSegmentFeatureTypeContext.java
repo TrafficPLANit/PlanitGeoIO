@@ -3,12 +3,12 @@ package org.goplanit.geoio.converter.service.featurecontext;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
-import org.locationtech.jts.geom.LineString;
+import org.opengis.referencing.operation.MathTransform;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,10 +25,13 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
    *
    * @param serviceNetworkIdMapper to apply
    * @param networkIdMapper to apply
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<ServiceLegSegment, ? extends Object>>> createFixedFeatureDescription(
-          final ServiceNetworkIdMapper serviceNetworkIdMapper, NetworkIdMapper networkIdMapper){
+  private static List<Triple<String,String, Function<ServiceLegSegment, ?>>> createFixedFeatureDescription(
+          final ServiceNetworkIdMapper serviceNetworkIdMapper,
+          NetworkIdMapper networkIdMapper,
+          final MathTransform destinationCrsTransformer){
     return List.of(
             /* service leg segment info (fixed) */
             Triple.of("mapped_id", "java.lang.String", serviceNetworkIdMapper.getServiceLegSegmentIdMapper()),
@@ -43,7 +46,7 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
 
             /* geometry taken from parent link */
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
-                    (Function<ServiceLegSegment, LineString>) ls -> ls.getGeometry()));
+                    ls -> PlanitJtsUtils.transformGeometrySafe(ls.getGeometry(), destinationCrsTransformer)));
   }
 
   /**
@@ -51,11 +54,14 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
    *
    * @param serviceNetworkIdMapper to apply
    * @param networkIdMapper to apply to parent PLANit entities
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<ServiceLegSegment, ? extends Object>>> createFeatureDescription(
-      final ServiceNetworkIdMapper serviceNetworkIdMapper, final NetworkIdMapper networkIdMapper){
-    return createFixedFeatureDescription(serviceNetworkIdMapper, networkIdMapper);
+  private static List<Triple<String,String, Function<ServiceLegSegment, ?>>> createFeatureDescription(
+      final ServiceNetworkIdMapper serviceNetworkIdMapper,
+      final NetworkIdMapper networkIdMapper,
+      final MathTransform destinationCrsTransformer){
+    return createFixedFeatureDescription(serviceNetworkIdMapper, networkIdMapper, destinationCrsTransformer);
   }
 
   /**
@@ -65,20 +71,25 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
    * @param networkIdMapper id mapper to apply
    */
   protected PlanitServiceLegSegmentFeatureTypeContext(
-      final ServiceNetworkIdMapper serviceNetworkIdMapper, final NetworkIdMapper networkIdMapper){
-    super(ServiceLegSegment.class, createFeatureDescription(serviceNetworkIdMapper, networkIdMapper));
+      final ServiceNetworkIdMapper serviceNetworkIdMapper,
+      final NetworkIdMapper networkIdMapper,
+      final MathTransform destinationCrsTransformer){
+    super(ServiceLegSegment.class, createFeatureDescription(serviceNetworkIdMapper, networkIdMapper, destinationCrsTransformer));
   }
 
   /**
    * Factory method
    *
-   * @param serviceNetworkIdMapper to apply for creating each ids when persisting
+   * @param serviceNetworkIdMapper to apply for creating each id when persisting
    * @param networkIdMapper to apply for creating parent ids when persisting
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static PlanitServiceLegSegmentFeatureTypeContext create(
-      final ServiceNetworkIdMapper serviceNetworkIdMapper, final NetworkIdMapper networkIdMapper){
-    return new PlanitServiceLegSegmentFeatureTypeContext(serviceNetworkIdMapper, networkIdMapper);
+      final ServiceNetworkIdMapper serviceNetworkIdMapper,
+      final NetworkIdMapper networkIdMapper,
+      final MathTransform destinationCrsTransformer){
+    return new PlanitServiceLegSegmentFeatureTypeContext(serviceNetworkIdMapper, networkIdMapper, destinationCrsTransformer);
   }
 
 }

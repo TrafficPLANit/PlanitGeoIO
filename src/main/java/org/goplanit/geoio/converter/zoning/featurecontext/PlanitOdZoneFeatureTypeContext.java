@@ -1,14 +1,10 @@
 package org.goplanit.geoio.converter.zoning.featurecontext;
 
-import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
-import org.goplanit.utils.graph.Vertex;
-import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.Zone;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
+import org.opengis.referencing.operation.MathTransform;
 
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -34,15 +30,19 @@ public class PlanitOdZoneFeatureTypeContext<T extends Geometry> extends PlanitZo
    *
    * @param zoneIdMapper id mapper to apply
    * @param geometryType to apply (for the subset of PLANit od zones of this type)
+   * @param destinationCrsTransformer to use (may be null)
    */
-  protected PlanitOdZoneFeatureTypeContext(Function<OdZone, String> zoneIdMapper, Class<T> geometryType){
+  protected PlanitOdZoneFeatureTypeContext(
+      Function<OdZone, String> zoneIdMapper,
+      Class<T> geometryType,
+      final MathTransform destinationCrsTransformer){
     super(OdZone.class, geometryType, zoneIdMapper);
 
     /* add od zone specific attributes */
     appendOdZoneFeatureDescription();
 
     /* finish with geometry */
-    appendToFeatureTypeDescription(createGeometryFeatureDescription());
+    appendToFeatureTypeDescription(createGeometryFeatureDescription(destinationCrsTransformer));
   }
 
   /**
@@ -51,13 +51,16 @@ public class PlanitOdZoneFeatureTypeContext<T extends Geometry> extends PlanitZo
    * @param <TT> the type of geometry
    * @param zoneIdMapper to apply for creating each od zone's unique id when persisting
    * @param geometryType to apply for this context
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static <TT extends Geometry> PlanitOdZoneFeatureTypeContext<TT> create(
-      Function<? super Zone, String> zoneIdMapper,Class<TT> geometryType){
+      Function<? super Zone, String> zoneIdMapper,Class<TT> geometryType,
+      final MathTransform destinationCrsTransformer){
     return new PlanitOdZoneFeatureTypeContext<>(
-        (z) -> zoneIdMapper.apply(z) /* convert to OdZone as type */,
-        geometryType);
+        zoneIdMapper::apply /* convert to OdZone as type */,
+        geometryType,
+        destinationCrsTransformer);
   }
 
 }

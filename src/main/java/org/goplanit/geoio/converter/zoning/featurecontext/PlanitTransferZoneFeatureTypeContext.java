@@ -1,11 +1,9 @@
 package org.goplanit.geoio.converter.zoning.featurecontext;
 
-import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.TransferZone;
-import org.goplanit.utils.zoning.TransferZoneGroup;
 import org.goplanit.utils.zoning.Zone;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.util.function.Function;
 
@@ -32,15 +30,19 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry> extends Pl
    *
    * @param zoneIdMapper id mapper to apply
    * @param geometryType  to use for this context
+   * @param destinationCrsTransformer to use (may be null)
    */
-  protected PlanitTransferZoneFeatureTypeContext(Function<TransferZone, String> zoneIdMapper, Class<T> geometryType){
+  protected PlanitTransferZoneFeatureTypeContext(
+      Function<TransferZone, String> zoneIdMapper,
+      Class<T> geometryType,
+      final MathTransform destinationCrsTransformer){
     super(TransferZone.class, geometryType, zoneIdMapper);
 
     /* add od zone specific attributes */
     appendTransferZoneFeatureDescription();
 
     /* finish with geometry */
-    appendToFeatureTypeDescription(createGeometryFeatureDescription());
+    appendToFeatureTypeDescription(createGeometryFeatureDescription(destinationCrsTransformer));
   }
 
   /**
@@ -49,14 +51,18 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry> extends Pl
    * @param <TT> the type of geometry
    * @param zoneIdMapper to apply for creating each service node's unique id when persisting
    * @param geometryType to use
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static <TT extends Geometry> PlanitTransferZoneFeatureTypeContext create(
-    Function<? super Zone, String> zoneIdMapper, Class<TT> geometryType){
+    Function<? super Zone, String> zoneIdMapper,
+    Class<TT> geometryType,
+    final MathTransform destinationCrsTransformer){
 
     return new PlanitTransferZoneFeatureTypeContext<>(
-          (z) -> zoneIdMapper.apply(z) /* convert to TransferZone as type */,
-          geometryType);
+        zoneIdMapper::apply /* convert to TransferZone as type */,
+        geometryType,
+        destinationCrsTransformer);
   }
 
 }

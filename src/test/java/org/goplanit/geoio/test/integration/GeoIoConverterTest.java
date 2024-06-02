@@ -1,5 +1,6 @@
 package org.goplanit.geoio.test.integration;
 
+import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalConverterFactory;
 import org.goplanit.converter.network.NetworkConverterFactory;
@@ -10,17 +11,14 @@ import org.goplanit.geoio.converter.network.GeometryNetworkWriter;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterFactory;
-import org.goplanit.geoio.converter.zoning.GeometryZoningWriter;
 import org.goplanit.geoio.converter.zoning.GeometryZoningWriterFactory;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
 import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
-import org.goplanit.io.converter.zoning.PlanitZoningReader;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.goplanit.logging.Logging;
-import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.transport.TransportModelNetwork;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
@@ -162,7 +160,7 @@ public class GeoIoConverterTest {
    * Test reading a PLANit zoning in native format and then writing results in Shape file form
    */
   @Test
-  public void testPlanit2GeoIOShapeZoningConverter() {
+  public void testPlanit2GeoIOShapeZoningAndNetworkConverter() {
     try {
       /* PLANit network */
       var network = PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read();
@@ -171,16 +169,22 @@ public class GeoIoConverterTest {
       var reader = PlanitZoningReaderFactory.create(
           new PlanitZoningReaderSettings(MELBOURNE_INPUT_PATH), network);
 
+      var geometryNetworkWriter = GeometryNetworkWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+      geometryNetworkWriter.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS);
+
+      geometryNetworkWriter.write(network);
+
       /* writer */
-      var geometryWriter = GeometryZoningWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+      var geometryZoningWriter = GeometryZoningWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+      geometryZoningWriter.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS);
 
       /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
-      geometryWriter.getSettings().setPersistVirtualNetwork(true);
+      geometryZoningWriter.getSettings().setPersistVirtualNetwork(true);
       /* make sure virtual network is populated by constructing integrated transport model network */
       new TransportModelNetwork(network, reader.read()).integrateTransportNetworkViaConnectoids(false);
 
       /* convert */
-      ZoningConverterFactory.create(reader, geometryWriter).convert();
+      ZoningConverterFactory.create(reader, geometryZoningWriter).convert();
 
       //todo used as an example rather than test
 

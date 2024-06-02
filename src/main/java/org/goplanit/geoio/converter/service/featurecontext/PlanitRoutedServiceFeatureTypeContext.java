@@ -1,16 +1,11 @@
 package org.goplanit.geoio.converter.service.featurecontext;
 
-import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.RoutedServicesIdMapper;
-import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
-import org.goplanit.service.routed.RoutedServices;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.goplanit.utils.service.routed.RoutedService;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.util.List;
 import java.util.function.Function;
@@ -27,10 +22,11 @@ public class PlanitRoutedServiceFeatureTypeContext extends PlanitEntityFeatureTy
    * The mapping from PLANIT routed service instance to fixed GIS attributes of that service
    *
    * @param routedServicesIdMapper to apply
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<RoutedService, ? extends Object>>> createFixedFeatureDescription(
-      final RoutedServicesIdMapper routedServicesIdMapper){
+  private static List<Triple<String,String, Function<RoutedService, ?>>> createFixedFeatureDescription(
+      final RoutedServicesIdMapper routedServicesIdMapper, final MathTransform destinationCrsTransformer){
     return List.of(
         /* service leg segment info (fixed) */
         Triple.of("mapped_id", "java.lang.String", routedServicesIdMapper.getRoutedServiceRefIdMapper()),
@@ -47,18 +43,21 @@ public class PlanitRoutedServiceFeatureTypeContext extends PlanitEntityFeatureTy
 
         /* geometry taken from underlying trips */
         Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "MultiLineString",
-                (Function<RoutedService, MultiLineString>) rs -> rs.extractGeometry(true, true)));
+                rs -> PlanitJtsUtils.transformGeometrySafe(
+                    rs.extractGeometry(true, true), destinationCrsTransformer)));
   }
 
   /**
    * The mapping from PLANIT routed service instance to GIS attributes
    *
    * @param routedServicesIdMapper to apply
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<RoutedService, ? extends Object>>> createFeatureDescription(
-      final RoutedServicesIdMapper routedServicesIdMapper){
-    return createFixedFeatureDescription(routedServicesIdMapper);
+  private static List<Triple<String,String, Function<RoutedService, ?>>> createFeatureDescription(
+      final RoutedServicesIdMapper routedServicesIdMapper,
+      final MathTransform destinationCrsTransformer){
+    return createFixedFeatureDescription(routedServicesIdMapper, destinationCrsTransformer);
   }
 
   /**
@@ -66,18 +65,23 @@ public class PlanitRoutedServiceFeatureTypeContext extends PlanitEntityFeatureTy
    *
    * @param routedServicesIdMapper id mapper to apply
    */
-  protected PlanitRoutedServiceFeatureTypeContext(final RoutedServicesIdMapper routedServicesIdMapper){
-    super(RoutedService.class, createFeatureDescription(routedServicesIdMapper));
+  protected PlanitRoutedServiceFeatureTypeContext(
+      final RoutedServicesIdMapper routedServicesIdMapper,
+      final MathTransform destinationCrsTransformer){
+    super(RoutedService.class, createFeatureDescription(routedServicesIdMapper, destinationCrsTransformer));
   }
 
   /**
    * Factory method
    *
    * @param routedServicesIdMapper to apply for creating each ids when persisting
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
-  public static PlanitRoutedServiceFeatureTypeContext create(final RoutedServicesIdMapper routedServicesIdMapper){
-    return new PlanitRoutedServiceFeatureTypeContext(routedServicesIdMapper);
+  public static PlanitRoutedServiceFeatureTypeContext create(
+      final RoutedServicesIdMapper routedServicesIdMapper,
+      final MathTransform destinationCrsTransformer){
+    return new PlanitRoutedServiceFeatureTypeContext(routedServicesIdMapper, destinationCrsTransformer);
   }
 
 }

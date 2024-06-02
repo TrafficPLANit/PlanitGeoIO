@@ -3,6 +3,7 @@ package org.goplanit.geoio.converter.zoning.featurecontext;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.utils.zoning.UndirectedConnectoid;
+import org.opengis.referencing.operation.MathTransform;
 
 /**
  * Track contextual relevant information for PLANit Undirected connectoids that are persisted
@@ -23,15 +24,17 @@ public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnecto
    *
    * @param zoningIdMapper id mapper to apply
    * @param networkIdMapper id mapper of parent physical network to apply
+   * @param destinationCrsTransformer to use (may be null)
    */
-  protected PlanitUndirectedConnectoidFeatureTypeContext(final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper){
+  protected PlanitUndirectedConnectoidFeatureTypeContext(
+      final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper, final MathTransform destinationCrsTransformer){
     super(UndirectedConnectoid.class, zoningIdMapper, networkIdMapper);
 
     /* add od zone specific attributes */
     appendUndirectedConnectoidFeatureDescription();
 
     /* finish with geometry */
-    appendToFeatureTypeDescription(createGeometryFeatureDescription());
+    appendToFeatureTypeDescription(createGeometryFeatureDescription(destinationCrsTransformer));
   }
 
   /**
@@ -39,11 +42,14 @@ public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnecto
    *
    * @param zoningIdMapper id mapper to apply
    * @param networkIdMapper id mapper of parent physical network to apply
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static PlanitUndirectedConnectoidFeatureTypeContext create(
-      final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper){
-    return new PlanitUndirectedConnectoidFeatureTypeContext(zoningIdMapper, networkIdMapper);
+      final ZoningIdMapper zoningIdMapper,
+      final NetworkIdMapper networkIdMapper,
+      final MathTransform destinationCrsTransformer){
+    return new PlanitUndirectedConnectoidFeatureTypeContext(zoningIdMapper, networkIdMapper, destinationCrsTransformer);
   }
 
 }

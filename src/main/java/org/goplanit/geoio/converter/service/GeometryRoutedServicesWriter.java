@@ -213,7 +213,7 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
 
         var supportedFeatures =
             GeoIoFeatureTypeBuilder.createRoutedServicesLayerFeatureContexts(
-                getPrimaryIdMapper(), layerMode, getComponentIdMappers().getServiceNetworkIdMapper());
+                getPrimaryIdMapper(), layerMode, getComponentIdMappers().getServiceNetworkIdMapper(), getDestinationCrsTransformer());
 
         /* feature types per layer */
         var geoFeatureTypesByPlanitEntity =

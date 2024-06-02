@@ -1,9 +1,11 @@
 package org.goplanit.geoio.converter.zoning.featurecontext;
 
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.zoning.Zone;
 import org.locationtech.jts.geom.Geometry;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +31,7 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
    * @param zoneIdMapper to apply
    * @return feature mapping
    */
-  protected static <ZZ extends Zone, TT extends Geometry> List<Triple<String,String, Function<ZZ, ? extends Object>>> createBaseFeatureDescription(
+  protected static <ZZ extends Zone, TT extends Geometry> List<Triple<String,String, Function<ZZ, ?>>> createBaseFeatureDescription(
       Function<ZZ, String> zoneIdMapper){
 
     return List.of(
@@ -43,14 +45,17 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
   /**
    * The mapping from PLANIT zone to its geometry attribute
    *
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping entry created
    */
-  protected Triple<String,String, Function<Z, ? extends Object>> createGeometryFeatureDescription(){
+  protected Triple<String,String, Function<Z, ?>> createGeometryFeatureDescription(
+      final MathTransform destinationCrsTransformer){
 
     return Triple.of(
         DEFAULT_GEOMETRY_ATTRIBUTE_KEY,
         getGisTypeFromJtsGeometryClass(geometryClassType),
-        z -> geometryClassType.cast(z.getGeometry(true)));
+          z -> geometryClassType.cast(
+            PlanitJtsUtils.transformGeometrySafe(z.getGeometry(true), destinationCrsTransformer)));
   }
 
   /**
@@ -61,7 +66,9 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
    * @param zoneIdMapper id mapper to apply
    */
   protected PlanitZoneFeatureTypeContext(
-      final Class<Z> zoneClass, final Class<T> geometryClassType, Function<Z, String> zoneIdMapper){
+      final Class<Z> zoneClass,
+      final Class<T> geometryClassType,
+      Function<Z, String> zoneIdMapper){
     super(zoneClass, createBaseFeatureDescription(zoneIdMapper));
     this.geometryClassType = geometryClassType;
   }

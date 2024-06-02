@@ -217,7 +217,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
 
       var supportedFeatures =
           GeoIoFeatureTypeBuilder.createServiceNetworkLayerFeatureContexts(
-              getPrimaryIdMapper(), layer, getComponentIdMappers().getNetworkIdMappers());
+              getPrimaryIdMapper(), layer, getComponentIdMappers().getNetworkIdMappers(), getDestinationCrsTransformer());
 
       /* feature types per layer */
       var geoFeatureTypesByPlanitEntity =

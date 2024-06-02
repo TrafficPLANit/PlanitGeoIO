@@ -2,7 +2,9 @@ package org.goplanit.geoio.util;
 
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.*;
-import org.goplanit.geoio.converter.network.featurecontext.*;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkSegmentFeatureTypeContext;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitRoutedServiceFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegmentFeatureTypeContext;
@@ -16,15 +18,18 @@ import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
-import org.goplanit.utils.service.routed.RoutedServicesLayer;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.Zone;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -56,7 +61,8 @@ public final class GeoIoFeatureTypeBuilder {
    * @param destinationCoordinateReferenceSystem destination CRS to use
    * @return Srid addencum string, e.g., srid=_code_ if found, otherwise empty string
    */
-  protected static String createFeatureGeometrySridAddendum(CoordinateReferenceSystem destinationCoordinateReferenceSystem){
+  protected static String createFeatureGeometrySridAddendum(
+      CoordinateReferenceSystem destinationCoordinateReferenceSystem){
     String sridCodeAddendum = "";
     if(destinationCoordinateReferenceSystem == null){
       LOGGER.warning("Destination CRS null, ignoring attaching it to PLANit feature types");
@@ -102,17 +108,23 @@ public final class GeoIoFeatureTypeBuilder {
    *
    * @param primaryIdMapper to use for id conversion when persisting
    * @param layer used for these features
+   * @param destinationCrsTransformer to use (may be null)
    * @return available network entity feature context information
    */
   public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createNetworkLayerFeatureContexts(
-          NetworkIdMapper primaryIdMapper, MacroscopicNetworkLayer layer){
+          NetworkIdMapper primaryIdMapper,
+          MacroscopicNetworkLayer layer,
+          final MathTransform destinationCrsTransformer){
     return Set.of(
             /* nodes */
-            PlanitNodeFeatureTypeContext.create(primaryIdMapper.getVertexIdMapper()),
+            PlanitNodeFeatureTypeContext.create(
+                primaryIdMapper.getVertexIdMapper(), destinationCrsTransformer),
             /* links */
-            PlanitLinkFeatureTypeContext.create(primaryIdMapper.getLinkIdMapper(), primaryIdMapper.getVertexIdMapper()),
+            PlanitLinkFeatureTypeContext.create(
+                primaryIdMapper.getLinkIdMapper(), primaryIdMapper.getVertexIdMapper(), destinationCrsTransformer),
             /* link segments */
-            PlanitLinkSegmentFeatureTypeContext.create(primaryIdMapper, layer.getSupportedModes()));
+            PlanitLinkSegmentFeatureTypeContext.create(
+                primaryIdMapper, layer.getSupportedModes(), destinationCrsTransformer));
   }
 
   /**
@@ -122,17 +134,24 @@ public final class GeoIoFeatureTypeBuilder {
    * @param primaryIdMapper  to use for id conversion when persisting
    * @param layer            used for these features
    * @param networkIdMappers used for parent ids related to the physical network
+   * @param destinationCrsTransformer to use (may be null)
    * @return available service network entity feature context information
    */
   public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createServiceNetworkLayerFeatureContexts(
-      ServiceNetworkIdMapper primaryIdMapper, ServiceNetworkLayer layer, NetworkIdMapper networkIdMappers) {
+      ServiceNetworkIdMapper primaryIdMapper,
+      ServiceNetworkLayer layer,
+      NetworkIdMapper networkIdMappers,
+      final MathTransform destinationCrsTransformer) {
     return Set.of(
         /* service nodes */
-        PlanitServiceNodeFeatureTypeContext.create(primaryIdMapper.getServiceNodeIdMapper(), networkIdMappers.getVertexIdMapper()),
+        PlanitServiceNodeFeatureTypeContext.create(
+            primaryIdMapper.getServiceNodeIdMapper(), networkIdMappers.getVertexIdMapper(), destinationCrsTransformer),
         /* legs */
-        PlanitServiceLegFeatureTypeContext.create(primaryIdMapper.getServiceLegIdMapper(),primaryIdMapper.getServiceNodeIdMapper()),
+        PlanitServiceLegFeatureTypeContext.create(
+            primaryIdMapper.getServiceLegIdMapper(),primaryIdMapper.getServiceNodeIdMapper(), destinationCrsTransformer),
         /* leg segments */
-        PlanitServiceLegSegmentFeatureTypeContext.create(primaryIdMapper, networkIdMappers));
+        PlanitServiceLegSegmentFeatureTypeContext.create(
+            primaryIdMapper, networkIdMappers, destinationCrsTransformer));
   }
 
   /**
@@ -143,17 +162,22 @@ public final class GeoIoFeatureTypeBuilder {
    * @param primaryIdMapper  to use for id conversion when persisting
    * @param zoneClazz class signature of the zone
    * @param geometryType to apply
+   * @param destinationCrsTransformer to use (may be null)
    * @return available service network entity feature context information
    */
   public static <Z extends Zone, T extends Geometry> PlanitZoneFeatureTypeContext<Z, T> createZoningZoneFeatureContext(
-      ZoningIdMapper primaryIdMapper, Class<Z> zoneClazz, Class<T> geometryType) {
+      ZoningIdMapper primaryIdMapper,
+      Class<Z> zoneClazz, Class<T> geometryType,
+      final MathTransform destinationCrsTransformer) {
     if (zoneClazz.equals(OdZone.class)) {
       return (PlanitZoneFeatureTypeContext<Z, T>)
-          PlanitOdZoneFeatureTypeContext.create(primaryIdMapper.getZoneIdMapper(), geometryType);
+          PlanitOdZoneFeatureTypeContext.create(
+              primaryIdMapper.getZoneIdMapper(), geometryType, destinationCrsTransformer);
     }
     if (zoneClazz.equals(TransferZone.class)) {
       return (PlanitZoneFeatureTypeContext<Z, T>)
-          PlanitTransferZoneFeatureTypeContext.create(primaryIdMapper.getZoneIdMapper(), geometryType);
+          PlanitTransferZoneFeatureTypeContext.create(
+              primaryIdMapper.getZoneIdMapper(), geometryType, destinationCrsTransformer);
     }
     PlanItRunTimeException.throwNew("Zone type %s not yet added as supported Zone type, please add, aborting", zoneClazz.getCanonicalName());
     return null;
@@ -161,35 +185,42 @@ public final class GeoIoFeatureTypeBuilder {
 
   /**
    * Construct GIS feature contexts containing the information required for persistence of all Zoning entities
-   * (except the zone's which are serviced via {@link #createZoningZoneFeatureContext(ZoningIdMapper, Class, Class)} because they
+   * (except the zone's which are serviced via {@link #createZoningZoneFeatureContext(ZoningIdMapper, Class, Class, MathTransform)} because they
    * have geometry dependent contexts.
    *
    * @param primaryIdMapper  to use for id conversion when persisting
    * @param networkIdMappers used for parent ids related to the physical network
+   * @param destinationCrsTransformer to use (may be null)
    * @return available zoning entity feature context information
    */
   public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createZoningFeatureContexts(
-      ZoningIdMapper primaryIdMapper, NetworkIdMapper networkIdMappers) {
+      ZoningIdMapper primaryIdMapper,
+      NetworkIdMapper networkIdMappers,
+      final MathTransform destinationCrsTransformer) {
     return Set.of(
         /* undirected connectoids */
-        PlanitUndirectedConnectoidFeatureTypeContext.create(primaryIdMapper, networkIdMappers),
+        PlanitUndirectedConnectoidFeatureTypeContext.create(
+            primaryIdMapper, networkIdMappers, destinationCrsTransformer),
         /* directed connectoids */
-        PlanitDirectedConnectoidFeatureTypeContext.create(primaryIdMapper,networkIdMappers));
+        PlanitDirectedConnectoidFeatureTypeContext.create(
+            primaryIdMapper,networkIdMappers, destinationCrsTransformer));
   }
 
   /**
    * Construct GIS feature contexts containing the information required for persistence of all virtual network entities
    *
    * @param primaryIdMapper  to use for id conversion when persisting
+   * @param destinationCrsTransformer to use (may be null)
    * @return available virtual network entity feature context information
    */
   public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createVirtualNetworkFeatureContexts(
-      VirtualNetworkIdMapper primaryIdMapper) {
+      VirtualNetworkIdMapper primaryIdMapper,
+      final MathTransform destinationCrsTransformer) {
     return Set.of(
         /* connectoid edge */
-        PlanitConnectoidEdgeFeatureTypeContext.create(primaryIdMapper),
+        PlanitConnectoidEdgeFeatureTypeContext.create(primaryIdMapper, destinationCrsTransformer),
         /* connectoid segments */
-        PlanitConnectoidSegmentFeatureTypeContext.create(primaryIdMapper));
+        PlanitConnectoidSegmentFeatureTypeContext.create(primaryIdMapper, destinationCrsTransformer));
   }
 
   /**
@@ -199,13 +230,17 @@ public final class GeoIoFeatureTypeBuilder {
    * @param primaryIdMapper  to use for id conversion when persisting
    * @param layerMode mode of the routed services with this mode to persist
    * @param serviceNetworkIdMapper used for parent ids related to the service network
+   * @param destinationCrsTransformer to use (may be null)
    * @return available routed services entity feature context information
    */
   public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createRoutedServicesLayerFeatureContexts(
-      RoutedServicesIdMapper primaryIdMapper, Mode layerMode, ServiceNetworkIdMapper serviceNetworkIdMapper) {
+      RoutedServicesIdMapper primaryIdMapper,
+      Mode layerMode,
+      ServiceNetworkIdMapper serviceNetworkIdMapper,
+      final MathTransform destinationCrsTransformer) {
     return Set.of(
         /* connectoid edge */
-        PlanitRoutedServiceFeatureTypeContext.create(primaryIdMapper));
+        PlanitRoutedServiceFeatureTypeContext.create(primaryIdMapper, destinationCrsTransformer));
         // todo trip (schedule and frequency)
   }
 
@@ -229,7 +264,7 @@ public final class GeoIoFeatureTypeBuilder {
           Map<Class<?>, String> planitEntityBaseFileNames,
           Function<UntypedDirectedGraphLayer<?,?,?>, String> layerPrefixProducer){
 
-    /** track the created/registered feature types for their respective PLANit entity class */
+    /* track the created/registered feature types for their respective PLANit entity class */
     final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
@@ -270,14 +305,15 @@ public final class GeoIoFeatureTypeBuilder {
       CoordinateReferenceSystem destinationCoordinateReferenceSystem,
       Map<Class<?>, String> planitEntitySchemaNames){
 
-    /** track the created/registered feature types for their respective PLANit entity class */
+    /* track the created/registered feature types for their respective PLANit entity class */
     final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
       for (var featureContext : features){
 
         /* take description  and convert to single string */
-        String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
+        String simpleFeatureTypeString = createFeatureTypeStringFromContext(
+            featureContext, destinationCoordinateReferenceSystem);
 
         /* create feature type schema name corresponding to the file name */
         String schemaName = planitEntitySchemaNames.get(featureContext.getPlanitEntityClass());
@@ -311,7 +347,8 @@ public final class GeoIoFeatureTypeBuilder {
 
     try {
         /* take description  and convert to single string */
-        String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
+        String simpleFeatureTypeString =
+            createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
 
         /* execute creation of the type */
         return DataUtilities.createType(planitEntityFileName, simpleFeatureTypeString);
@@ -337,7 +374,7 @@ public final class GeoIoFeatureTypeBuilder {
           String baseFileName){
     String layerPrefix = (layerPrefixProducer!= null ? layerPrefixProducer.apply(directedGraphlayer) : "");
     if(StringUtils.isNullOrBlank(layerPrefix)){
-      LOGGER.warning(String.format("IGNORE: Layer prefix for PLANit feature is null or blank, this shouldn't happen", layerPrefix));
+      LOGGER.warning("IGNORE: Layer prefix for PLANit feature is null or blank, this shouldn't happen");
       return null;
     }
     if(StringUtils.isNullOrBlank(baseFileName)){

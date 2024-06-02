@@ -3,12 +3,13 @@ package org.goplanit.geoio.converter.zoning.featurecontext;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.IterableUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.zoning.Connectoid;
-import org.goplanit.utils.zoning.UndirectedConnectoid;
 import org.goplanit.utils.zoning.Zone;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +26,7 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid> extends Pl
 
   /**
    * The mapping from PLANIT connectoid base GIS attributes (without geometry to allow for addition of other attributes until adding
-   * geometry later via derived class using {@link #createGeometryFeatureDescription()}
+   * geometry later via derived class using {@link #createGeometryFeatureDescription(MathTransform)}
    *
    * @param <CC> Connectoid type
    * @param zoningIdMapper to apply
@@ -65,10 +66,13 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid> extends Pl
   /**
    * The mapping from PLANIT connectoid to its geometry attribute
    *
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping entry created
    */
-  protected Triple<String, String, Function<C, ?>> createGeometryFeatureDescription(){
-    return Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY,"Point", c -> c.getAccessVertex().getPosition());
+  protected Triple<String, String, Function<C, ?>> createGeometryFeatureDescription(
+      final MathTransform destinationCrsTransformer){
+    return Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY,"Point",
+        c -> PlanitJtsUtils.transformGeometrySafe(c.getAccessVertex().getPosition(), destinationCrsTransformer));
   }
 
   /**

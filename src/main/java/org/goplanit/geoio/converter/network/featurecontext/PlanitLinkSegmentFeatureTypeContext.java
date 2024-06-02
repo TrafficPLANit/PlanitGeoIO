@@ -3,25 +3,18 @@ package org.goplanit.geoio.converter.network.featurecontext;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.util.ModeShortNameConverter;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.graph.EdgeUtils;
-import org.goplanit.utils.graph.Vertex;
-import org.goplanit.utils.graph.directed.EdgeSegmentUtils;
-import org.goplanit.utils.id.ManagedIdEntities;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.mode.Modes;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLink;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
-import org.goplanit.utils.network.layer.physical.Link;
-import org.goplanit.utils.network.layer.physical.Node;
 import org.locationtech.jts.geom.LineString;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -80,11 +73,13 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
    *
    * @param networkIdMapper to apply
    * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
   private static List<Triple<String,String, Function<MacroscopicLinkSegment, ?>>> createFeatureDescription(
           final NetworkIdMapper networkIdMapper,
-          Collection<? extends Mode> supportedModes){
+          Collection<? extends Mode> supportedModes,
+          final MathTransform destinationCrsTransformer){
     /* fixed features -  always present and non-variable number */
     var fixedFeatures =
             createFixedFeatureDescription(networkIdMapper);
@@ -107,7 +102,8 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
 
     /* geometry taken from parent link, needs to be last to append srid */
     Triple<String,String, Function<MacroscopicLinkSegment, ?>> geometryFeature =
-            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", PlanitLinkSegmentFeatureTypeContext::createOrGetLinkSegmentGeometry);
+            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
+                ls -> PlanitJtsUtils.transformGeometrySafe(createOrGetLinkSegmentGeometry(ls),destinationCrsTransformer));
 
     allFeatures.add(geometryFeature);
     return allFeatures;
@@ -118,12 +114,14 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
    *
    * @param networkIdMapper id mapper to apply
    * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitLinkSegmentFeatureTypeContext(
           final NetworkIdMapper networkIdMapper,
-          final Collection<? extends Mode> supportedModes){
+          final Collection<? extends Mode> supportedModes,
+          final MathTransform destinationCrsTransformer){
     super(MacroscopicLinkSegment.class,
-            createFeatureDescription(networkIdMapper, supportedModes));
+            createFeatureDescription(networkIdMapper, supportedModes, destinationCrsTransformer));
   }
 
   /**
@@ -131,12 +129,14 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
    *
    * @param networkIdMapper to apply for creating each ids when persisting
    * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static PlanitLinkSegmentFeatureTypeContext create(
           final NetworkIdMapper networkIdMapper,
-          final Collection<? extends Mode> supportedModes){
-    return new PlanitLinkSegmentFeatureTypeContext( networkIdMapper, supportedModes);
+          final Collection<? extends Mode> supportedModes,
+          final MathTransform destinationCrsTransformer){
+    return new PlanitLinkSegmentFeatureTypeContext( networkIdMapper, supportedModes, destinationCrsTransformer);
   }
 
 }

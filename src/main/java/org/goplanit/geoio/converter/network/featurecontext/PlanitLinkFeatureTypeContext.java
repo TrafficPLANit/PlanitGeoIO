@@ -10,6 +10,7 @@ import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.util.List;
 import java.util.function.Function;
@@ -39,11 +40,13 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * The mapping from PLANIT link instance to GIS attributes
    *
    * @param linkIdMapper to apply
+   * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
   private static List<Triple<String,String, Function<MacroscopicLink, ? extends Object>>> createFeatureDescription(
           Function<MacroscopicLink, String> linkIdMapper,
-          Function<Node, String> nodeIdMapper){
+          Function<Node, String> nodeIdMapper,
+          final MathTransform destinationCrsTransformer){
     return List.of(
             Triple.of("mapped_id", "java.lang.String", linkIdMapper),
             Triple.of("id", "java.lang.Long", Link::getId),
@@ -54,7 +57,8 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
             Triple.of("length_km", "java.lang.Double", Link::getLengthKm),
             Triple.of("node_a", "String", l -> nodeIdMapper.apply(l.getNodeA())),
             Triple.of("node_b", "String", l -> nodeIdMapper.apply(l.getNodeB())),
-            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString", PlanitLinkFeatureTypeContext::createOrGetLinkGeometry));
+            Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
+                l -> PlanitJtsUtils.transformGeometrySafe(createOrGetLinkGeometry(l), destinationCrsTransformer)));
   }
 
   /**
@@ -63,8 +67,9 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param linkIdMapper id mapper to apply
    * @param nodeIdMapper id mapper to apply for attributes requiring node ids
    */
-  protected PlanitLinkFeatureTypeContext(Function<MacroscopicLink, String> linkIdMapper, Function<Node, String> nodeIdMapper){
-    super(MacroscopicLink.class, createFeatureDescription(linkIdMapper, nodeIdMapper));
+  protected PlanitLinkFeatureTypeContext(
+      Function<MacroscopicLink, String> linkIdMapper, Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
+    super(MacroscopicLink.class, createFeatureDescription(linkIdMapper, nodeIdMapper, destinationCrsTransformer));
   }
 
   /**
@@ -72,12 +77,15 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    *
    * @param linkIdMapper to apply for creating each link's unique id when persisting
    * @param nodeIdMapper to apply for creating node id references
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
-  public static PlanitLinkFeatureTypeContext create(Function<Link, String> linkIdMapper, Function<Vertex, String> nodeIdMapper){
+  public static PlanitLinkFeatureTypeContext create(
+      Function<Link, String> linkIdMapper, Function<Vertex, String> nodeIdMapper , final MathTransform destinationCrsTransformer){
     return new PlanitLinkFeatureTypeContext(
-            l -> linkIdMapper.apply(l) /* convert to link as type */,
-            n -> nodeIdMapper.apply(n) /* convert to node as type */);
+        linkIdMapper::apply /* convert to link as type */,
+        nodeIdMapper::apply /* convert to node as type */,
+        destinationCrsTransformer);
   }
 
 }
