@@ -55,6 +55,7 @@ public class PlanitNodeFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * Factory method
    *
    * @param nodeIdMapper to apply for creating each node's unique id when persisting
+   * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static PlanitNodeFeatureTypeContext create(Function<Vertex, String> nodeIdMapper, final MathTransform destinationCrsTransformer){

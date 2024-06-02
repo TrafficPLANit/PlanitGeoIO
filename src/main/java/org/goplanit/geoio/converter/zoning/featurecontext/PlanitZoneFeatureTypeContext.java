@@ -24,7 +24,7 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
 
   /**
    * The mapping from PLANIT zone base GIS attributes (without geometry to allow for addition of other attributes until adding
-   * geometry later via derived class using {@link #createGeometryFeatureDescription()}
+   * geometry later via derived class using {@link #createGeometryFeatureDescription(MathTransform)}
    *
    * @param <TT> the type of geometry
    * @param <ZZ> the type of zone

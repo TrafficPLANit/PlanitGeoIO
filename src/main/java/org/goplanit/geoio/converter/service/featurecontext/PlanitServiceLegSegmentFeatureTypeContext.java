@@ -69,6 +69,7 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
    *
    * @param serviceNetworkIdMapper id mapper to apply
    * @param networkIdMapper id mapper to apply
+   * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitServiceLegSegmentFeatureTypeContext(
       final ServiceNetworkIdMapper serviceNetworkIdMapper,

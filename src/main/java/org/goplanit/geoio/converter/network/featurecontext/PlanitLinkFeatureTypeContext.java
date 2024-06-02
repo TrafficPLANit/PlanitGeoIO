@@ -66,6 +66,7 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    *
    * @param linkIdMapper id mapper to apply
    * @param nodeIdMapper id mapper to apply for attributes requiring node ids
+   * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitLinkFeatureTypeContext(
       Function<MacroscopicLink, String> linkIdMapper, Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
