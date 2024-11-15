@@ -1,5 +1,6 @@
 package org.goplanit.geoio.test.integration;
 
+import org.goplanit.network.transport.TransportModelNetworkImpl;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalConverterFactory;
@@ -181,7 +182,7 @@ public class GeoIoConverterTest {
       /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
       geometryZoningWriter.getSettings().setPersistVirtualNetwork(true);
       /* make sure virtual network is populated by constructing integrated transport model network */
-      new TransportModelNetwork(network, reader.read()).integrateTransportNetworkViaConnectoids(false);
+      new TransportModelNetworkImpl(network, reader.read()).integrateTransportNetworkViaConnectoids(false);
 
       /* convert */
       ZoningConverterFactory.create(reader, geometryZoningWriter).convert();
