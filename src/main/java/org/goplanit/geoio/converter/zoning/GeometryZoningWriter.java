@@ -4,24 +4,18 @@ import org.geotools.data.DataStore;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
-import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterSettings;
 import org.goplanit.geoio.converter.zoning.featurecontext.*;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.locale.CountryNames;
-import org.goplanit.utils.network.layer.service.ServiceLeg;
-import org.goplanit.utils.network.layer.service.ServiceLegSegment;
-import org.goplanit.utils.network.layer.service.ServiceNode;
-import org.goplanit.utils.network.virtual.ConnectoidEdge;
-import org.goplanit.utils.network.virtual.ConnectoidSegment;
+import org.goplanit.utils.network.virtual.graph.ConnectoidDirectedEdge;
+import org.goplanit.utils.network.virtual.physical.ConnectoidSegment;
 import org.goplanit.utils.network.virtual.VirtualNetwork;
 import org.goplanit.utils.zoning.*;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -63,7 +57,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    */
   private static Map<Class<?>, String> extractVirtualNetworkPlanitEntitySchemaNames(GeometryZoningWriterSettings settings) {
     return Map.ofEntries(
-        entry(ConnectoidEdge.class, settings.getConnectoidEdgesFileName()),
+        entry(ConnectoidDirectedEdge.class, settings.getConnectoidEdgesFileName()),
         entry(ConnectoidSegment.class, settings.getConnectoidSegmentsFileName())
     );
   }
@@ -292,7 +286,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
       throw new PlanItRunTimeException(
           "No Feature type description available for PLANit virtual network connectoid edges (%s), this shouldn't happen", featureDescription.getPlanitEntityClass().getSimpleName());
     }
-    LOGGER.info(String.format("Connectoid edges: %d", virtualNetwork.getConnectoidEdges().size()));
+    LOGGER.info(String.format("Connectoid edges: %d", virtualNetwork.getLayer().getConnectoidLinks().size()));
 
     /* data store, e.g., underlying shape file(s) */
     DataStore connectoidEdgesDataStore = findDataStore(featureDescription,  createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()));
@@ -303,7 +297,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
         featureDescription,
         connectoidEdgesDataStore,
         getSettings().getConnectoidEdgesFileName(), /* schema name = file name */
-        virtualNetwork.getConnectoidEdges());
+        virtualNetwork.getLayer().getConnectoidLinks());
   }
 
   /**
@@ -316,9 +310,10 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   protected void writeConnectoidSegments(VirtualNetwork virtualNetwork, SimpleFeatureType featureType, PlanitConnectoidSegmentFeatureTypeContext featureDescription) {
     if(featureType==null || featureDescription == null){
       throw new PlanItRunTimeException(
-          "No Feature type description available for PLANit virtual network connectoid segments (%s), this shouldn't happen", featureDescription.getPlanitEntityClass().getSimpleName());
+          "No Feature type description available for PLANit virtual network connectoid segments (%s), this shouldn't happen",
+          featureDescription.getPlanitEntityClass().getSimpleName());
     }
-    LOGGER.info(String.format("Connectoid segments: %d", virtualNetwork.getConnectoidEdges().size()));
+    LOGGER.info(String.format("Connectoid segments: %d", virtualNetwork.getLayer().getConnectoidLinks().size()));
 
     /* data store, e.g., underlying shape file(s) */
     DataStore connectoidSegmentsDataStore = findDataStore(featureDescription,  createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()));
@@ -329,7 +324,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
         featureDescription,
         connectoidSegmentsDataStore,
         getSettings().getConnectoidSegmentsFileName(), /* schema name = file name */
-        virtualNetwork.getConnectoidSegments());
+        virtualNetwork.getLayer().getConnectoidSegments());
   }
 
   /**
@@ -349,21 +344,21 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
             getDestinationCoordinateReferenceSystem(),
             extractVirtualNetworkPlanitEntitySchemaNames(getSettings()));
 
-    if(virtualNetwork.hasConnectoidEdges()) {
+    if(virtualNetwork.getLayer().hasConnectoidLinks()) {
       LOGGER.info(String.format("Persisting connectoid edges to: %s",
           createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()).toAbsolutePath()));
-      var featureInfo = findFeaturePairForPlanitEntity(ConnectoidEdge.class, geoFeatureTypesByPlanitEntity);
+      var featureInfo = findFeaturePairForPlanitEntity(ConnectoidDirectedEdge.class, geoFeatureTypesByPlanitEntity);
 
       writeConnectoidEdges(virtualNetwork, featureInfo.first(), (PlanitConnectoidEdgeFeatureTypeContext)featureInfo.second());
     }
 
-    if(virtualNetwork.hasConnectoidSegments()) {
+    if(virtualNetwork.getLayer().hasConnectoidSegments()) {
       LOGGER.info(String.format("Persisting connectoid segments to: %s",
           createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()).toAbsolutePath()));
       var featureInfo = findFeaturePairForPlanitEntity(ConnectoidSegment.class, geoFeatureTypesByPlanitEntity);
 
       /* make sure that basic geometry is present (segment geometry is sourced from parent edge), since for modelling purposes there is no need to keep track of geometry when vertices are defined */
-      virtualNetwork.getConnectoidEdges().stream().forEach( ce -> ce.populateBasicGeometry(false));
+      virtualNetwork.getLayer().getConnectoidLinks().stream().forEach( ce -> ce.populateBasicGeometry(false));
 
       writeConnectoidSegments(virtualNetwork, featureInfo.first(), (PlanitConnectoidSegmentFeatureTypeContext)featureInfo.second());
     }

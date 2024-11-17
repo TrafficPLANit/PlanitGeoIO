@@ -1,13 +1,10 @@
 package org.goplanit.geoio.converter.network.featurecontext;
 
-import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.graph.Vertex;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.network.layer.physical.Link;
 import org.goplanit.utils.network.layer.physical.Node;
-import org.locationtech.jts.geom.Point;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.List;

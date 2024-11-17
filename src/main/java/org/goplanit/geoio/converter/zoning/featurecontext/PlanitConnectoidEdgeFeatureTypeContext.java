@@ -3,8 +3,9 @@ package org.goplanit.geoio.converter.zoning.featurecontext;
 import org.goplanit.converter.idmapping.VirtualNetworkIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
+import org.goplanit.utils.id.IdAble;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.network.virtual.ConnectoidEdge;
+import org.goplanit.utils.network.virtual.physical.ConnectoidLink;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.function.Function;
  *
  * @author markr
  */
-public class PlanitConnectoidEdgeFeatureTypeContext extends PlanitEntityFeatureTypeContext<ConnectoidEdge> {
+public class PlanitConnectoidEdgeFeatureTypeContext extends PlanitEntityFeatureTypeContext<ConnectoidLink> {
 
 
   /**
@@ -25,17 +26,17 @@ public class PlanitConnectoidEdgeFeatureTypeContext extends PlanitEntityFeatureT
    * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<ConnectoidEdge, ?>>> createFeatureDescription(
+  private static List<Triple<String,String, Function<ConnectoidLink, ?>>> createFeatureDescription(
       VirtualNetworkIdMapper virtualNetworkIdMapper,
       final MathTransform destinationCrsTransformer){
     return List.of(
-            Triple.of("mapped_id", "java.lang.String", virtualNetworkIdMapper.getConnectoidEdgeIdMapper()),
-            Triple.of("id", "java.lang.Long", ConnectoidEdge::getId),
-            Triple.of("link_id", "java.lang.Long", ConnectoidEdge::getConnectoidEdgeId),
-            Triple.of("xml_id", "String", ConnectoidEdge::getXmlId),
-            Triple.of("ext_id", "String", ConnectoidEdge::getExternalId),
-            Triple.of("name", "String", ConnectoidEdge::getName),
-            Triple.of("length_km", "java.lang.Double", ConnectoidEdge::getLengthKm),
+            Triple.of("mapped_id", "java.lang.String", virtualNetworkIdMapper.getConnectoidLinkIdMapper()),
+            Triple.of("id", "java.lang.Long", IdAble::getId),
+            Triple.of("link_id", "java.lang.Long", ConnectoidLink::getLinkId),
+            Triple.of("xml_id", "String", ConnectoidLink::getXmlId),
+            Triple.of("ext_id", "String", ConnectoidLink::getExternalId),
+            Triple.of("name", "String", ConnectoidLink::getName),
+            Triple.of("length_km", "java.lang.Double", ConnectoidLink::getLengthKm),
             Triple.of("node_a", "String", l -> virtualNetworkIdMapper.getVertexIdMapper().apply(l.getVertexA())),
             Triple.of("node_b", "String", l -> virtualNetworkIdMapper.getVertexIdMapper().apply(l.getVertexB())),
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
@@ -51,7 +52,7 @@ public class PlanitConnectoidEdgeFeatureTypeContext extends PlanitEntityFeatureT
   protected PlanitConnectoidEdgeFeatureTypeContext(
       VirtualNetworkIdMapper virtualNetworkIdMapper,
       final MathTransform destinationCrsTransformer){
-    super(ConnectoidEdge.class, createFeatureDescription(virtualNetworkIdMapper, destinationCrsTransformer));
+    super(ConnectoidLink.class, createFeatureDescription(virtualNetworkIdMapper, destinationCrsTransformer));
   }
 
   /**

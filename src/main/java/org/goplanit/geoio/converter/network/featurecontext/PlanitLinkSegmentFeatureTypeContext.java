@@ -32,9 +32,9 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
    * @return geometry found
    */
   public static LineString createOrGetLinkSegmentGeometry(MacroscopicLinkSegment linkSegment){
-    var geometry = linkSegment.getParentLink().getGeometry();
+    var geometry = linkSegment.getParent().getGeometry();
     if(geometry == null){
-      geometry = EdgeUtils.createLineStringFromVertexLocations(linkSegment.getParentLink(), linkSegment.isDirectionAb());
+      geometry = EdgeUtils.createLineStringFromVertexLocations(linkSegment.getParent(), linkSegment.isDirectionAb());
     }
     return geometry;
   }
@@ -54,7 +54,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
             Triple.of("segment_id", "java.lang.Long", MacroscopicLinkSegment::getLinkSegmentId),
             Triple.of("xml_id", "String", MacroscopicLinkSegment::getXmlId),
             Triple.of("ext_id", "String", MacroscopicLinkSegment::getExternalId),
-            Triple.of("parent_id", "String", ls -> networkIdMapper.getLinkIdMapper().apply(ls.getParentLink())),
+            Triple.of("parent_id", "String", ls -> networkIdMapper.getLinkIdMapper().apply(ls.getParent())),
             Triple.of("lanes", "Integer", MacroscopicLinkSegment::getNumberOfLanes),
             Triple.of("cap_pcuh", "Float", MacroscopicLinkSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
             Triple.of("speed_kmh", "Float", MacroscopicLinkSegment::getPhysicalSpeedLimitKmH),   /* speed limit on sign, not mode dependent */

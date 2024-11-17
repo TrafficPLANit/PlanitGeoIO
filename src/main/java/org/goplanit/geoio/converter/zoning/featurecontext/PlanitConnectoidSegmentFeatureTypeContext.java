@@ -4,8 +4,9 @@ import org.goplanit.converter.idmapping.VirtualNetworkIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.network.virtual.ConnectoidEdge;
-import org.goplanit.utils.network.virtual.ConnectoidSegment;
+import org.goplanit.utils.network.virtual.graph.ConnectoidDirectedEdge;
+import org.goplanit.utils.network.virtual.physical.ConnectoidLink;
+import org.goplanit.utils.network.virtual.physical.ConnectoidSegment;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.List;
@@ -32,10 +33,10 @@ public class PlanitConnectoidSegmentFeatureTypeContext extends PlanitEntityFeatu
             /* link segment info (fixed) */
             Triple.of("mapped_id", "java.lang.String", virtualNetworkIdMapper.getConnectoidSegmentIdMapper()),
             Triple.of("id", "java.lang.Long", ConnectoidSegment::getId),
-            Triple.of("segment_id", "java.lang.Long", ConnectoidSegment::getConnectoidSegmentId),
+            Triple.of("segment_id", "java.lang.Long", ConnectoidSegment::getLinkSegmentId),
             Triple.of("xml_id", "String", ConnectoidSegment::getXmlId),
             Triple.of("ext_id", "String", ConnectoidSegment::getExternalId),
-            Triple.of("parent_id", "String", cs -> virtualNetworkIdMapper.getConnectoidEdgeIdMapper().apply((ConnectoidEdge) cs.getParent())),
+            Triple.of("parent_id", "String", cs -> virtualNetworkIdMapper.getConnectoidLinkIdMapper().apply((ConnectoidLink) cs.getParent())),
             Triple.of("cap_pcuh", "Float", ConnectoidSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
             Triple.of("geom_opp", "Boolean", cs -> !cs.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
             Triple.of("vertx_up", "String", cs -> virtualNetworkIdMapper.getVertexIdMapper().apply(cs.getUpstreamVertex())),
