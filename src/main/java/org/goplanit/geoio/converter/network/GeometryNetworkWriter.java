@@ -23,8 +23,6 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Function;
@@ -229,7 +227,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
                   extractPhysicalNetworkPlanitEntityBaseFileNames(getSettings()),
                   layerPrefixProducer);
 
-      String layerLogPrefix = LoggingUtils.surroundwithBrackets(String.join(" ",
+      String layerLogPrefix = LoggingUtils.surroundWithBrackets(String.join(" ",
               "layer:",getPrimaryIdMapper().getNetworkLayerIdMapper().apply(layer)));
 
       /* nodes */

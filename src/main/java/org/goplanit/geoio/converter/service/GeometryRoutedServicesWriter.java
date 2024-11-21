@@ -5,7 +5,6 @@ import org.goplanit.converter.idmapping.RoutedServicesIdMapper;
 import org.goplanit.converter.service.RoutedServicesWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitRoutedServiceFeatureTypeContext;
-import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
@@ -16,8 +15,6 @@ import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
-import org.goplanit.utils.network.layer.service.ServiceNode;
 import org.goplanit.utils.service.routed.*;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -202,7 +199,7 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     /* Ensure all geo features are available and configured for the correct CRS once we start using them */
     for( var layer : routedServices.getLayers()) {
 
-      String layerLogPrefix = LoggingUtils.surroundwithBrackets(String.join(" ",
+      String layerLogPrefix = LoggingUtils.surroundWithBrackets(String.join(" ",
           "layer:",getPrimaryIdMapper().getRoutedServiceLayerIdMapper().apply(layer)));
 
       for (var layerMode : layer.getSupportedModes()) {
