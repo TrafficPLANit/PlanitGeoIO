@@ -352,7 +352,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
             extractVirtualNetworkPlanitEntitySchemaNames(getSettings()));
 
     if(virtualNetwork.getLayer().hasConnectoidLinks()) {
-      LOGGER.info(String.format("Persisting connectoid edges to: %s",
+      LOGGER.info(String.format("Persisting connectoid links to: %s",
           createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()).toAbsolutePath()));
       var featureInfo = findFeaturePairForPlanitEntity(ConnectoidLink.class, geoFeatureTypesByPlanitEntity);
 
