@@ -202,7 +202,7 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     /* Ensure all geo features are available and configured for the correct CRS once we start using them */
     for( var layer : routedServices.getLayers()) {
 
-      String layerLogPrefix = LoggingUtils.surroundwithBrackets(String.join(" ",
+      String layerLogPrefix = LoggingUtils.surroundWithBrackets(String.join(" ",
           "layer:",getPrimaryIdMapper().getRoutedServiceLayerIdMapper().apply(layer)));
 
       for (var layerMode : layer.getSupportedModes()) {

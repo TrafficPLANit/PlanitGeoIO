@@ -228,7 +228,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
                   extractServiceNetworkPlanitEntityBaseFileNames(getSettings()),
                   layerPrefixProducer);
 
-      String layerLogPrefix = LoggingUtils.surroundwithBrackets(String.join(" ",
+      String layerLogPrefix = LoggingUtils.surroundWithBrackets(String.join(" ",
               "layer:",getPrimaryIdMapper().getServiceNetworkLayerIdMapper().apply(layer)));
 
       /* nodes */

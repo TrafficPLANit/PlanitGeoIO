@@ -326,7 +326,7 @@ public final class GeoIoFeatureTypeBuilder {
     }catch(Exception e){
       LOGGER.severe(e.getMessage());
       throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s",
-          planitEntitySchemaNames.keySet().stream().map(c -> c.getSimpleName()).collect(Collectors.joining(",")));
+          planitEntitySchemaNames.keySet().stream().map(Class::getSimpleName).collect(Collectors.joining(",")));
     }
 
     return simpleFeatureTypes;

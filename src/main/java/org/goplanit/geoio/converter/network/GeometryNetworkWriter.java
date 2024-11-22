@@ -229,7 +229,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
                   extractPhysicalNetworkPlanitEntityBaseFileNames(getSettings()),
                   layerPrefixProducer);
 
-      String layerLogPrefix = LoggingUtils.surroundwithBrackets(String.join(" ",
+      String layerLogPrefix = LoggingUtils.surroundWithBrackets(String.join(" ",
               "layer:",getPrimaryIdMapper().getNetworkLayerIdMapper().apply(layer)));
 
       /* nodes */

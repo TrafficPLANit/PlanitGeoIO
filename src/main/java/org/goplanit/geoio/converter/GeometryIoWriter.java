@@ -45,7 +45,9 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    * @return found entry or throw run time exception
    */
   protected Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>> findFeaturePairForPlanitEntity(
-          Class<? extends ManagedId> planitEntityClass, List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> geoFeatureTypesByPlanitEntity) {
+          Class<? extends ManagedId> planitEntityClass,
+          List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> geoFeatureTypesByPlanitEntity) {
+
     return geoFeatureTypesByPlanitEntity.stream().filter(
             p -> p.second().getPlanitEntityClass().equals(planitEntityClass)).findFirst().orElseThrow(() ->
             new PlanItRunTimeException("No feature information found for %s, available: [%s]", planitEntityClass.getName(),
@@ -77,12 +79,13 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    * @param featureSchemaName the feature lives under on the datastore
    * @param planitEntities container to persist
    */
-  protected <TT extends ManagedId> void writeGeometryLayerForEntity(SimpleFeatureType featureType,
-                                                                    PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
-                                                                    String loggingPrefix,
-                                                                    DataStore entityDataStore,
-                                                                    String featureSchemaName,
-                                                                    Iterable<TT> planitEntities) {
+  protected <TT extends ManagedId> void writeGeometryLayerForEntity(
+          SimpleFeatureType featureType,
+          PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
+          String loggingPrefix,
+          DataStore entityDataStore,
+          String featureSchemaName,
+          Iterable<TT> planitEntities) {
 
     /* place feature on data store */
     GeoIODataStoreManager.registerFeatureOnDataStore(entityDataStore, featureType);
@@ -120,13 +123,15 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    * @param planitEntities to persist
    * @param <TT> type of planit entity
    */
-  protected <TT extends ManagedId> void writeGeometryLayerForEntity(SimpleFeatureType featureType,
-                                                                    PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
-                                                                    DataStore entityDataStore,
-                                                                    String featureSchemaName,
-                                                                    Iterable<TT> planitEntities) {
+  protected <TT extends ManagedId> void writeGeometryLayerForEntity(
+          SimpleFeatureType featureType,
+          PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
+          DataStore entityDataStore,
+          String featureSchemaName,
+          Iterable<TT> planitEntities) {
 
-    writeGeometryLayerForEntity(featureType, planitEntityFeatureContext,"", entityDataStore, featureSchemaName, planitEntities);
+    writeGeometryLayerForEntity(
+            featureType, planitEntityFeatureContext,"", entityDataStore, featureSchemaName, planitEntities);
   }
 
   /**
