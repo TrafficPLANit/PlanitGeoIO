@@ -20,7 +20,7 @@ import java.util.function.Function;
  *
  * @author markr
  */
-public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext<MacroscopicLink> {
+public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext<Link> {
 
   /**
    * Create or obtain link geometry. When no dedicated geometry is present it is created in AB direction from edge vertices
@@ -28,7 +28,7 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param link to use
    * @return geometry found
    */
-  public static LineString createOrGetLinkGeometry(MacroscopicLink link){
+  public static LineString createOrGetLinkGeometry(Link link){
     var geometry = link.getGeometry();
     if(geometry == null){
       geometry = EdgeUtils.createLineStringFromVertexLocations(link, true);
@@ -43,8 +43,8 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<MacroscopicLink, ? extends Object>>> createFeatureDescription(
-          Function<MacroscopicLink, String> linkIdMapper,
+  private static List<Triple<String,String, Function<Link, ?>>> createFeatureDescription(
+          Function<Link, String> linkIdMapper,
           Function<Node, String> nodeIdMapper,
           final MathTransform destinationCrsTransformer){
     return List.of(
@@ -53,7 +53,7 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
             Triple.of("link_id", "java.lang.Long", Link::getLinkId),
             Triple.of("xml_id", "String", Link::getXmlId),
             Triple.of("ext_id", "String", Link::getExternalId),
-            Triple.of("name", "String", (Function<MacroscopicLink, String>) MacroscopicLink::getName),
+            Triple.of("name", "String", (Function<Link, String>) Link::getName),
             Triple.of("length_km", "java.lang.Double", Link::getLengthKm),
             Triple.of("node_a", "String", l -> nodeIdMapper.apply(l.getNodeA())),
             Triple.of("node_b", "String", l -> nodeIdMapper.apply(l.getNodeB())),
@@ -69,8 +69,8 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitLinkFeatureTypeContext(
-      Function<MacroscopicLink, String> linkIdMapper, Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
-    super(MacroscopicLink.class, createFeatureDescription(linkIdMapper, nodeIdMapper, destinationCrsTransformer));
+      Function<Link, String> linkIdMapper, Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
+    super(Link.class, createFeatureDescription(linkIdMapper, nodeIdMapper, destinationCrsTransformer));
   }
 
   /**
@@ -82,7 +82,10 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @return created instance
    */
   public static PlanitLinkFeatureTypeContext create(
-      Function<Link, String> linkIdMapper, Function<Vertex, String> nodeIdMapper , final MathTransform destinationCrsTransformer){
+      Function<Link, String> linkIdMapper,
+      Function<Vertex, String> nodeIdMapper,
+      final MathTransform destinationCrsTransformer){
+
     return new PlanitLinkFeatureTypeContext(
         linkIdMapper::apply /* convert to link as type */,
         nodeIdMapper::apply /* convert to node as type */,

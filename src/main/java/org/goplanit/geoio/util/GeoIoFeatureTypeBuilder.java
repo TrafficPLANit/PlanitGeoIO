@@ -2,8 +2,9 @@ package org.goplanit.geoio.util;
 
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.*;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitConjugateLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
-import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkSegmentFeatureTypeContext;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitMacroscopicLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitRoutedServiceFeatureTypeContext;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegFeatureTypeContext;
@@ -15,9 +16,9 @@ import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
+import org.goplanit.utils.network.layer.physical.UntypedPhysicalLayer;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.Zone;
@@ -113,7 +114,7 @@ public final class GeoIoFeatureTypeBuilder {
    */
   public static Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> createNetworkLayerFeatureContexts(
           NetworkIdMapper primaryIdMapper,
-          MacroscopicNetworkLayer layer,
+          UntypedPhysicalLayer<?, ?, ?> layer,
           final MathTransform destinationCrsTransformer){
     return Set.of(
             /* nodes */
@@ -122,9 +123,12 @@ public final class GeoIoFeatureTypeBuilder {
             /* links */
             PlanitLinkFeatureTypeContext.create(
                 primaryIdMapper.getLinkIdMapper(), primaryIdMapper.getVertexIdMapper(), destinationCrsTransformer),
-            /* link segments */
-            PlanitLinkSegmentFeatureTypeContext.create(
-                primaryIdMapper, layer.getSupportedModes(), destinationCrsTransformer));
+            /* link segments (macroscopic) */
+            PlanitMacroscopicLinkSegmentFeatureTypeContext.create(
+                primaryIdMapper, layer.getSupportedModes(), destinationCrsTransformer),
+            /* link segments (conjugate) */
+            PlanitConjugateLinkSegmentFeatureTypeContext.create(
+                    primaryIdMapper, layer.getSupportedModes(), destinationCrsTransformer));
   }
 
   /**
@@ -363,16 +367,16 @@ public final class GeoIoFeatureTypeBuilder {
    * Construct consistent file path (with file name) based on desired output file name and settings configuration, taking the
    * current layer into account
    *
-   * @param directedGraphlayer this applies to
+   * @param directedGraphLayer this applies to
    * @param layerPrefixProducer to use to convert layer into a prefix
    * @param baseFileName to combine with
    * @return created featureTypeSchemaName
    */
   public static String createFeatureTypeSchemaName(
-          UntypedDirectedGraphLayer<?,?,?> directedGraphlayer,
+          UntypedDirectedGraphLayer<?,?,?> directedGraphLayer,
           Function<UntypedDirectedGraphLayer<?,?,?>, String> layerPrefixProducer,
           String baseFileName){
-    String layerPrefix = (layerPrefixProducer!= null ? layerPrefixProducer.apply(directedGraphlayer) : "");
+    String layerPrefix = (layerPrefixProducer!= null ? layerPrefixProducer.apply(directedGraphLayer) : "");
     if(StringUtils.isNullOrBlank(layerPrefix)){
       LOGGER.warning("IGNORE: Layer prefix for PLANit feature is null or blank, this shouldn't happen");
       return null;

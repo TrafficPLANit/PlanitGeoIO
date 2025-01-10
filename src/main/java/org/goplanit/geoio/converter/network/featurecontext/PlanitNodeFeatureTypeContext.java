@@ -25,7 +25,7 @@ public class PlanitNodeFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<Node, ? extends Object>>> createFeatureDescription(
+  private static List<Triple<String,String, Function<Node, ?>>> createFeatureDescription(
       Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
     return List.of(
             Triple.of("mapped_id", "String", nodeIdMapper),

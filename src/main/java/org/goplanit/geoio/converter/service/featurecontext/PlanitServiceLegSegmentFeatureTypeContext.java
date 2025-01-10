@@ -40,7 +40,7 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
             Triple.of("ext_id", "String", ServiceLegSegment::getExternalId),
             Triple.of("parent_id", "String", sls -> serviceNetworkIdMapper.getServiceLegIdMapper().apply(sls.getParent())),
             Triple.of("phys_segs", "String", sls -> !sls.hasPhysicalParentSegments() ? "" :   /* physical parent segments that make up for the service leg segment */
-                    sls.getPhysicalParentSegments().stream().map( ls -> networkIdMapper.getLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(Collectors.joining(","))),
+                    sls.getPhysicalParentSegments().stream().map( ls -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(Collectors.joining(","))),
             Triple.of("snode_up", "String", sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getUpstreamServiceNode())),
             Triple.of("snode_down", "String", sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getDownstreamServiceNode())),
 

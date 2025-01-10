@@ -23,7 +23,8 @@ import java.util.stream.Stream;
  *
  * @author markr
  */
-public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
+public class PlanitMacroscopicLinkSegmentFeatureTypeContext
+        extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
 
   /**
    * Create or obtain link geometry. When no dedicated geometry is present it is created in link segment direction from edge vertices
@@ -49,7 +50,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
           final NetworkIdMapper networkIdMapper){
     return List.of(
             /* link segment info (fixed) */
-            Triple.of("mapped_id", "java.lang.String", networkIdMapper.getLinkSegmentIdMapper()),
+            Triple.of("mapped_id", "java.lang.String", networkIdMapper.getMacroscopicLinkSegmentIdMapper()),
             Triple.of("id", "java.lang.Long", MacroscopicLinkSegment::getId),
             Triple.of("segment_id", "java.lang.Long", MacroscopicLinkSegment::getLinkSegmentId),
             Triple.of("xml_id", "String", MacroscopicLinkSegment::getXmlId),
@@ -116,7 +117,7 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
    * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
    * @param destinationCrsTransformer to use (may be null)
    */
-  protected PlanitLinkSegmentFeatureTypeContext(
+  protected PlanitMacroscopicLinkSegmentFeatureTypeContext(
           final NetworkIdMapper networkIdMapper,
           final Collection<? extends Mode> supportedModes,
           final MathTransform destinationCrsTransformer){
@@ -132,11 +133,11 @@ public class PlanitLinkSegmentFeatureTypeContext extends PlanitEntityFeatureType
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
-  public static PlanitLinkSegmentFeatureTypeContext create(
+  public static PlanitMacroscopicLinkSegmentFeatureTypeContext create(
           final NetworkIdMapper networkIdMapper,
           final Collection<? extends Mode> supportedModes,
           final MathTransform destinationCrsTransformer){
-    return new PlanitLinkSegmentFeatureTypeContext( networkIdMapper, supportedModes, destinationCrsTransformer);
+    return new PlanitMacroscopicLinkSegmentFeatureTypeContext( networkIdMapper, supportedModes, destinationCrsTransformer);
   }
 
 }

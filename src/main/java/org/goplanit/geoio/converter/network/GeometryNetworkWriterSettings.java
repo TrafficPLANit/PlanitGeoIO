@@ -16,6 +16,9 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryNetworkWriterSettings.class.getCanonicalName());
 
+  /** flag indicating if conjugate network is to be persisted */
+  private boolean persistConjugate = DEFAULT_PERSIST_CONJUGATE_NETWORK;
+
   /** links file name to use */
   private String linksFileName = DEFAULT_LINKS_FILE_NAME;
 
@@ -50,11 +53,16 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   public static final String DEFAULT_EXTENSION = ".shp";
 
+  public static final String DEFAULT_CONJUGATE_PREFIX = "conjugate_";
+
   /** default persist links flag value */
   public static boolean DEFAULT_PERSIST_LINKS = true;
 
   /** default persist link segments flag value */
   public static boolean DEFAULT_PERSIST_LINKSEGMENTS = true;
+
+  /** default persist conjugate network flag value */
+  public static boolean DEFAULT_PERSIST_CONJUGATE_NETWORK = false;
 
 
   /** default persist nodes flag value */
@@ -152,4 +160,22 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
     this.layerPrefix = layerPrefix;
   }
 
+  /**
+   * When set to true a conjugate version of the regular network is created and persisted as well.
+   * All files will be prefixed with "conjugate_" to differentiate from the regular files
+   *
+   * @param flag to indicate choice made
+   */
+  public void setPersistConjugateNetwork(boolean flag) {
+    this.persistConjugate = flag;
+  }
+
+  /**
+   * Check status of flag regarding persistence of conjugate network
+   *
+   * @return flag
+   */
+  public boolean isPersistConjugateNetwork() {
+    return persistConjugate;
+  }
 }

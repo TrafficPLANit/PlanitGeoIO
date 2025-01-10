@@ -12,6 +12,7 @@ import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.id.ManagedId;
+import org.goplanit.utils.id.ManagedIdEntities;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.Pair;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -40,18 +41,28 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
   /**
    * Given the feature contexts for the available GIS features, find the one where the context matches a given PLANit entity class
    *
+   * @param <F> underlying feature type
    * @param planitEntityClass to find entry for
    * @param geoFeatureTypesByPlanitEntity available entries to search in
    * @return found entry or throw run time exception
    */
-  protected Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>> findFeaturePairForPlanitEntity(
-          Class<? extends ManagedId> planitEntityClass,
+  @SuppressWarnings("unchecked")
+  protected <F extends ManagedId> Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<F>>
+  findFeaturePairForPlanitEntity(
+          Class<F> planitEntityClass,
           List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> geoFeatureTypesByPlanitEntity) {
 
-    return geoFeatureTypesByPlanitEntity.stream().filter(
-            p -> p.second().getPlanitEntityClass().equals(planitEntityClass)).findFirst().orElseThrow(() ->
-            new PlanItRunTimeException("No feature information found for %s, available: [%s]", planitEntityClass.getName(),
-                    geoFeatureTypesByPlanitEntity.stream().map(p -> p.second().getPlanitEntityClass().getName()).collect(Collectors.joining(","))));
+    // orElsethrow is playing hardball. It does not like cast to final type,
+    // instead do partially, put in variable, and then cast afterwards
+    var result =  (Pair<SimpleFeatureType, ? extends PlanitEntityFeatureTypeContext<? extends ManagedId>>)
+            geoFeatureTypesByPlanitEntity.stream().filter(
+                    p -> p.second().getPlanitEntityClass().equals(planitEntityClass)).findFirst().orElseThrow(() ->
+                    new PlanItRunTimeException(
+                            "No feature information found for %s, available: [%s]", planitEntityClass.getName(),
+                            geoFeatureTypesByPlanitEntity.stream().map(
+                                    p -> p.second().getPlanitEntityClass().getName()).collect(
+                                            Collectors.joining(","))));
+    return (Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<F>>) result;
   }
 
   /** find feature and context based on the class present in context
@@ -85,7 +96,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
           String loggingPrefix,
           DataStore entityDataStore,
           String featureSchemaName,
-          Iterable<TT> planitEntities) {
+          Iterable<? extends TT> planitEntities) {
 
     /* place feature on data store */
     GeoIODataStoreManager.registerFeatureOnDataStore(entityDataStore, featureType);
@@ -99,7 +110,8 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
 
           if(attributeConversion.first().equals(planitEntityFeatureContext.getDefaultGeometryAttributeKey())) {
             /* geometry attribute */
-            entityFeature.setAttribute(GeoIoFeatureTypeBuilder.GEOTOOLS_GEOMETRY_ATTRIBUTE, attributeConversion.third().apply(planitEntity));
+            entityFeature.setAttribute(
+                    GeoIoFeatureTypeBuilder.GEOTOOLS_GEOMETRY_ATTRIBUTE, attributeConversion.third().apply(planitEntity));
           }else{
             /* regular attribute */
             entityFeature.setAttribute(attributeConversion.first(), attributeConversion.third().apply(planitEntity));
@@ -108,6 +120,9 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
         featureWriter.write();
       }
     }catch (Exception e){
+      LOGGER.severe(String.format(
+              "Error occurred when persisting an attribute for a PLANit entity %s for schema %s",
+              featureSchemaName));
       LOGGER.severe((e.getMessage()));
       throw new PlanItRunTimeException("%s Unable to persist PLANit entities for %s",
           loggingPrefix, planitEntityFeatureContext.getPlanitEntityClass().getName(), e.getCause());

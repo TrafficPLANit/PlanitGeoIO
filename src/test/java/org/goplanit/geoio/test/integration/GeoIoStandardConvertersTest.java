@@ -20,7 +20,6 @@ import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
 import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.goplanit.logging.Logging;
-import org.goplanit.network.transport.TransportModelNetwork;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.locale.CountryNames;
 import org.junit.jupiter.api.AfterAll;
@@ -42,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author markr
  *
  */
-public class GeoIoConverterTest {
+public class GeoIoStandardConvertersTest {
 
   /** the logger */
   private static Logger LOGGER = null;
@@ -60,7 +59,7 @@ public class GeoIoConverterTest {
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
-      LOGGER = Logging.createLogger(GeoIoConverterTest.class);
+      LOGGER = Logging.createLogger(GeoIoStandardConvertersTest.class);
     } 
   }
 

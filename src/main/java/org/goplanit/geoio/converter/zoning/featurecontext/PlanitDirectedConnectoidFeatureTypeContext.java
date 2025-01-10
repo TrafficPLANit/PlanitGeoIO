@@ -4,9 +4,7 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegmentType;
 import org.goplanit.utils.zoning.DirectedConnectoid;
-import org.goplanit.utils.zoning.UndirectedConnectoid;
 import org.opengis.referencing.operation.MathTransform;
 
 /**
@@ -24,7 +22,7 @@ public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoid
   protected void appendDirectedConnectoidFeatureDescription(final NetworkIdMapper networkIdMapper){
     this.appendToFeatureTypeDescription(
         Triple.of("phys_segm", "String",
-          c -> networkIdMapper.getLinkSegmentIdMapper().apply((MacroscopicLinkSegment) c.getAccessLinkSegment())),
+          c -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) c.getAccessLinkSegment())),
         Triple.of("segm2node", "String",
           c -> c.isNodeAccessDownstream() ? "PHYS_NODE_DOWNSTREAM" : "PHYS_NODE_UPSTREAM"));
   }

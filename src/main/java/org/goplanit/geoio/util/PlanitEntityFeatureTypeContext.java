@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.Point;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -28,17 +29,15 @@ public class PlanitEntityFeatureTypeContext<T> {
   private final Class<T> planitEntityClass;
 
   /** feature description in attribute value function mapping combinations */
-  private ArrayList<Triple<String,String, Function<T,? extends Object>>> geoFeatureDescription;
+  private ArrayList<Triple<String,String, Function<T,?>>> geoFeatureDescription;
 
   /** append one or more additional entries to the description
    *
    * @param featureDescriptionEntries to append
    */
   protected void appendToFeatureTypeDescription(
-      Triple<String,String, Function<T,? extends Object>>... featureDescriptionEntries){
-    for(var entry : featureDescriptionEntries){
-      geoFeatureDescription.add(entry);
-    }
+      Triple<String,String, Function<T,?>>... featureDescriptionEntries){
+    Collections.addAll(geoFeatureDescription, featureDescriptionEntries);
   }
 
   /**
@@ -61,7 +60,7 @@ public class PlanitEntityFeatureTypeContext<T> {
     return planitEntityClass;
   }
 
-  public List<Triple<String,String, Function<T, ? extends Object>>> getAttributeDescription() {
+  public List<Triple<String,String, Function<T, ?>>> getAttributeDescription() {
     return geoFeatureDescription;
   }
 
@@ -89,7 +88,9 @@ public class PlanitEntityFeatureTypeContext<T> {
     if (geometryClazz.equals(LineString.class)) {
       return "LineString";
     }
-    PlanItRunTimeException.throwNew("Geometry type %s not yet added as GIS geometry type, please add, aborting", geometryClazz.getCanonicalName());
+    PlanItRunTimeException.throwNew(
+            "Geometry type %s not yet added as GIS geometry type, please add, aborting",
+            geometryClazz.getCanonicalName());
     return "";
   }
 
