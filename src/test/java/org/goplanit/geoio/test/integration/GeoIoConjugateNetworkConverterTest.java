@@ -82,12 +82,12 @@ public class GeoIoConjugateNetworkConverterTest {
 
       /* trigger persisting conjugate network as well */
       geometryWriter.getSettings().setPersistConjugateNetwork(true);
-      
-      /* convert */
-      NetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
+      
+      /* convert */
+      NetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
       //todo used as an example rather than test
 

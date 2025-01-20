@@ -25,18 +25,14 @@ import java.util.stream.StreamSupport;
 public class PlanitConjugateLinkSegmentFeatureTypeContext extends PlanitEntityFeatureTypeContext<ConjugateLinkSegment> {
 
   /**
-   * Create or obtain link geometry. When no dedicated geometry is present it is created in link segment direction
-   * from edge vertices
+   * Create geometry in link segment direction using parent vertex locations. It is assumed parent's vertices
+   * have a coordinate to be able to support this.
    *
    * @param linkSegment to use
    * @return geometry found
    */
   public static LineString createOrGetLinkSegmentGeometry(ConjugateLinkSegment linkSegment){
-    var geometry = linkSegment.getParent().getGeometry();
-    if(geometry == null){
-      geometry = EdgeUtils.createLineStringFromVertexLocations(linkSegment.getParent(), linkSegment.isDirectionAb());
-    }
-    return geometry;
+    return EdgeUtils.createLineStringFromVertexLocations(linkSegment.getParent(), linkSegment.isDirectionAb());
   }
 
   /**
@@ -64,7 +60,8 @@ public class PlanitConjugateLinkSegmentFeatureTypeContext extends PlanitEntityFe
                     ls -> networkIdMapper.getVertexIdMapper().apply(ls.getDownstreamNode())));
 
             /* conjugate specific - original underlying link segments */
-            // todo
+            // todo, but for now partially captured in the XMLid which is setup to be auto-generated from underlying
+            //  originals as part of default PLANit behaviour upon creation.
   }
 
   /**

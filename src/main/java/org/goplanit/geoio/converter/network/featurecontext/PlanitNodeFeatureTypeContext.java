@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Track contextual relevant information for PLANit node type that is persisted
+ * Track contextual relevant information for PLANit node type that is persisted.
  *
  * @author markr
  */
