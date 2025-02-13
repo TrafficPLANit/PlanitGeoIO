@@ -121,9 +121,10 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
       }
     }catch (Exception e){
       LOGGER.severe(String.format(
-              "Error occurred when persisting an attribute for a PLANit entity %s for schema %s",
+              "Error occurred when persisting an attribute for a PLANit entity for schema %s",
               featureSchemaName));
       LOGGER.severe((e.getMessage()));
+      e.printStackTrace();
       throw new PlanItRunTimeException("%s Unable to persist PLANit entities for %s",
           loggingPrefix, planitEntityFeatureContext.getPlanitEntityClass().getName(), e.getCause());
     }
