@@ -144,7 +144,10 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    */
   private void initialiseWrite(Zoning zoning) {
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
-    prepareCoordinateReferenceSystem(zoning.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+    prepareCoordinateReferenceSystem(
+            zoning.getCoordinateReferenceSystem(),
+            getSettings().getDestinationCoordinateReferenceSystem(),
+            getSettings().getCountry());
   }
 
   /**
