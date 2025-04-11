@@ -53,8 +53,11 @@ public class GeoIoStandardConvertersTest {
   /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
   private static final String MELBOURNE_INPUT_PATH = Path.of(PROJECT_PATH, "input", "melbourne").toString();
   private static final String SYDNEY_INPUT_PATH = Path.of(PROJECT_PATH, "input", "sydney").toString();
+
+  private static final String GRID10x10_INPUT_PATH = Path.of(PROJECT_PATH, "input", "grid10x10").toString();
   private static final String MELBOURNE_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","melbourne").toString();
   private static final String SYDNEY_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","sydney").toString();
+  private static final String GRID10x10_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","grid10x10").toString();
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -95,6 +98,33 @@ public class GeoIoStandardConvertersTest {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
       fail("testPlanit2GeoIOShapeNetworkConverter");
+    }
+  }
+
+  /**
+   * Test that reading a PLANit network in native format and then writing results in Shape file form using
+   * a cartesian CRS
+   */
+  @Test
+  public void testPlanit2GeoIOShapeGrid10x10NetworkConverter() {
+    try {
+
+      /* reader */
+      PlanitNetworkReader planitReader = PlanitNetworkReaderFactory.create();
+      planitReader.getSettings().setInputDirectory(GRID10x10_INPUT_PATH);
+
+      /* writer */
+      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(GRID10x10_OUTPUT_PATH);
+      geometryWriter.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.CARTESIANCRS);
+
+      /* convert */
+      NetworkConverterFactory.create(planitReader, geometryWriter).convert();
+      geometryWriter.setIdMapperType(IdMapperType.ID);
+
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail("testPlanit2GeoIOShapeGrid10x10NetworkConverter");
     }
   }
 
