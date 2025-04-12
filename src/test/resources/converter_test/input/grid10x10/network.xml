@@ -18,7 +18,7 @@
             </mode>
         </modes>
     </configuration>
-    <infrastructurelayers srsname="EPSG:4326">
+    <infrastructurelayers srsname="EPSG:404000">
         <layer id="0">
             <layerconfiguration>
                 <linksegmenttypes>
