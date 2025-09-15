@@ -2,12 +2,14 @@ package org.goplanit.geoio.util;
 
 import org.apache.commons.io.FilenameUtils;
 import org.geotools.api.data.DataStore;
+import org.geotools.api.data.DataStoreFinder;
 import org.geotools.api.data.FileDataStoreFinder;
 import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.UrlUtils;
 import org.goplanit.utils.mode.Mode;
+import org.hsqldb.lib.MapEntry;
 import org.locationtech.jts.geom.Geometry;
 
 import java.io.IOException;
@@ -16,6 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility class that manages data store connections and related functionality
@@ -40,13 +44,22 @@ public final class GeoIODataStoreManager {
    * @param outputFileNameWithPath to use
    * @return data store created, null if not possible
    */
-  protected static DataStore createDataStore(Path outputFileNameWithPath){
+  protected static DataStore createFileBasedDataStore(Path outputFileNameWithPath){
     /* factory based on extension, implicit file type choice */
     String fileType = FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString());
     var factory = FileDataStoreFinder.getDataStoreFactory(fileType);
-    var gpkgfactory = FileDataStoreFinder.getDataStoreFactory(".gpkg");
+
+    // todo: expand to provide general support for this --> requires reusing the same datastore for multiple layers
+    //  though instead of a seaprate one per type!
+    // issue https://github.com/TrafficPLANit/PlanitGeoIO/issues/9
+//    var gpkgDs = createDataBaseBasedDataStore(
+//            Path.of("test.gpkg"),
+//            "geopkg",
+//            Pair.of("create",true));
     if(factory == null){
-      LOGGER.severe(String.format("Unable to create file data store factory for geo extension %s",FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString())));
+      LOGGER.severe(String.format(
+              "Unable to create file data store factory for geo extension %s",
+              FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString())));
     }
     Map map = Collections.singletonMap( "url", UrlUtils.createFromLocalPath(outputFileNameWithPath));
 
@@ -56,6 +69,35 @@ public final class GeoIODataStoreManager {
       LOGGER.severe("Cause: "+ (e.getMessage()));
       return null;
     }
+  }
+
+  /**
+   * Create a data store for database based type, e.g., geopackage. Use the dbType string to indicate which
+   * type of database we're using
+   * <ul>
+   *   <li>"geopkg" for geopackage, see <a href="https://docs.geotools.org/latest/userguide/library/data/geopackage.html">geotools</a></li>
+   * </ul>
+   * @param outputFileNameWithPath the file to store the result in/read from
+   * @param dbType defining type of data store, e.g. geopackage
+   * @param params additional params to feed the datastore, e.g., ("create,true), ("read-only", true), etc.
+   * @return created datastore compatible with chosen type
+   */
+  protected static DataStore createDataBaseBasedDataStore(Path outputFileNameWithPath, String dbType, Pair<String,Object>... params){
+    DataStore datastore = null;
+    var dbTypeParam = Pair.of("dbtype",dbType);
+    var databaseParam = Pair.of("database",outputFileNameWithPath.toAbsolutePath().toString());
+    var paramMap = Stream.concat(Stream.of(dbTypeParam, databaseParam), Stream.of(params)).collect(
+            Collectors.toMap(Pair::first, Pair::second));
+    try {
+      datastore = DataStoreFinder.getDataStore(paramMap);
+      if(datastore == null){
+        LOGGER.severe(String.format("Unable to create data store for dbtype %s",dbType));
+      }
+    }catch (Exception e){
+      LOGGER.severe("Cause: "+ (e.getMessage()));
+      return null;
+    }
+    return datastore;
   }
 
   /**
@@ -111,13 +153,13 @@ public final class GeoIODataStoreManager {
    * @param outputFileNameWithPath the output file path to persist to
    * @return the datastore
    */
-  public static DataStore createDataStore(Class<?> dataStoreReferenceClass, Path outputFileNameWithPath){
+  public static DataStore createFileBasedDataStore(Class<?> dataStoreReferenceClass, Path outputFileNameWithPath){
     if(dataStoreMap.containsKey(dataStoreReferenceClass)){
       LOGGER.severe(String.format("Datastore for class %s already registered, ignoring this call, providing existing datastore", dataStoreReferenceClass.toString()));
       return dataStoreMap.get(dataStoreReferenceClass);
     }
 
-    DataStore theDataStore = createDataStore(outputFileNameWithPath);
+    DataStore theDataStore = createFileBasedDataStore(outputFileNameWithPath);
     if(theDataStore == null){
       throw new PlanItRunTimeException("Unable to create new datastore for class: "+ dataStoreReferenceClass.toString());
     }
@@ -133,14 +175,13 @@ public final class GeoIODataStoreManager {
    * @param outputFileNameWithPath the output file path to persist to
    * @return the datastore
    */
-  public static DataStore createDataStore(Class<?> dataStoreReferenceClass,  Class<? extends Geometry> geometryTypeClass, Path outputFileNameWithPath){
+  public static DataStore createFileBasedDataStore(Class<?> dataStoreReferenceClass, Class<? extends Geometry> geometryTypeClass, Path outputFileNameWithPath){
     Pair<Class<?>,Class<? extends Geometry>> key = Pair.of(dataStoreReferenceClass, geometryTypeClass);
     if(dataStoreMapGeoType.containsKey(key)){
       LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, providing existing datastore", key));
       return dataStoreMapGeoType.get(key);
     }
-
-    DataStore theDataStore = createDataStore(outputFileNameWithPath);
+    DataStore theDataStore = createFileBasedDataStore(outputFileNameWithPath);
     if(theDataStore == null){
       throw new PlanItRunTimeException("Unable to create new datastore for class: %s, geometry type: ",
           dataStoreReferenceClass.toString(), geometryTypeClass.toString());
@@ -157,14 +198,14 @@ public final class GeoIODataStoreManager {
    * @param outputFileNameWithPath the output file path to persist to
    * @return the datastore
    */
-  public static DataStore createDataStore(Class<?> dataStoreReferenceClass,  Mode mode, Path outputFileNameWithPath){
+  public static DataStore createFileBasedDataStore(Class<?> dataStoreReferenceClass, Mode mode, Path outputFileNameWithPath){
     Pair<Class<?>,Mode> key = Pair.of(dataStoreReferenceClass, mode);
     if(dataStoreMapMode.containsKey(key)){
       LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, providing existing datastore", key));
       return dataStoreMapMode.get(key);
     }
 
-    DataStore theDataStore = createDataStore(outputFileNameWithPath);
+    DataStore theDataStore = createFileBasedDataStore(outputFileNameWithPath);
     if(theDataStore == null){
       throw new PlanItRunTimeException("Unable to create new datastore for class: %s, mode: ",
           dataStoreReferenceClass.toString(), mode.toString());

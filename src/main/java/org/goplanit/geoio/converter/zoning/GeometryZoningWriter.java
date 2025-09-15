@@ -10,7 +10,6 @@ import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
-import org.goplanit.utils.network.virtual.graph.ConnectoidDirectedEdge;
 import org.goplanit.utils.network.virtual.physical.ConnectoidLink;
 import org.goplanit.utils.network.virtual.physical.ConnectoidSegment;
 import org.goplanit.utils.network.virtual.VirtualNetwork;
@@ -174,7 +173,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     DataStore zoneByGeometryTypeDataStore = GeoIODataStoreManager.getDataStore(
         zoneFeatureContext.getPlanitEntityClass(), zoneFeatureContext.getGeometryTypeClass());
     if(zoneByGeometryTypeDataStore == null) {
-      zoneByGeometryTypeDataStore = GeoIODataStoreManager.createDataStore(
+      zoneByGeometryTypeDataStore = GeoIODataStoreManager.createFileBasedDataStore(
           zoneFeatureContext.getPlanitEntityClass(),
           zoneFeatureContext.getGeometryTypeClass(),
           createFullPathFromFileName(baseFileName, zoneFeatureContext.getGeometryTypeClass()));

@@ -13,7 +13,6 @@ import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.id.ManagedId;
-import org.goplanit.utils.id.ManagedIdEntities;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.Pair;
 
@@ -164,7 +163,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
     /* data store, e.g., underlying shape file(s) */
     DataStore dataStore = GeoIODataStoreManager.getDataStore(featureContext.getPlanitEntityClass());
     if(dataStore == null) {
-      dataStore = GeoIODataStoreManager.createDataStore(featureContext.getPlanitEntityClass(), fullOutputPath);
+      dataStore = GeoIODataStoreManager.createFileBasedDataStore(featureContext.getPlanitEntityClass(), fullOutputPath);
     }
 
 

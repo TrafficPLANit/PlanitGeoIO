@@ -152,7 +152,7 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     DataStore modeAwareDataStore = GeoIODataStoreManager.getDataStore(
         featureContext.getPlanitEntityClass(), mode);
     if(modeAwareDataStore == null) {
-      modeAwareDataStore = GeoIODataStoreManager.createDataStore(
+      modeAwareDataStore = GeoIODataStoreManager.createFileBasedDataStore(
           featureContext.getPlanitEntityClass(),
           mode,
           fullOutputPath);
