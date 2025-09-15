@@ -5,7 +5,7 @@ import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.zoning.Zone;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,6 +1,7 @@
 package org.goplanit.geoio.converter.service;
 
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.converter.service.ServiceNetworkWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
@@ -19,7 +20,6 @@ import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
 import org.goplanit.utils.network.layer.service.ServiceLeg;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.goplanit.utils.network.layer.service.ServiceNode;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.nio.file.Path;
 import java.util.Map;

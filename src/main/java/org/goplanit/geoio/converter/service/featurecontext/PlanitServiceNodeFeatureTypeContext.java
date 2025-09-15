@@ -6,7 +6,7 @@ import org.goplanit.utils.graph.Vertex;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.goplanit.utils.network.layer.service.ServiceNode;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import java.util.List;
 import java.util.function.Function;

@@ -5,7 +5,7 @@ import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
 import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterSettings;
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterSettings;
 import org.goplanit.geoio.converter.zoning.GeometryZoningWriterSettings;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Settings for Geometry (GIS) intermodal writer

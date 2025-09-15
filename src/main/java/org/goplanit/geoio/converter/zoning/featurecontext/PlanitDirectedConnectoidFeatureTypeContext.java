@@ -5,7 +5,7 @@ import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.zoning.DirectedConnectoid;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 /**
  * Track contextual relevant information for PLANit Directed connectoids that are persisted

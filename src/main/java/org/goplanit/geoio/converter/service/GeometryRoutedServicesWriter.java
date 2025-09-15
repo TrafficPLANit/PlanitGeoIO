@@ -1,6 +1,7 @@
 package org.goplanit.geoio.converter.service;
 
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.RoutedServicesIdMapper;
 import org.goplanit.converter.service.RoutedServicesWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
@@ -16,7 +17,6 @@ import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.service.routed.*;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -170,7 +170,7 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
    * @param layerLogPrefix to use
    */
   protected void writeRoutedServicesLayerServices(
-      RoutedServicesLayer layer, Mode layerMode, SimpleFeatureType featureType, PlanitRoutedServiceFeatureTypeContext featureDescription, String layerLogPrefix) {
+          RoutedServicesLayer layer, Mode layerMode, SimpleFeatureType featureType, PlanitRoutedServiceFeatureTypeContext featureDescription, String layerLogPrefix) {
 
     if(featureType==null || featureDescription == null){
       throw new PlanItRunTimeException("No Feature type description available for PLANit routed services - services, this shouldn't happen");

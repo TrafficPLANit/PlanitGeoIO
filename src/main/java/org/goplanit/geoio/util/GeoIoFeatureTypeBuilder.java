@@ -1,5 +1,7 @@
 package org.goplanit.geoio.util;
 
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.*;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitConjugateLinkSegmentFeatureTypeContext;
@@ -23,9 +25,7 @@ import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.Zone;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.ArrayList;
 import java.util.List;

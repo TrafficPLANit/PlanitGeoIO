@@ -7,7 +7,7 @@ import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.virtual.graph.ConnectoidDirectedEdge;
 import org.goplanit.utils.network.virtual.physical.ConnectoidLink;
 import org.goplanit.utils.network.virtual.physical.ConnectoidSegment;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import java.util.List;
 import java.util.function.Function;

@@ -1,5 +1,6 @@
 package org.goplanit.geoio.converter.zoning.featurecontext;
 
+import org.geotools.api.referencing.operation.MathTransform;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
@@ -9,7 +10,6 @@ import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.zoning.Connectoid;
 import org.goplanit.utils.zoning.Zone;
-import org.opengis.referencing.operation.MathTransform;
 
 import java.util.Collection;
 import java.util.List;

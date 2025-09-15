@@ -1,14 +1,14 @@
 package org.goplanit.geoio.util;
 
 import org.apache.commons.io.FilenameUtils;
-import org.geotools.data.DataStore;
-import org.geotools.data.FileDataStoreFinder;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.FileDataStoreFinder;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.UrlUtils;
 import org.goplanit.utils.mode.Mode;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -44,6 +44,7 @@ public final class GeoIODataStoreManager {
     /* factory based on extension, implicit file type choice */
     String fileType = FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString());
     var factory = FileDataStoreFinder.getDataStoreFactory(fileType);
+    var gpkgfactory = FileDataStoreFinder.getDataStoreFactory(".gpkg");
     if(factory == null){
       LOGGER.severe(String.format("Unable to create file data store factory for geo extension %s",FilenameUtils.getExtension(outputFileNameWithPath.toAbsolutePath().toString())));
     }

@@ -9,7 +9,7 @@ import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.Collection;

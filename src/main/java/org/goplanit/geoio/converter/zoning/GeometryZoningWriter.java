@@ -1,6 +1,7 @@
 package org.goplanit.geoio.converter.zoning;
 
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
@@ -16,7 +17,6 @@ import org.goplanit.utils.network.virtual.VirtualNetwork;
 import org.goplanit.utils.zoning.*;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -164,7 +164,8 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
       PlanitZoneFeatureTypeContext<Z,?> zoneFeatureContext,
       String baseFileName) {
     if(featureType==null || zoneFeatureContext == null){
-      throw new PlanItRunTimeException("No Feature type description available for PLANit zones of type %s, this shouldn't happen", zoneFeatureContext.getPlanitEntityClass().getSimpleName());
+      throw new PlanItRunTimeException("No Feature type description available for PLANit zones of type %s, " +
+              "this shouldn't happen", zoneFeatureContext.getPlanitEntityClass().getSimpleName());
     }
     LOGGER.info(String.format("Zones (type: %s geometry: %s): %d",
         zoneFeatureContext.getPlanitEntityClass().getSimpleName(), zoneFeatureContext.getGeometryTypeClass().getSimpleName(), zones.size()));
@@ -198,7 +199,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    * @param connectoidSchemaName to use
    */
   private <C extends Connectoid> void writeConnectoids(
-      Iterable<C> connectoids, SimpleFeatureType featureType, PlanitConnectoidFeatureTypeContext<C> featureDescription, String connectoidSchemaName) {
+          Iterable<C> connectoids, SimpleFeatureType featureType, PlanitConnectoidFeatureTypeContext<C> featureDescription, String connectoidSchemaName) {
     if(featureType==null || featureDescription == null){
       throw new PlanItRunTimeException("No Feature type description available for PLANit connectoids (%s), this shouldn't happen",
           featureDescription.getPlanitEntityClass().getSimpleName());

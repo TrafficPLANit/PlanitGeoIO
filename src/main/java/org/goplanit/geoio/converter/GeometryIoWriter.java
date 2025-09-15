@@ -1,7 +1,8 @@
 package org.goplanit.geoio.converter;
 
-import org.geotools.data.DataStore;
-import org.geotools.data.Transaction;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.Transaction;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.CrsWriterImpl;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
@@ -15,7 +16,6 @@ import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.id.ManagedIdEntities;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.Pair;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -166,6 +166,9 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
     if(dataStore == null) {
       dataStore = GeoIODataStoreManager.createDataStore(featureContext.getPlanitEntityClass(), fullOutputPath);
     }
+
+
+
     return dataStore;
   }
 

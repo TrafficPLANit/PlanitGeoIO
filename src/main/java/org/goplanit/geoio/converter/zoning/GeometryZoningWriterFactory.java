@@ -1,6 +1,6 @@
 package org.goplanit.geoio.converter.zoning;
 
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 /**
  * Factory for creating Geometry based Zoning Writer

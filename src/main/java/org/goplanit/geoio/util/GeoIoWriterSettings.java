@@ -6,7 +6,7 @@ import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.math.Precision;
 import org.goplanit.utils.misc.CharacterUtils;
 import org.goplanit.utils.misc.StringUtils;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
 import java.text.DecimalFormat;
 import java.util.logging.Logger;

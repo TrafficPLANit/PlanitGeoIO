@@ -1,6 +1,7 @@
 package org.goplanit.geoio.converter.network;
 
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
 import org.goplanit.geoio.converter.GeometryIoWriter;
@@ -20,7 +21,6 @@ import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.physical.*;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.nio.file.Path;
 import java.util.List;

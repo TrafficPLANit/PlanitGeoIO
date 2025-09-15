@@ -5,7 +5,7 @@ import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.service.routed.RoutedService;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.MathTransform;
 
 import java.util.List;
 import java.util.function.Function;
