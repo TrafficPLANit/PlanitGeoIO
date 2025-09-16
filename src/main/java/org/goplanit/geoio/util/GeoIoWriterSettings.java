@@ -2,13 +2,7 @@ package org.goplanit.geoio.util;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.converter.FileBasedConverterWriterSettings;
-import org.goplanit.utils.locale.CountryNames;
-import org.goplanit.utils.math.Precision;
-import org.goplanit.utils.misc.CharacterUtils;
-import org.goplanit.utils.misc.StringUtils;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 
-import java.text.DecimalFormat;
 import java.util.logging.Logger;
 
 /**
@@ -22,10 +16,9 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeoIoWriterSettings.class.getCanonicalName());
 
-  /** extension determining type of file */
-  private String fileExtension = DEFAULT_EXTENSION;
+  private GeoIoFormat format = DEFAULT_FORMAT;
 
-  public static final String DEFAULT_EXTENSION = ".shp";
+  public static final GeoIoFormat DEFAULT_FORMAT = GeoIoFormat.SHAPE;
 
   /**
    * Default constructor
@@ -68,12 +61,21 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
   }
 
   /**
-   * File extension determining the type of file that is being generated
+   * format determining the type of file that is being generated
    *
-   * @return file extension
+   * @return file format
    */
-  public String getFileExtension() {
-    return fileExtension;
+  public GeoIoFormat getFormat() {
+    return format;
+  }
+
+  /**
+   * Set the format to use
+   *
+   * @param format the format to use
+   */
+  public void setFormat(GeoIoFormat format){
+    this.format = format;
   }
     
 }

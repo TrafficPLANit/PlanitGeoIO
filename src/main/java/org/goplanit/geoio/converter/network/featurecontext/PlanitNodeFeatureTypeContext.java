@@ -31,9 +31,12 @@ public class PlanitNodeFeatureTypeContext extends PlanitEntityFeatureTypeContext
             Triple.of("mapped_id", "String", nodeIdMapper),
             Triple.of("id", "java.lang.Long", Node::getId),
             Triple.of("node_id", "java.lang.Long", Node::getNodeId),
-            Triple.of("xml_id", "String", Node::getXmlId),
-            Triple.of("ext_id", "String", Node::getExternalId),
-            Triple.of("name", "String", (Function<Node, String>) Node::getName),
+            Triple.of("xml_id", "String",
+            (Function<Node, String>) n -> n.hasXmlId() ? n.getXmlId() : ""),
+            Triple.of("ext_id", "String",
+                    (Function<Node, String>) n -> n.hasExternalId() ? n.getExternalId() : ""),
+            Triple.of("name", "String",
+                    (Function<Node, String>)  n -> n.hasName() ? n.getName() : ""),
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "Point",
                 n -> PlanitJtsUtils.transformGeometrySafe(n.getPosition(), destinationCrsTransformer)));
   }

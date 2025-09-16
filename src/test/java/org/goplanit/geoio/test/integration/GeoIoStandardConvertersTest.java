@@ -1,6 +1,8 @@
 package org.goplanit.geoio.test.integration;
 
+import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.network.transport.TransportModelNetworkImpl;
+import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalConverterFactory;
@@ -58,6 +60,41 @@ public class GeoIoStandardConvertersTest {
   private static final String MELBOURNE_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","melbourne").toString();
   private static final String SYDNEY_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","sydney").toString();
   private static final String GRID10x10_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","grid10x10").toString();
+
+  /**
+   * Test reading a PLANit zoning in native format and then writing results in Shape file form
+   */
+  private void runPlanit2GeoIOZoningAndNetworkConverter(GeoIoFormat format) throws PlanItException {
+    /* PLANit network */
+    var network = PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read();
+
+    /* PLANit zoning reader */
+    var reader = PlanitZoningReaderFactory.create(
+            new PlanitZoningReaderSettings(MELBOURNE_INPUT_PATH), network);
+
+    var geometryNetworkWriter = GeometryNetworkWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+    geometryNetworkWriter.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS);
+
+    // FORMAT - NETWORK
+    geometryNetworkWriter.getSettings().setFormat(format);
+
+    geometryNetworkWriter.write(network);
+
+    /* writer */
+    var geometryZoningWriter = GeometryZoningWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+    geometryZoningWriter.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS);
+
+    // FORMAT - ZONING
+    geometryZoningWriter.getSettings().setFormat(format);
+
+    /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
+    geometryZoningWriter.getSettings().setPersistVirtualNetwork(true);
+    /* make sure virtual network is populated by constructing integrated transport model network */
+    new TransportModelNetworkImpl(network, reader.read()).integrateTransportNetworkViaConnectoids(false);
+
+    /* convert */
+    ZoningConverterFactory.create(reader, geometryZoningWriter).convert();
+  }
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -187,37 +224,28 @@ public class GeoIoStandardConvertersTest {
   }
 
   /**
-   * Test reading a PLANit zoning in native format and then writing results in Shape file form
+   * Test reading a PLANit network and zoning in native format and then writing results in Shape file form
    */
   @Test
   public void testPlanit2GeoIOShapeZoningAndNetworkConverter() {
     try {
-      /* PLANit network */
-      var network = PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read();
+      runPlanit2GeoIOZoningAndNetworkConverter(GeoIoFormat.SHAPE);
+      //todo: add in assertions, now we just test if it runs and produces results
+    } catch (Exception e) {
+      LOGGER.severe(e.getMessage());
+      e.printStackTrace();
+      fail("testPlanit2GeoIOShapeZoningConverter");
+    }
+  }
 
-      /* PLANit zoning reader */
-      var reader = PlanitZoningReaderFactory.create(
-          new PlanitZoningReaderSettings(MELBOURNE_INPUT_PATH), network);
-
-      var geometryNetworkWriter = GeometryNetworkWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
-      geometryNetworkWriter.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS);
-
-      geometryNetworkWriter.write(network);
-
-      /* writer */
-      var geometryZoningWriter = GeometryZoningWriterFactory.create(MELBOURNE_OUTPUT_PATH, CountryNames.AUSTRALIA);
-      geometryZoningWriter.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.DEFAULT_GEOGRAPHIC_CRS);
-
-      /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
-      geometryZoningWriter.getSettings().setPersistVirtualNetwork(true);
-      /* make sure virtual network is populated by constructing integrated transport model network */
-      new TransportModelNetworkImpl(network, reader.read()).integrateTransportNetworkViaConnectoids(false);
-
-      /* convert */
-      ZoningConverterFactory.create(reader, geometryZoningWriter).convert();
-
-      //todo used as an example rather than test
-
+  /**
+   * Test reading a PLANit network and zoning in native format and then writing results in Geopackage file form
+   */
+  @Test
+  public void testPlanit2GeoIOGeopackageZoningAndNetworkConverter() {
+    try {
+      runPlanit2GeoIOZoningAndNetworkConverter(GeoIoFormat.GEOPACKAGE);
+      //todo: add in assertions, now we just test if it runs and produces results
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();

@@ -77,10 +77,13 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
    * @return created path
    */
   private Path createFullPathFromFileName(ServiceNetworkLayer serviceNetworkLayer, String outputFileName){
+    var format = getSettings().getFormat();
+    assert (format!=null) : "Format for GeoIO service network not allowed to be null";
+
     return Path.of(
             getSettings().getOutputDirectory(),
-            GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(serviceNetworkLayer, layerPrefixProducer, outputFileName)
-                    + getSettings().getFileExtension());
+            GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
+                    serviceNetworkLayer, layerPrefixProducer, outputFileName) + getSettings().getFormat().extension());
   }
 
   /**

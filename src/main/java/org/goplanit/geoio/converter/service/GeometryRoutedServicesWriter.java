@@ -100,9 +100,12 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
    * @return created path
    */
   private Path createFullPathFromFileName(RoutedServicesLayer layer, Mode layerMode, String outputFileName){
+
+    var format = getSettings().getFormat();
+    assert (format!=null) : "Format for GeoIO routed services not allowed to be null";
     return Path.of(
         getSettings().getOutputDirectory(),
-        createLayerModeAwareBaseFileName(layer, layerMode, outputFileName) + getSettings().getFileExtension());
+        createLayerModeAwareBaseFileName(layer, layerMode, outputFileName) + getSettings().getFormat().extension());
   }
 
   /**
@@ -152,8 +155,9 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     DataStore modeAwareDataStore = GeoIODataStoreManager.getDataStore(
         featureContext.getPlanitEntityClass(), mode);
     if(modeAwareDataStore == null) {
-      modeAwareDataStore = GeoIODataStoreManager.createFileBasedDataStore(
+      modeAwareDataStore = GeoIODataStoreManager.createSingleEntityTypeDataStore(
           featureContext.getPlanitEntityClass(),
+          getSettings().getFormat(),
           mode,
           fullOutputPath);
     }

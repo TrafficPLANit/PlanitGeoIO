@@ -112,9 +112,11 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    * @return created path
    */
   private Path createFullPathFromFileName(String outputFileName, Class<? extends Geometry> geometryType){
+    var format = getSettings().getFormat();
+    assert (format!=null) : "Format for GeoIO zoning not allowed to be null";
     return Path.of(
         getSettings().getOutputDirectory(),
-        createGeometryAwareBaseFileName(outputFileName, geometryType) + getSettings().getFileExtension());
+        createGeometryAwareBaseFileName(outputFileName, geometryType) + getSettings().getFormat().extension());
   }
 
   /**
@@ -125,7 +127,9 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    * @return created path
    */
   private Path createFullPathFromFileName(String outputFileName){
-    return Path.of(getSettings().getOutputDirectory(),outputFileName + getSettings().getFileExtension());
+    var format = getSettings().getFormat();
+    assert (format!=null) : "Format for GeoIO rzoning not allowed to be null";
+    return Path.of(getSettings().getOutputDirectory(),outputFileName + getSettings().getFormat().extension());
   }
 
   /** validate before commencing actual write
@@ -173,8 +177,9 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     DataStore zoneByGeometryTypeDataStore = GeoIODataStoreManager.getDataStore(
         zoneFeatureContext.getPlanitEntityClass(), zoneFeatureContext.getGeometryTypeClass());
     if(zoneByGeometryTypeDataStore == null) {
-      zoneByGeometryTypeDataStore = GeoIODataStoreManager.createFileBasedDataStore(
+      zoneByGeometryTypeDataStore = GeoIODataStoreManager.createSingleEntityTypeDataStore(
           zoneFeatureContext.getPlanitEntityClass(),
+          getSettings().getFormat(),
           zoneFeatureContext.getGeometryTypeClass(),
           createFullPathFromFileName(baseFileName, zoneFeatureContext.getGeometryTypeClass()));
     }

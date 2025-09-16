@@ -51,8 +51,6 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   public static final String DEFAULT_LAYER_PREFIX = "layer";
 
-  public static final String DEFAULT_EXTENSION = ".shp";
-
   public static final String DEFAULT_CONJUGATE_PREFIX = "conjugate_";
 
   /** default persist links flag value */

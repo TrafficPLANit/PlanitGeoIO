@@ -101,7 +101,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
     GeoIODataStoreManager.registerFeatureOnDataStore(entityDataStore, featureType);
 
     try ( var featureWriter =
-              entityDataStore.getFeatureWriter(featureSchemaName, Transaction.AUTO_COMMIT)) {
+              entityDataStore.getFeatureWriterAppend(featureSchemaName, Transaction.AUTO_COMMIT)) {
       for(var planitEntity : planitEntities){
         var entityFeature = featureWriter.next();
         var attributeConversions = planitEntityFeatureContext.getAttributeDescription();
@@ -163,7 +163,10 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
     /* data store, e.g., underlying shape file(s) */
     DataStore dataStore = GeoIODataStoreManager.getDataStore(featureContext.getPlanitEntityClass());
     if(dataStore == null) {
-      dataStore = GeoIODataStoreManager.createFileBasedDataStore(featureContext.getPlanitEntityClass(), fullOutputPath);
+      dataStore = GeoIODataStoreManager.createSingleEntityTypeDataStore(
+              featureContext.getPlanitEntityClass(),
+              getSettings().getFormat(),
+              fullOutputPath);
     }
 
 

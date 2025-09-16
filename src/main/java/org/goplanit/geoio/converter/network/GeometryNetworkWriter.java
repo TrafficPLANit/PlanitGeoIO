@@ -90,14 +90,16 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
   private Path createFullPathFromFileName(UntypedPhysicalLayer<?,?,?> physicalNetworkLayer, String outputFileName){
     PlanItRunTimeException.throwIfNull(getSettings().getOutputDirectory(), "Output directory not set");
     PlanItRunTimeException.throwIfNull(outputFileName, "Output file name not set");
-    PlanItRunTimeException.throwIfNull(getSettings().getFileExtension(), "file name extension not set");
+    PlanItRunTimeException.throwIfNull(getSettings().getFormat(), "file name extension not set");
 
     var featureTypeSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
             physicalNetworkLayer, layerPrefixProducer, outputFileName);
     PlanItRunTimeException.throwIf(
             StringUtils.isNullOrBlank(featureTypeSchemaName), "Feature type schema name null or empty");
 
-    return Path.of(getSettings().getOutputDirectory(),featureTypeSchemaName + getSettings().getFileExtension());
+    var format = getSettings().getFormat();
+    assert (format!=null) : "Format for GeoIO not allowed to be null";
+    return Path.of(getSettings().getOutputDirectory(),featureTypeSchemaName + format.extension());
   }
 
   /**
