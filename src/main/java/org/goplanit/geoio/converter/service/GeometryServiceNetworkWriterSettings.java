@@ -137,6 +137,9 @@ public class GeometryServiceNetworkWriterSettings extends GeoIoWriterSettings im
    */
   public void logSettings() {
     super.logSettings();
+    LOGGER.info(String.format("%-40s: %s", "Persist service nodes", isPersistServiceNodes()));
+    LOGGER.info(String.format("%-40s: %s", "Persist service legs", isPersistServiceLegs()));
+    LOGGER.info(String.format("%-40s: %s", "Persist service leg segments", isPersistServiceLegSegments()));
   }  
 
   /**

@@ -492,6 +492,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     GeoIODataStoreManager.reset();
   }
 
+
   /**
    * {@inheritDoc}
    */

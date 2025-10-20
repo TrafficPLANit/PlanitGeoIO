@@ -98,6 +98,19 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
   }
 
   /**
+   * Convenience method to log all the current settings
+   */
+  public void logSettings() {
+    super.logSettings();
+    LOGGER.info(String.format("%-40s: %s", "Persist OD zones", isPersistOdZones()));
+    LOGGER.info(String.format("%-40s: %s", "Persist OD connectoids", isPersistOdConnectoids()));
+    LOGGER.info(String.format("%-40s: %s", "Persist transfer zones", isPersistTransferZones()));
+    LOGGER.info(String.format("%-40s: %s", "Persist transfer connectoids", isPersistTransferConnectoids()));
+    LOGGER.info(String.format("%-40s: %s", "Persist transfer connectoids", isPersistVirtualNetwork()));
+    LOGGER.info(String.format("%-40s: %s", "Persist Virtual network", isPersistVirtualNetwork()));
+  }
+
+  /**
    * Reset content
    */
   public void reset() {

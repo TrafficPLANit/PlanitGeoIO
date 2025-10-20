@@ -18,7 +18,7 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
 
   private GeoIoFormat format = DEFAULT_FORMAT;
 
-  public static final GeoIoFormat DEFAULT_FORMAT = GeoIoFormat.SHAPE;
+  public static final GeoIoFormat DEFAULT_FORMAT = GeoIoFormat.GEOPACKAGE;
 
   /**
    * Default constructor
@@ -51,6 +51,8 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
    */
   public void logSettings() {
     super.logSettings();
+    LOGGER.info(String.format("%-40s: %s","GEO format", getFormat().toString()));
+    LOGGER.info(String.format("%-40s: %s","Country", getCountry().toString()));
   }  
 
   /**

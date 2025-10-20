@@ -141,6 +141,10 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
    */
   public void logSettings() {
     super.logSettings();
+    LOGGER.info(String.format("%-40s: %s","Persist nodes", isPersistNodes()));
+    LOGGER.info(String.format("%-40s: %s","Persist links", isPersistLinks()));
+    LOGGER.info(String.format("%-40s: %s","Persist link segments", isPersistLinkSegments()));
+    LOGGER.info(String.format("%-40s: %s","Persist conjugate network", isPersistConjugateNetwork()));
   }  
 
   /**

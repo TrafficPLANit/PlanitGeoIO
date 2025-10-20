@@ -116,7 +116,7 @@ public class GeoIoStandardConvertersTest {
    * Test that reading a PLANit network in native format and then writing results in Shape file form
    */
   @Test
-  public void testPlanit2GeoIOShapeMelbourneNetworkConverter() {
+  public void planit2GeoIODefaultMelbourneNetworkConverterTest() {
     try {
 
       /* reader */
@@ -124,7 +124,7 @@ public class GeoIoStandardConvertersTest {
       planitReader.getSettings().setInputDirectory(MELBOURNE_INPUT_PATH);
       
       /* writer */
-      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(MELBOURNE_SHAPE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+      GeometryNetworkWriter geometryWriter = GeometryNetworkWriterFactory.create(MELBOURNE_GPKG_OUTPUT_PATH, CountryNames.AUSTRALIA);
       
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
@@ -146,7 +146,7 @@ public class GeoIoStandardConvertersTest {
    * a cartesian CRS
    */
   @Test
-  public void testPlanit2GeoIOShapeGrid10x10NetworkConverter() {
+  public void planit2GeoIODefaultGrid10x10NetworkConverterTest() {
     try {
 
       /* reader */
@@ -172,7 +172,7 @@ public class GeoIoStandardConvertersTest {
    * Test that reading a PLANit network in native format and then writing results in Shape file form
    */
   @Test
-  public void testPlanit2GeoIOShapeSydneyNetworkConverter() {
+  public void planit2GeoIODefaultSydneyNetworkConverterTest() {
     try {
 
       /* reader */
@@ -201,7 +201,7 @@ public class GeoIoStandardConvertersTest {
    * Test that reading a PLANit network in native format and then writing results in Shape file form
    */
   @Test
-  public void testPlanit2GeoIOShapeMelbourneServiceNetworkConverter() {
+  public void planit2GeoIODefaultMelbourneServiceNetworkConverterTest() {
     try {
       /* service network reader */
       var planitReader = PlanitServiceNetworkReaderFactory.create(
@@ -209,7 +209,7 @@ public class GeoIoStandardConvertersTest {
 
       /* writer */
       var geometryWriter = GeometryServiceNetworkWriterFactory.create(
-              MELBOURNE_SHAPE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+              MELBOURNE_GPKG_OUTPUT_PATH, CountryNames.AUSTRALIA);
 
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
@@ -230,7 +230,7 @@ public class GeoIoStandardConvertersTest {
    * Test reading a PLANit network and zoning in native format and then writing results in Shape file form
    */
   @Test
-  public void testPlanit2GeoIOShapeMelbourneZoningAndNetworkConverter() {
+  public void planit2GeoIOShapeMelbourneZoningAndNetworkConverterTest() {
     try {
       runPlanit2GeoIOMelbourneZoningAndNetworkConverter(GeoIoFormat.SHAPE);
       //todo: add in assertions, now we just test if it runs and produces results
@@ -245,7 +245,7 @@ public class GeoIoStandardConvertersTest {
    * Test reading a PLANit network and zoning in native format and then writing results in Geopackage file form
    */
   @Test
-  public void testPlanit2GeoIOGeopackageMelbourneZoningAndNetworkConverter() {
+  public void planit2GeoIOGeopackageMelbourneZoningAndNetworkConverterTest() {
     try {
       runPlanit2GeoIOMelbourneZoningAndNetworkConverter(GeoIoFormat.GEOPACKAGE);
       //todo: add in assertions, now we just test if it runs and produces results
@@ -260,7 +260,7 @@ public class GeoIoStandardConvertersTest {
    * Test reading a PLANit routed services in native format and then writing results in Shape file form
    */
   @Test
-  public void testPlanit2GeoIOShapeMelbourneRoutedServicesConverter() {
+  public void planit2GeoIODefaultMelbourneRoutedServicesConverterTest() {
     try {
       /* PLANit reader */
       var reader = PlanitIntermodalReaderFactory.create(MELBOURNE_INPUT_PATH);
@@ -268,7 +268,7 @@ public class GeoIoStandardConvertersTest {
 
       /* GEO writer */
       var geometryWriter = GeometryRoutedServicesWriterFactory.create(
-              MELBOURNE_SHAPE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+              MELBOURNE_GPKG_OUTPUT_PATH, CountryNames.AUSTRALIA);
 
       /* persist */
       geometryWriter.write(result.fourth());
@@ -286,7 +286,7 @@ public class GeoIoStandardConvertersTest {
    * intermodal writer
    * */
   @Test
-  public void testPlanit2GeoIOShapeMelbourneIntermodalNetworkZoningConverter() {
+  public void planit2GeoIODefaultMelbourneIntermodalNetworkZoningConverterTest() {
     try {
 
       /* reader */

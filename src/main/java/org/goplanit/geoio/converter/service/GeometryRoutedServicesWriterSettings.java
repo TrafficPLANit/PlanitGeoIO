@@ -82,6 +82,9 @@ public class GeometryRoutedServicesWriterSettings extends GeoIoWriterSettings im
    */
   public void logSettings() {
     super.logSettings();
+    LOGGER.info(String.format("%-40s: %s","Persist services", isPersistServices()));
+    LOGGER.info(String.format("%-40s: %s","Persist trips schedule", isPersistTripsSchedule()));
+    LOGGER.info(String.format("%-40s: %s","Persist trips frequency", isPersistTripsFrequency()));
   }  
 
   /**
