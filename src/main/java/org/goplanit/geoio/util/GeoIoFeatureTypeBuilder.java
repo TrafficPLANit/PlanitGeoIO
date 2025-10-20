@@ -52,9 +52,6 @@ public final class GeoIoFeatureTypeBuilder {
   /** delimiter for separating between attribute value pairs within each feature */
   private static final String FEATURE_DELIMITER = ",";
 
-  /** the geotools geometry attribute name used */
-  public static final String GEOTOOLS_GEOMETRY_ATTRIBUTE = "the_geom";
-
 
   /**
    * Create the addendum to each geometry entry to signify its srid based on the chosen destination CRS

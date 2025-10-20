@@ -3,19 +3,18 @@ package org.goplanit.geoio.converter;
 import org.geotools.api.data.DataStore;
 import org.geotools.api.data.Transaction;
 import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.data.DefaultTransaction;
 import org.goplanit.converter.CrsWriterImpl;
+import org.goplanit.geoio.util.*;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
-import org.goplanit.geoio.util.GeoIODataStoreManager;
-import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
-import org.goplanit.geoio.util.GeoIoWriterSettings;
-import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.id.ExternalIdAble;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.Pair;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -99,9 +98,11 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
 
     /* place feature on data store */
     GeoIODataStoreManager.registerFeatureOnDataStore(entityDataStore, featureType);
+    var geometryDescriptor = DataStoreUtils.getDataStoreGeometryAttributeDescriptor(entityDataStore, featureSchemaName);
 
+    Transaction transaction = new DefaultTransaction("create");
     try ( var featureWriter =
-              entityDataStore.getFeatureWriterAppend(featureSchemaName, Transaction.AUTO_COMMIT)) {
+              entityDataStore.getFeatureWriterAppend(featureSchemaName, transaction)) {
       for(var planitEntity : planitEntities){
         var entityFeature = featureWriter.next();
         var attributeConversions = planitEntityFeatureContext.getAttributeDescription();
@@ -109,8 +110,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
 
           if(attributeConversion.first().equals(planitEntityFeatureContext.getDefaultGeometryAttributeKey())) {
             /* geometry attribute */
-            entityFeature.setAttribute(
-                    GeoIoFeatureTypeBuilder.GEOTOOLS_GEOMETRY_ATTRIBUTE, attributeConversion.third().apply(planitEntity));
+            entityFeature.setAttribute(geometryDescriptor, attributeConversion.third().apply(planitEntity));
           }else{
             /* regular attribute */
             entityFeature.setAttribute(attributeConversion.first(), attributeConversion.third().apply(planitEntity));
@@ -118,14 +118,24 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
         }
         featureWriter.write();
       }
+      transaction.commit();
     }catch (Exception e){
       LOGGER.severe(String.format(
               "Error occurred when persisting an attribute for a PLANit entity for schema %s",
               featureSchemaName));
       LOGGER.severe((e.getMessage()));
-      e.printStackTrace();
-      throw new PlanItRunTimeException("%s Unable to persist PLANit entities for %s",
-          loggingPrefix, planitEntityFeatureContext.getPlanitEntityClass().getName(), e.getCause());
+      try {
+        transaction.rollback();
+      } catch (IOException rollbackEx) {
+        e.addSuppressed(rollbackEx);
+      }
+    }finally{
+      try {
+        transaction.close();
+      } catch (IOException closeEx) {
+        // Log or handle this, but don't let it mask the original error
+        System.err.println("Warning: Failed to close transaction: " + closeEx.getMessage());
+      }
     }
   }
 
@@ -160,7 +170,7 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    */
   protected <TT extends ManagedId> DataStore findDataStore(
       PlanitEntityFeatureTypeContext<TT> featureContext, Path fullOutputPath){
-    /* data store, e.g., underlying shape file(s) */
+    /* data store, e.g., underlying file(s) */
     DataStore dataStore = GeoIODataStoreManager.getDataStore(featureContext.getPlanitEntityClass());
     if(dataStore == null) {
       dataStore = GeoIODataStoreManager.createSingleEntityTypeDataStore(
