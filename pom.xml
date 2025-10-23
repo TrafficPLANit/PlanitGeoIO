@@ -117,7 +117,7 @@
     </build>
 
 	<repositories>
-		<!-- PLANit repository to obtain parentpom from-->
+		<!-- PLANit repository to obtain parent pom from-->
 		<repository>
 			<id>planit-repository.goplanit.org</id>
 			<name>PLANit Repository</name>
