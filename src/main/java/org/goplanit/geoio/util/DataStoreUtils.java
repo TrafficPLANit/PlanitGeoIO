@@ -22,15 +22,19 @@ public class DataStoreUtils {
   public static String getDataStoreGeometryAttributeDescriptor(
           DataStore entityDataStore, String layerName){
 
+    String geometryDescriptor = null;
     try{
       var schema = entityDataStore.getSchema(layerName);
-      return schema.getGeometryDescriptor().getLocalName();
+      geometryDescriptor = schema.getGeometryDescriptor().getLocalName();
+      if(geometryDescriptor == null){
+        LOGGER.severe("Unable to determine geometry attribute name for layer "  + layerName +
+            "reverting to default backup: " + DEFAULT_GEOMETRY_ATTRIBUTE);
+        geometryDescriptor = DEFAULT_GEOMETRY_ATTRIBUTE;
+      }
     }catch(IOException e){
-      LOGGER.severe("Unable to determine geometry attribute name for layer"  + layerName +
-              "reverting to default backup" + DEFAULT_GEOMETRY_ATTRIBUTE);
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
     }
-    return DEFAULT_GEOMETRY_ATTRIBUTE;
+    return geometryDescriptor;
   }
 }
