@@ -10,6 +10,7 @@ This project contains code to write networks to disk in various GIS formats base
 #7 When a link has no internal geometry we now approximate it by creating a line between the two nodes at the extremities
 #8 (prototype) Baseline support for persisting a conjugate network
 #9 (partial) Add support for geopackage format in addition to shape and make it the default (because it is smaller)
+[GENERAL] migrate to newer version of geotools
 
 **Bug fixes**
 
