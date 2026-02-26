@@ -71,10 +71,12 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    * @return found entry, null if not present
    */
   protected <TT extends ExternalIdAble> Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<TT>> findFeature(
-      Class<TT> clazz, Map<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ExternalIdAble>> geoFeatureTypes) {
-    var result =
-            geoFeatureTypes.entrySet().stream().filter(e -> e.getValue().getPlanitEntityClass().equals(clazz)).findFirst();
-    return result.isPresent() ? Pair.of(result.get().getKey(), (PlanitEntityFeatureTypeContext<TT>) result.get().getValue()) : Pair.empty();
+      Class<TT> clazz,
+      Map<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ExternalIdAble>> geoFeatureTypes) {
+    var result = geoFeatureTypes.entrySet().stream().filter(
+        e -> e.getValue().getPlanitEntityClass().equals(clazz)).findFirst();
+    return result.isPresent() ?
+        Pair.of(result.get().getKey(), (PlanitEntityFeatureTypeContext<TT>) result.get().getValue()) : Pair.empty();
   }
 
   /**

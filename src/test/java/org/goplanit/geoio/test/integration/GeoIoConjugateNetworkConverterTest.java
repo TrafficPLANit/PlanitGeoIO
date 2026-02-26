@@ -10,6 +10,7 @@ import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterFactory;
 import org.goplanit.geoio.converter.zoning.GeometryZoningWriterFactory;
+import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
@@ -85,6 +86,7 @@ public class GeoIoConjugateNetworkConverterTest {
 
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
+      geometryWriter.getSettings().setFormat(GeoIoFormat.SHAPE);
       
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
