@@ -27,7 +27,8 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
         extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
 
   /**
-   * Create or obtain link geometry. When no dedicated geometry is present it is created in link segment direction from edge vertices
+   * Create or obtain link geometry. When no dedicated geometry is present it is created in link segment direction
+   * from edge vertices
    *
    * @param linkSegment to use
    * @return geometry found
@@ -64,7 +65,8 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
             Triple.of("node_down", "String", ls -> networkIdMapper.getVertexIdMapper().apply(ls.getDownstreamNode())),
 
             /* link segment type info (fixed) */
-            Triple.of("type_id", "String", ls -> networkIdMapper.getLinkSegmentTypeIdMapper().apply(ls.getLinkSegmentType())),
+            Triple.of("type_id", "String", ls -> networkIdMapper.getLinkSegmentTypeIdMapper().apply(
+                ls.getLinkSegmentType())),
             Triple.of("type_name", "String", ls -> ls.getLinkSegmentType().getName()),
             Triple.of("dens_pcukm", "Float", ls -> ls.getLinkSegmentType().getExplicitMaximumDensityPerLaneOrDefault()));
   }
