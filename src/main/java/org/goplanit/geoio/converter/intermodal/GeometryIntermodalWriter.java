@@ -49,20 +49,24 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
   protected Pair<GeometryNetworkWriter, GeometryZoningWriter> writeNetworkAndZoning(
       MacroscopicNetwork macroscopicNetwork, Zoning zoning) {
 
-    /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual edges/edge segments */
+    /* also persist virtual network, i.e., the relation between zones and connectoids, including the virtual
+    edges/edge segments */
     if(getSettings().getZoningSettings().isPersistVirtualNetwork()){
       if(zoning.getVirtualNetwork() != null && !zoning.getVirtualNetwork().isEmpty()){
         LOGGER.info("Virtual network present on zoning, using existing virtual network to persist");
       }else{
-        LOGGER.info("Virtual network not present on zoning, integrating network and zoning to be able to persist virtual network");
+        LOGGER.info("Virtual network not present on zoning, integrating network and zoning to be able " +
+                "to persist virtual network");
         // zoning virtual network populated as a result of the below integration
-        new TransportModelNetworkImpl(macroscopicNetwork, zoning).integrateTransportNetworkViaConnectoids(false);
+        new TransportModelNetworkImpl(macroscopicNetwork, zoning).
+                integrateTransportNetworkViaConnectoids(false);
       }
     }
 
     /* network writer */
     var networkSettings = getSettings().getNetworkSettings();
-    var networkWriter = GeometryNetworkWriterFactory.create(networkSettings.getOutputDirectory(), networkSettings.getCountry());
+    var networkWriter = GeometryNetworkWriterFactory.create(
+            networkSettings.getOutputDirectory(), networkSettings.getCountry());
     networkWriter.setIdMapperType(getIdMapperType());
     networkWriter.write(macroscopicNetwork);
 
@@ -108,7 +112,11 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
    * {@inheritDoc}
    */
   @Override
-  public void writeWithServices(MacroscopicNetwork macroscopicNetwork, Zoning zoning, ServiceNetwork serviceNetwork, RoutedServices routedServices) {
+  public void writeWithServices(
+          MacroscopicNetwork macroscopicNetwork,
+          Zoning zoning,
+          ServiceNetwork serviceNetwork,
+          RoutedServices routedServices) {
 
     /* perform persistence without services first */
     var networkAndZoningWriter = writeNetworkAndZoning(macroscopicNetwork, zoning);
