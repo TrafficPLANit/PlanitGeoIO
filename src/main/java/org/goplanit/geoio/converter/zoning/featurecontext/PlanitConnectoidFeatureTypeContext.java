@@ -56,8 +56,10 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid> extends Pl
         Triple.of("modes", "String",
             c -> IterableUtils.asStream(c).map(accessZone -> c.hasExplicitlyAllowedModes(accessZone) ?
                 accessModesForZone2String.apply(accessZone, c.getExplicitlyAllowedModes(accessZone)) :
-                /* for implicit modes, all modes are allowed. Note not ideal because we do not yet define anywhere what ALL means */
-                String.join(":", zoningIdMapper.getZoneIdMapper().apply(accessZone), "ALL")).collect(Collectors.joining(","))),
+                /* for implicit modes, all modes are allowed. Note not ideal because we do not yet define anywhere
+                what ALL means */
+                String.join(":", zoningIdMapper.getZoneIdMapper().apply(accessZone), "ALL")).collect(
+                    Collectors.joining(","))),
         Triple.of("lengths_km", "String",c -> IterableUtils.asStream(c).map(accessZone ->
             accessZoneLengthString.apply(accessZone, c)).collect(Collectors.joining(",")))
         );
