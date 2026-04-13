@@ -33,17 +33,23 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid> extends Pl
    * @param networkIdMapper to apply
    * @return feature mapping
    */
-  protected static <CC extends Connectoid> List<Triple<String,String, Function<CC, ? extends Object>>> createBaseFeatureDescription(
+  protected static <CC extends Connectoid<?>> List<Triple<String,String, Function<CC, ? extends Object>>>
+  createBaseFeatureDescription(
       final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper){
 
-    /** take access zone and its access modes and convert it to a string of comma separated 'zone:mode' entries for persistence */
+    /* take access zone and its access modes and convert it to a string of comma separated 'zone:mode'
+    entries for persistence */
     final BiFunction<Zone, Collection<Mode>, String> accessModesForZone2String = (accessZone, accessModes) ->
         accessModes.stream().map(
-            m -> String.join(":", zoningIdMapper.getZoneIdMapper().apply(accessZone),networkIdMapper.getModeIdMapper().apply(m))).collect(Collectors.joining(","));
+            m -> String.join(":",
+                    zoningIdMapper.getZoneIdMapper().apply(accessZone),
+                    networkIdMapper.getModeIdMapper().apply(m))).collect(Collectors.joining(","));
 
-    /** take access zone and its connectoid combination and convert it to 'zone:length' entry for persistence */
-    final BiFunction<Zone, Connectoid, String> accessZoneLengthString = (accessZone, connectoid) ->
-        String.join(":", zoningIdMapper.getZoneIdMapper().apply(accessZone), String.format("%.1f",connectoid.getLengthKm(accessZone).orElse(Double.NaN)));
+    /* take access zone and its connectoid combination and convert it to 'zone:length' entry for persistence */
+    final BiFunction<Zone, Connectoid<?>, String> accessZoneLengthString = (accessZone, connectoid) ->
+        String.join(":",
+                zoningIdMapper.getZoneIdMapper().apply(accessZone),
+                String.format("%.1f",connectoid.getLengthKm(accessZone).orElse(Double.NaN)));
 
     return List.of(
         Triple.of("mapped_id", "String", c -> zoningIdMapper.getConnectoidIdMapper().apply(c)),
@@ -51,15 +57,22 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid> extends Pl
         Triple.of("xml_id", "String", CC::getXmlId),
         Triple.of("ext_id", "String", CC::getExternalId),
         Triple.of("name", "String", CC::getName),
-        Triple.of("phys_node", "String", c -> networkIdMapper.getVertexIdMapper().apply(c.getAccessVertex())),
-        Triple.of("zones", "String", c -> c.getAccessZones().stream().map(z -> zoningIdMapper.getZoneIdMapper().apply(z)).collect(Collectors.joining(","))),
+        Triple.of("phys_node", "String",
+                c -> networkIdMapper.getVertexIdMapper().apply(c.getAccessVertex())),
+        // todo: improve as this is now a simplification compared to PLANit data
+        Triple.of("zones", "String",
+                c -> c.getAccessZoneStream().map(
+                        z -> zoningIdMapper.getZoneIdMapper().apply(z)).collect(Collectors.joining(","))),
         Triple.of("modes", "String",
-            c -> IterableUtils.asStream(c).map(accessZone -> c.hasExplicitlyAllowedModes(accessZone) ?
-                accessModesForZone2String.apply(accessZone, c.getExplicitlyAllowedModes(accessZone)) :
-                /* for implicit modes, all modes are allowed. Note not ideal because we do not yet define anywhere
-                what ALL means */
-                String.join(":", zoningIdMapper.getZoneIdMapper().apply(accessZone), "ALL")).collect(
-                    Collectors.joining(","))),
+            c -> IterableUtils.asStream(c).map(accessZone ->
+                    c.hasExplicitlyAllowedModes(accessZone, true) ?
+                      accessModesForZone2String.apply(
+                              accessZone, c.getAccessZoneEntry(accessZone).getExplicitlyAllowedModes()) :
+                    /* for implicit modes, all modes are allowed. Note not ideal because we do not yet define anywhere
+                    what ALL means */
+                    String.join(":",
+                            zoningIdMapper.getZoneIdMapper().apply(accessZone), "ALL")).collect(
+                                    Collectors.joining(","))),
         Triple.of("lengths_km", "String",c -> IterableUtils.asStream(c).map(accessZone ->
             accessZoneLengthString.apply(accessZone, c)).collect(Collectors.joining(",")))
         );

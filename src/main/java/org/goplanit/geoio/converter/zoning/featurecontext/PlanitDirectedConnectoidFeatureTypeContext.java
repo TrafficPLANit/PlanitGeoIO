@@ -7,6 +7,8 @@ import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.zoning.DirectedConnectoid;
 import org.geotools.api.referencing.operation.MathTransform;
 
+import java.util.stream.Collectors;
+
 /**
  * Track contextual relevant information for PLANit Directed connectoids that are persisted
  *
@@ -21,8 +23,10 @@ public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoid
    */
   protected void appendDirectedConnectoidFeatureDescription(final NetworkIdMapper networkIdMapper){
     this.appendToFeatureTypeDescription(
-        Triple.of("phys_segm", "String",
-          c -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) c.getAccessLinkSegment())),
+        Triple.of("phys_sgms", "String",
+          c ->  c.getAccessLinkSegmentsStream().map(ls ->
+                  networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(
+                  Collectors.joining(","))),
         Triple.of("segm2node", "String",
           c -> c.isAccessNodeAlwaysDownstream() ? "PHYS_NODE_DOWNSTREAM" : "PHYS_NODE_UPSTREAM"));
   }
@@ -35,7 +39,9 @@ public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoid
    * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitDirectedConnectoidFeatureTypeContext(
-      final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper, final MathTransform destinationCrsTransformer){
+      final ZoningIdMapper zoningIdMapper,
+          final NetworkIdMapper networkIdMapper,
+          final MathTransform destinationCrsTransformer){
     super(DirectedConnectoid.class, zoningIdMapper, networkIdMapper);
 
     /* add od zone specific attributes */
@@ -54,7 +60,9 @@ public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoid
    * @return created instance
    */
   public static PlanitDirectedConnectoidFeatureTypeContext create(
-      final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper, final MathTransform destinationCrsTransformer){
+      final ZoningIdMapper zoningIdMapper,
+          final NetworkIdMapper networkIdMapper,
+          final MathTransform destinationCrsTransformer){
     return new PlanitDirectedConnectoidFeatureTypeContext(zoningIdMapper, networkIdMapper, destinationCrsTransformer);
   }
 
