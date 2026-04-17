@@ -28,7 +28,7 @@ public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoid
                   networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(
                   Collectors.joining(","))),
         Triple.of("segm2node", "String",
-          c -> c.isAccessNodeAlwaysDownstream() ? "PHYS_NODE_DOWNSTREAM" : "PHYS_NODE_UPSTREAM"));
+          c -> c.isAccessNodeDownstreamOfSegments() ? "PHYS_NODE_DOWNSTREAM" : "PHYS_NODE_UPSTREAM"));
   }
 
   /**
