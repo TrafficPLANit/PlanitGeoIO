@@ -4,7 +4,7 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.zoning.DirectedConnectoid;
+import org.goplanit.utils.zoning.TransferConnectoid;
 import org.geotools.api.referencing.operation.MathTransform;
 
 import java.util.stream.Collectors;
@@ -14,21 +14,21 @@ import java.util.stream.Collectors;
  *
  * @author markr
  */
-public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoidFeatureTypeContext<DirectedConnectoid> {
+public class PlanitDirectedConnectoidFeatureTypeContext
+    extends PlanitConnectoidFeatureTypeContext<TransferConnectoid> {
 
   /**
-   * Add any additional features unique to directed connectoids (and not available in base description) to feature description
+   * Add any additional features unique to directed connectoids (and not available in base description)
+   * to feature description
    *
    * @param networkIdMapper to use
    */
   protected void appendDirectedConnectoidFeatureDescription(final NetworkIdMapper networkIdMapper){
     this.appendToFeatureTypeDescription(
         Triple.of("phys_sgms", "String",
-          c ->  c.getAccessLinkSegmentsStream().map(ls ->
+          c ->  c.getExplicitAccessLinkSegmentsStream().map(ls ->
                   networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(
-                  Collectors.joining(","))),
-        Triple.of("segm2node", "String",
-          c -> c.isAccessNodeDownstreamOfSegments() ? "PHYS_NODE_DOWNSTREAM" : "PHYS_NODE_UPSTREAM"));
+                  Collectors.joining(","))));
   }
 
   /**
@@ -42,7 +42,7 @@ public class PlanitDirectedConnectoidFeatureTypeContext extends PlanitConnectoid
       final ZoningIdMapper zoningIdMapper,
           final NetworkIdMapper networkIdMapper,
           final MathTransform destinationCrsTransformer){
-    super(DirectedConnectoid.class, zoningIdMapper, networkIdMapper);
+    super(TransferConnectoid.class, zoningIdMapper, networkIdMapper);
 
     /* add od zone specific attributes */
     appendDirectedConnectoidFeatureDescription(networkIdMapper);

@@ -5,8 +5,6 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
-import org.goplanit.utils.misc.IterableUtils;
-import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.zoning.Connectoid;
@@ -23,7 +21,7 @@ import java.util.stream.Collectors;
  *
  * @author markr
  */
-public class PlanitConnectoidFeatureTypeContext<C extends Connectoid<?>> extends PlanitEntityFeatureTypeContext<C> {
+public class PlanitConnectoidFeatureTypeContext<C extends Connectoid> extends PlanitEntityFeatureTypeContext<C> {
 
   /**
    * The mapping from PLANIT connectoid base GIS attributes (without geometry to allow for addition of other
@@ -35,7 +33,7 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid<?>> extends
    * @param networkIdMapper to apply
    * @return feature mapping
    */
-  protected static <CC extends Connectoid<?>> List<Triple<String,String, Function<CC, ?>>>
+  protected static <CC extends Connectoid> List<Triple<String,String, Function<CC, ?>>>
   createBaseFeatureDescription(
       final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper){
 
@@ -46,19 +44,19 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid<?>> extends
               m -> networkIdMapper.getModeIdMapper().apply(m)).collect(Collectors.joining(","));
 
     /* 'zone:[type:length,type:length,..]' */
-    final BiFunction<Zone, Connectoid<?>, String> accessZoneLengthString =
+    final BiFunction<Zone, Connectoid, String> accessZoneLengthString =
         (accessZone, connectoid) ->
             String.join(":",
                 zoningIdMapper.getZoneIdMapper().apply(accessZone),
                 "[" + connectoid.getAccessZoneEntriesByType(accessZone).values().stream().map( entry ->
                     String.join(":",
                         entry.getType().toString(),
-                        String.valueOf(entry.getLengthKm()))
-                ) + "]"
+                        String.valueOf(entry.getLengthKm().get()))
+                ).collect(Collectors.joining(",")) + "]"
             );
 
     /* 'zone:[type:(mode1,mode2,...),..]' */
-    final BiFunction<Zone, Connectoid<?>, String> accessZoneModesString =
+    final BiFunction<Zone, Connectoid, String> accessZoneModesString =
         (accessZone, connectoid) ->
             String.join(":",
                 zoningIdMapper.getZoneIdMapper().apply(accessZone),
@@ -67,7 +65,7 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid<?>> extends
                         entry.getType().toString(),
                         entry.hasExplicitlyAllowedModes() ?
                             "(" + accessModes2String.apply(entry.getExplicitlyAllowedModes()) + ")" : "ALL")
-                ) + "]"
+                ).collect(Collectors.joining(",")) + "]"
             );
 
     return List.of(
@@ -77,7 +75,7 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid<?>> extends
         Triple.of("ext_id", "String", CC::getExternalId),
         Triple.of("name", "String", CC::getName),
         Triple.of("phys_node", "String",
-                c -> networkIdMapper.getVertexIdMapper().apply(c.getAccessVertex())),
+                c -> networkIdMapper.getVertexIdMapper().apply(c.getReferenceVertex())),
         // todo: improve as this is now a simplification compared to PLANit data
         Triple.of("zones", "String",
                 c -> c.getAccessZoneStream().map(
@@ -85,9 +83,11 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid<?>> extends
                             Collectors.joining(","))),
         // zone:[type:modes,type:modes]
         Triple.of("modes", "String",
-            c -> c.getAccessZoneStream().map(z -> accessZoneModesString.apply(z, c))),
+            c -> c.getAccessZoneStream().map(z -> accessZoneModesString.apply(z, c)).collect(
+            Collectors.joining(","))),
         Triple.of("lengths_km", "String",c -> c.getAccessZoneStream().map( z ->
-            accessZoneLengthString.apply(z, c)))
+            accessZoneLengthString.apply(z, c)).collect(
+            Collectors.joining(",")))
         );
   }
 
@@ -100,7 +100,7 @@ public class PlanitConnectoidFeatureTypeContext<C extends Connectoid<?>> extends
   protected Triple<String, String, Function<C, ?>> createGeometryFeatureDescription(
       final MathTransform destinationCrsTransformer){
     return Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY,"Point",
-        c -> PlanitJtsUtils.transformGeometrySafe(c.getAccessVertex().getPosition(), destinationCrsTransformer));
+        c -> PlanitJtsUtils.transformGeometrySafe(c.getReferenceVertex().getPosition(), destinationCrsTransformer));
   }
 
   /**

@@ -3,14 +3,14 @@ package org.goplanit.geoio.converter.zoning.featurecontext;
 import org.geotools.api.referencing.operation.MathTransform;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
-import org.goplanit.utils.zoning.UndirectedConnectoid;
+import org.goplanit.utils.zoning.OdConnectoid;
 
 /**
  * Track contextual relevant information for PLANit Undirected connectoids that are persisted
  *
  * @author markr
  */
-public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnectoidFeatureTypeContext<UndirectedConnectoid> {
+public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnectoidFeatureTypeContext<OdConnectoid> {
 
   /**
    * Add any additional features unique to undirected connectoids (and not available in base description) to feature description
@@ -28,7 +28,7 @@ public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnecto
    */
   protected PlanitUndirectedConnectoidFeatureTypeContext(
       final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper, final MathTransform destinationCrsTransformer){
-    super(UndirectedConnectoid.class, zoningIdMapper, networkIdMapper);
+    super(OdConnectoid.class, zoningIdMapper, networkIdMapper);
 
     /* add od zone specific attributes */
     appendUndirectedConnectoidFeatureDescription();

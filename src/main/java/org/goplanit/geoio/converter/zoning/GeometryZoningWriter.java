@@ -44,8 +44,8 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    */
   private static Map<Class<?>, String> extractZoningPlanitEntitySchemaNames(GeometryZoningWriterSettings settings) {
     return Map.ofEntries(
-        entry(DirectedConnectoid.class, settings.getTransferConnectoidsFileName()),
-        entry(UndirectedConnectoid.class, settings.getOdZonesFileName())
+        entry(TransferConnectoid.class, settings.getTransferConnectoidsFileName()),
+        entry(OdConnectoid.class, settings.getOdZonesFileName())
     );
   }
 
@@ -206,7 +206,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
    * @param featureDescription to use
    * @param connectoidSchemaName to use
    */
-  private <C extends Connectoid<?>> void writeConnectoids(
+  private <C extends Connectoid> void writeConnectoids(
           Iterable<C> connectoids, SimpleFeatureType featureType,
           PlanitConnectoidFeatureTypeContext<C> featureDescription, String connectoidSchemaName) {
     if(featureType==null || featureDescription == null){
@@ -444,7 +444,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
       if(getSettings().isPersistTransferConnectoids() && zoning.hasTransferConnectoids()) {
         LOGGER.info(String.format("Persisting transfer connectoids to: %s",
             createFullPathFromFileName(getSettings().getTransferConnectoidsFileName()).toAbsolutePath()));
-        var featureInfo = findFeaturePairForPlanitEntity(DirectedConnectoid.class, geoFeatureTypesByPlanitEntity);
+        var featureInfo = findFeaturePairForPlanitEntity(TransferConnectoid.class, geoFeatureTypesByPlanitEntity);
         writeTransferConnectoids(
             zoning, featureInfo.first(), (PlanitDirectedConnectoidFeatureTypeContext)featureInfo.second());
       }
@@ -452,7 +452,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
       if(getSettings().isPersistTransferConnectoids() && zoning.hasOdConnectoids()) {
         LOGGER.info(String.format("Persisting OD connectoids to: %s",
             createFullPathFromFileName(getSettings().getOdConnectoidsFileName()).toAbsolutePath()));
-        var featureInfo = findFeaturePairForPlanitEntity(UndirectedConnectoid.class, geoFeatureTypesByPlanitEntity);
+        var featureInfo = findFeaturePairForPlanitEntity(OdConnectoid.class, geoFeatureTypesByPlanitEntity);
         writeOdConnectoids(
             zoning, featureInfo.first(), (PlanitUndirectedConnectoidFeatureTypeContext)featureInfo.second());
       }
