@@ -31,20 +31,31 @@ public class PlanitConnectoidSegmentFeatureTypeContext extends PlanitEntityFeatu
       final MathTransform destinationCrsTransformer){
     return List.of(
             /* link segment info (fixed) */
-            Triple.of("mapped_id", "java.lang.String", virtualNetworkIdMapper.getConnectoidSegmentIdMapper()),
-            Triple.of("id", "java.lang.Long", ConnectoidSegment::getId),
-            Triple.of("segment_id", "java.lang.Long", ConnectoidSegment::getLinkSegmentId),
-            Triple.of("xml_id", "String", ConnectoidSegment::getXmlId),
-            Triple.of("ext_id", "String", ConnectoidSegment::getExternalId),
-            Triple.of("parent_id", "String", cs -> virtualNetworkIdMapper.getConnectoidLinkIdMapper().apply((ConnectoidLink) cs.getParent())),
-            Triple.of("cap_pcuh", "Float", ConnectoidSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
-            Triple.of("geom_opp", "Boolean", cs -> !cs.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
-            Triple.of("vertx_up", "String", cs -> virtualNetworkIdMapper.getVertexIdMapper().apply(cs.getUpstreamVertex())),
-            Triple.of("vertx_down", "String", cs -> virtualNetworkIdMapper.getVertexIdMapper().apply(cs.getDownstreamVertex())),
+            Triple.of("mapped_id", "java.lang.String",
+                    virtualNetworkIdMapper.getConnectoidSegmentIdMapper()),
+            Triple.of("id", "java.lang.Long",
+                    ConnectoidSegment::getId),
+            Triple.of("segment_id", "java.lang.Long",
+                    ConnectoidSegment::getLinkSegmentId),
+            Triple.of("xml_id", "String",
+                    ConnectoidSegment::getXmlId),
+            Triple.of("ext_id", "String",
+                    ConnectoidSegment::getExternalId),
+            Triple.of("parent_id", "String",
+                    cs -> virtualNetworkIdMapper.getConnectoidLinkIdMapper().apply((ConnectoidLink) cs.getParent())),
+            Triple.of("cap_pcuh", "Float",
+                    ConnectoidSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
+            Triple.of("geom_opp", "Boolean",
+                    cs -> !cs.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
+            Triple.of("vertx_up", "String",
+                    cs -> virtualNetworkIdMapper.getVertexIdMapper().apply(cs.getUpstreamVertex())),
+            Triple.of("vertx_down", "String",
+                    cs -> virtualNetworkIdMapper.getVertexIdMapper().apply(cs.getDownstreamVertex())),
 
             /* geometry taken from parent link */
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
-                    cs -> PlanitJtsUtils.transformGeometrySafe(cs.getParent().getGeometry(), destinationCrsTransformer)));
+                    cs -> PlanitJtsUtils.transformGeometrySafe(
+                            cs.getParent().getGeometry(), destinationCrsTransformer)));
   }
 
   /**

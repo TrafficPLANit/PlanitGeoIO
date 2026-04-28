@@ -38,7 +38,8 @@ public class PlanitServiceNodeFeatureTypeContext extends PlanitEntityFeatureType
             Triple.of("xml_id", "String", ServiceNode::getXmlId),
             Triple.of("ext_id", "String", ServiceNode::getExternalId),
             Triple.of("parent", "String",
-                (Function<ServiceNode, String>) sn -> sn.getPhysicalParentNodes().stream().map(parentNodeIdMapper).collect(Collectors.joining(","))),
+                (Function<ServiceNode, String>) sn -> sn.getPhysicalParentNodes().stream().map(
+                        parentNodeIdMapper).collect(Collectors.joining(","))),
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "Point",
                 n -> PlanitJtsUtils.transformGeometrySafe(n.getPosition(),destinationCrsTransformer)));
   }
@@ -54,7 +55,8 @@ public class PlanitServiceNodeFeatureTypeContext extends PlanitEntityFeatureType
       Function<ServiceNode, String> serviceNodeIdMapper,
       Function<Node, String> parentNodeIdMapper,
       final MathTransform destinationCrsTransformer){
-    super(ServiceNode.class, createFeatureDescription(serviceNodeIdMapper, parentNodeIdMapper, destinationCrsTransformer));
+    super(ServiceNode.class,
+            createFeatureDescription(serviceNodeIdMapper, parentNodeIdMapper, destinationCrsTransformer));
   }
 
   /**

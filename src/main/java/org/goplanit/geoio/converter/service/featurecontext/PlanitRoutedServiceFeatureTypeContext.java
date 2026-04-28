@@ -37,9 +37,13 @@ public class PlanitRoutedServiceFeatureTypeContext extends PlanitEntityFeatureTy
         Triple.of("name_descr", "String", RoutedService::getNameDescription),
         Triple.of("serv_descr", "String", RoutedService::getServiceDescription),
         Triple.of("trips_schd", "String",
-            (rs) -> rs.getTripInfo().getScheduleBasedTrips().stream().map( t -> routedServicesIdMapper.getRoutedTripRefIdMapper().apply(t)).collect(Collectors.joining(","))),
+            (rs) -> rs.getTripInfo().getScheduleBasedTrips().stream().map(
+                    t -> routedServicesIdMapper.getRoutedTripRefIdMapper().apply(t)).collect(
+                            Collectors.joining(","))),
         Triple.of("trips_freq", "String",
-            (rs) -> rs.getTripInfo().getFrequencyBasedTrips().stream().map( t -> routedServicesIdMapper.getRoutedTripRefIdMapper().apply(t)).collect(Collectors.joining(","))),
+            (rs) -> rs.getTripInfo().getFrequencyBasedTrips().stream().map(
+                    t -> routedServicesIdMapper.getRoutedTripRefIdMapper().apply(t)).collect(
+                            Collectors.joining(","))),
 
         /* geometry taken from underlying trips */
         Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "MultiLineString",

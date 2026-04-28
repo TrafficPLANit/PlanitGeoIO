@@ -45,12 +45,14 @@ public class PlanitConjugateLinkSegmentFeatureTypeContext extends PlanitEntityFe
           final NetworkIdMapper networkIdMapper){
     return List.of(
             /* link segment info (fixed) */
-            Triple.of("mapped_id", "java.lang.String", networkIdMapper.getConjugateLinkSegmentIdMapper()),
+            Triple.of("mapped_id", "java.lang.String",
+                    networkIdMapper.getConjugateLinkSegmentIdMapper()),
             Triple.of("id", "java.lang.Long", ConjugateLinkSegment::getId),
             Triple.of("segment_id", "java.lang.Long", ConjugateLinkSegment::getLinkSegmentId),
             Triple.of("xml_id", "String", ConjugateLinkSegment::getXmlId),
             Triple.of("ext_id", "String", ConjugateLinkSegment::getExternalId),
-            Triple.of("parent_id", "String", ls -> networkIdMapper.getLinkIdMapper().apply(ls.getParent())),
+            Triple.of("parent_id", "String",
+                    ls -> networkIdMapper.getLinkIdMapper().apply(ls.getParent())),
             Triple.of("geom_opp", "Boolean",
                     /* does geometry run in opposite direction to travel direction */
                     ls -> !ls.isParentGeometryInSegmentDirection(true)),
@@ -81,7 +83,8 @@ public class PlanitConjugateLinkSegmentFeatureTypeContext extends PlanitEntityFe
     /* geometry taken from parent link, needs to be last to append srid */
     Triple<String,String, Function<ConjugateLinkSegment, ?>> geometryFeature =
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
-                ls -> PlanitJtsUtils.transformGeometrySafe(createOrGetLinkSegmentGeometry(ls),destinationCrsTransformer));
+                ls -> PlanitJtsUtils.transformGeometrySafe(
+                        createOrGetLinkSegmentGeometry(ls),destinationCrsTransformer));
 
     return Stream.concat(fixedFeatures.stream(), Stream.of(geometryFeature)).collect(Collectors.toList());
   }
@@ -112,7 +115,8 @@ public class PlanitConjugateLinkSegmentFeatureTypeContext extends PlanitEntityFe
           final NetworkIdMapper networkIdMapper,
           final Collection<? extends Mode> supportedModes,
           final MathTransform destinationCrsTransformer){
-    return new PlanitConjugateLinkSegmentFeatureTypeContext( networkIdMapper, supportedModes, destinationCrsTransformer);
+    return new PlanitConjugateLinkSegmentFeatureTypeContext(
+            networkIdMapper, supportedModes, destinationCrsTransformer);
   }
 
 }

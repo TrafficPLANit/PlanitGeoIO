@@ -69,7 +69,8 @@ public final class GeoIoFeatureTypeBuilder {
 
     var identifiers = destinationCoordinateReferenceSystem.getIdentifiers();
     if(identifiers == null || identifiers.isEmpty()){
-      LOGGER.warning(String.format("No identifiers to extract EPSG/SRID from Destination CRS %s, ignoring attaching it to PLANit feature types", destinationCoordinateReferenceSystem.getName()));
+      LOGGER.warning(String.format("No identifiers to extract EPSG/SRID from Destination CRS %s," +
+              " ignoring attaching it to PLANit feature types", destinationCoordinateReferenceSystem.getName()));
     }else{
       sridCodeAddendum = ":srid="+identifiers.stream().findFirst().get().getCode();
     }
@@ -149,7 +150,9 @@ public final class GeoIoFeatureTypeBuilder {
             primaryIdMapper.getServiceNodeIdMapper(), networkIdMappers.getVertexIdMapper(), destinationCrsTransformer),
         /* legs */
         PlanitServiceLegFeatureTypeContext.create(
-            primaryIdMapper.getServiceLegIdMapper(),primaryIdMapper.getServiceNodeIdMapper(), destinationCrsTransformer),
+            primaryIdMapper.getServiceLegIdMapper(),
+                primaryIdMapper.getServiceNodeIdMapper(),
+                destinationCrsTransformer),
         /* leg segments */
         PlanitServiceLegSegmentFeatureTypeContext.create(
             primaryIdMapper, networkIdMappers, destinationCrsTransformer));
@@ -180,7 +183,8 @@ public final class GeoIoFeatureTypeBuilder {
           PlanitTransferZoneFeatureTypeContext.create(
               primaryIdMapper.getZoneIdMapper(), geometryType, destinationCrsTransformer);
     }
-    PlanItRunTimeException.throwNew("Zone type %s not yet added as supported Zone type, please add, aborting", zoneClazz.getCanonicalName());
+    PlanItRunTimeException.throwNew("Zone type %s not yet added as supported Zone type, please add, aborting",
+            zoneClazz.getCanonicalName());
     return null;
   }
 
@@ -258,7 +262,8 @@ public final class GeoIoFeatureTypeBuilder {
    * @param layerPrefixProducer                  function that provides a prefix to each layer created feature type's name (may be null)
    * @return the feature types that have been created by physical network layer and all supported PLANit entities
    */
-  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> createSimpleFeatureTypesByLayer(
+  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>
+  createSimpleFeatureTypesByLayer(
           Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> layerFeatures,
           UntypedDirectedGraphLayer<?,?,?> layer,
           CoordinateReferenceSystem destinationCoordinateReferenceSystem,
@@ -266,13 +271,15 @@ public final class GeoIoFeatureTypeBuilder {
           Function<UntypedDirectedGraphLayer<?,?,?>, String> layerPrefixProducer){
 
     /* track the created/registered feature types for their respective PLANit entity class */
-    final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
+    final var simpleFeatureTypes =
+            new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
       for (var featureContext : layerFeatures){
 
         /* take description  and convert to single string */
-        String simpleFeatureTypeString = createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
+        String simpleFeatureTypeString =
+                createFeatureTypeStringFromContext(featureContext, destinationCoordinateReferenceSystem);
 
         /* create layer aware feature type schema name corresponding to the file name */
         String layerPrefixedSchemaName = createFeatureTypeSchemaName(
@@ -285,7 +292,8 @@ public final class GeoIoFeatureTypeBuilder {
 
     }catch(Exception e){
       LOGGER.severe(e.getMessage());
-      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", GeoIoFeatureTypeBuilder.class.getCanonicalName());
+      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s",
+              GeoIoFeatureTypeBuilder.class.getCanonicalName());
     }
 
     return simpleFeatureTypes;
@@ -301,13 +309,15 @@ public final class GeoIoFeatureTypeBuilder {
    * @param planitEntitySchemaNames            to use for the feature
    * @return the feature types that have been created for each context
    */
-  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> createSimpleFeatureTypes(
+  public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>
+  createSimpleFeatureTypes(
       Set<PlanitEntityFeatureTypeContext<? extends ManagedId>> features,
       CoordinateReferenceSystem destinationCoordinateReferenceSystem,
       Map<Class<?>, String> planitEntitySchemaNames){
 
     /* track the created/registered feature types for their respective PLANit entity class */
-    final var simpleFeatureTypes = new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
+    final var simpleFeatureTypes =
+            new ArrayList<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>();
 
     try {
       for (var featureContext : features){
@@ -327,7 +337,8 @@ public final class GeoIoFeatureTypeBuilder {
     }catch(Exception e){
       LOGGER.severe(e.getMessage());
       throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s",
-          planitEntitySchemaNames.keySet().stream().map(Class::getSimpleName).collect(Collectors.joining(",")));
+          planitEntitySchemaNames.keySet().stream().map(Class::getSimpleName).collect(
+                  Collectors.joining(",")));
     }
 
     return simpleFeatureTypes;
@@ -356,7 +367,8 @@ public final class GeoIoFeatureTypeBuilder {
 
     }catch(Exception e){
       LOGGER.severe(e.getMessage());
-      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s", featureContext.getPlanitEntityClass());
+      throw new PlanItRunTimeException("Unable to initialise Simple Feature types for %s",
+              featureContext.getPlanitEntityClass());
     }
   }
 
@@ -379,7 +391,8 @@ public final class GeoIoFeatureTypeBuilder {
       return null;
     }
     if(StringUtils.isNullOrBlank(baseFileName)){
-      LOGGER.warning(String.format("IGNORE: Feature name not provided for PLANit entity in layer (%s) feature schema, this shouldn't happen", layerPrefix));
+      LOGGER.warning(String.format("IGNORE: Feature name not provided for PLANit entity in layer (%s) " +
+              "feature schema, this shouldn't happen", layerPrefix));
       return null;
     }
     return String.join("_", layerPrefix, baseFileName);

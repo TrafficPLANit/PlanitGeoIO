@@ -100,7 +100,8 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
 
     /* place feature on data store */
     GeoIODataStoreManager.registerFeatureOnDataStore(entityDataStore, featureType);
-    var geometryDescriptor = DataStoreUtils.getDataStoreGeometryAttributeDescriptor(entityDataStore, featureSchemaName);
+    var geometryDescriptor =
+            DataStoreUtils.getDataStoreGeometryAttributeDescriptor(entityDataStore, featureSchemaName);
 
     Transaction transaction = new DefaultTransaction("create");
     try ( var featureWriter =

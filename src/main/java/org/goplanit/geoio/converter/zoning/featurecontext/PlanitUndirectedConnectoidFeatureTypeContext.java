@@ -27,7 +27,9 @@ public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnecto
    * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitUndirectedConnectoidFeatureTypeContext(
-      final ZoningIdMapper zoningIdMapper, final NetworkIdMapper networkIdMapper, final MathTransform destinationCrsTransformer){
+      final ZoningIdMapper zoningIdMapper,
+          final NetworkIdMapper networkIdMapper,
+          final MathTransform destinationCrsTransformer){
     super(OdConnectoid.class, zoningIdMapper, networkIdMapper);
 
     /* add od zone specific attributes */
@@ -49,7 +51,8 @@ public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnecto
       final ZoningIdMapper zoningIdMapper,
       final NetworkIdMapper networkIdMapper,
       final MathTransform destinationCrsTransformer){
-    return new PlanitUndirectedConnectoidFeatureTypeContext(zoningIdMapper, networkIdMapper, destinationCrsTransformer);
+    return new PlanitUndirectedConnectoidFeatureTypeContext(
+            zoningIdMapper, networkIdMapper, destinationCrsTransformer);
   }
 
 }

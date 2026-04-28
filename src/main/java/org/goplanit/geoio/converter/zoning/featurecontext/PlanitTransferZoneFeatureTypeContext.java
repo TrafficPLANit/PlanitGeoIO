@@ -12,7 +12,8 @@ import java.util.function.Function;
  *
  * @author markr
  */
-public class PlanitTransferZoneFeatureTypeContext<T extends Geometry> extends PlanitZoneFeatureTypeContext<TransferZone, T> {
+public class PlanitTransferZoneFeatureTypeContext<T extends Geometry>
+        extends PlanitZoneFeatureTypeContext<TransferZone, T> {
 
   /**
    * Add any additional features unique to Transfer zones (and not available in base zone description) to feature description
@@ -54,7 +55,7 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry> extends Pl
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
-  public static <TT extends Geometry> PlanitTransferZoneFeatureTypeContext create(
+  public static <TT extends Geometry> PlanitTransferZoneFeatureTypeContext<TT> create(
     Function<? super Zone, String> zoneIdMapper,
     Class<TT> geometryType,
     final MathTransform destinationCrsTransformer){

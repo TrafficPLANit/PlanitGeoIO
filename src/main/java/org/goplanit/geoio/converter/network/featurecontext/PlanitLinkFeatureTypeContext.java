@@ -69,7 +69,9 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitLinkFeatureTypeContext(
-      Function<Link, String> linkIdMapper, Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
+      Function<Link, String> linkIdMapper,
+          Function<Node, String> nodeIdMapper,
+          final MathTransform destinationCrsTransformer){
     super(Link.class, createFeatureDescription(linkIdMapper, nodeIdMapper, destinationCrsTransformer));
   }
 

@@ -51,24 +51,38 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
           final NetworkIdMapper networkIdMapper){
     return List.of(
             /* link segment info (fixed) */
-            Triple.of("mapped_id", "java.lang.String", networkIdMapper.getMacroscopicLinkSegmentIdMapper()),
-            Triple.of("id", "java.lang.Long", MacroscopicLinkSegment::getId),
-            Triple.of("segment_id", "java.lang.Long", MacroscopicLinkSegment::getLinkSegmentId),
-            Triple.of("xml_id", "String", MacroscopicLinkSegment::getXmlId),
-            Triple.of("ext_id", "String", MacroscopicLinkSegment::getExternalId),
-            Triple.of("parent_id", "String", ls -> networkIdMapper.getLinkIdMapper().apply(ls.getParent())),
-            Triple.of("lanes", "Integer", MacroscopicLinkSegment::getNumberOfLanes),
-            Triple.of("cap_pcuh", "Float", MacroscopicLinkSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
-            Triple.of("speed_kmh", "Float", MacroscopicLinkSegment::getPhysicalSpeedLimitKmH),   /* speed limit on sign, not mode dependent */
-            Triple.of("geom_opp", "Boolean", ls -> !ls.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
-            Triple.of("node_up", "String", ls -> networkIdMapper.getVertexIdMapper().apply(ls.getUpstreamNode())),
-            Triple.of("node_down", "String", ls -> networkIdMapper.getVertexIdMapper().apply(ls.getDownstreamNode())),
+            Triple.of("mapped_id", "java.lang.String",
+                    networkIdMapper.getMacroscopicLinkSegmentIdMapper()),
+            Triple.of("id", "java.lang.Long",
+                    MacroscopicLinkSegment::getId),
+            Triple.of("segment_id", "java.lang.Long",
+                    MacroscopicLinkSegment::getLinkSegmentId),
+            Triple.of("xml_id", "String",
+                    MacroscopicLinkSegment::getXmlId),
+            Triple.of("ext_id", "String",
+                    MacroscopicLinkSegment::getExternalId),
+            Triple.of("parent_id", "String",
+                    ls -> networkIdMapper.getLinkIdMapper().apply(ls.getParent())),
+            Triple.of("lanes", "Integer",
+                    MacroscopicLinkSegment::getNumberOfLanes),
+            Triple.of("cap_pcuh", "Float",
+                    MacroscopicLinkSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
+            Triple.of("speed_kmh", "Float",
+                    MacroscopicLinkSegment::getPhysicalSpeedLimitKmH),   /* speed limit on sign, not mode dependent */
+            Triple.of("geom_opp", "Boolean",
+                    ls -> !ls.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
+            Triple.of("node_up", "String",
+                    ls -> networkIdMapper.getVertexIdMapper().apply(ls.getUpstreamNode())),
+            Triple.of("node_down", "String",
+                    ls -> networkIdMapper.getVertexIdMapper().apply(ls.getDownstreamNode())),
 
             /* link segment type info (fixed) */
-            Triple.of("type_id", "String", ls -> networkIdMapper.getLinkSegmentTypeIdMapper().apply(
-                ls.getLinkSegmentType())),
-            Triple.of("type_name", "String", ls -> ls.getLinkSegmentType().getName()),
-            Triple.of("dens_pcukm", "Float", ls -> ls.getLinkSegmentType().getExplicitMaximumDensityPerLaneOrDefault()));
+            Triple.of("type_id", "String",
+                    ls -> networkIdMapper.getLinkSegmentTypeIdMapper().apply(ls.getLinkSegmentType())),
+            Triple.of("type_name", "String",
+                    ls -> ls.getLinkSegmentType().getName()),
+            Triple.of("dens_pcukm", "Float",
+                    ls -> ls.getLinkSegmentType().getExplicitMaximumDensityPerLaneOrDefault()));
   }
 
   /**
@@ -93,11 +107,15 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
       String modeAttributeShortName = ModeShortNameConverter.asShortName(mode, networkIdMapper.getModeIdMapper());
 
       /* mode allowed */
-      modeSpecificFeatures.add(Triple.of(modeAttributeShortName + "_ban", "Boolean", ls -> !ls.isModeAllowed(mode)));
+      modeSpecificFeatures.add(Triple.of(
+              modeAttributeShortName + "_ban", "Boolean", ls -> !ls.isModeAllowed(mode)));
       /* mode specific maximum speed */
-      modeSpecificFeatures.add(Triple.of(modeAttributeShortName + "_spd", "String", ls -> ls.getModelledSpeedLimitKmH(mode)));
+      modeSpecificFeatures.add(Triple.of(
+              modeAttributeShortName + "_spd", "String", ls -> ls.getModelledSpeedLimitKmH(mode)));
       /* mode specific critical speed */
-      modeSpecificFeatures.add(Triple.of(modeAttributeShortName + "_spdc", "String", ls -> ls.getLinkSegmentType().getCriticalSpeedKmH(mode)));
+      modeSpecificFeatures.add(Triple.of(
+              modeAttributeShortName + "_spdc", "String",
+              ls -> ls.getLinkSegmentType().getCriticalSpeedKmH(mode)));
     }
 
     /* features that depend on which modes are supported on the layer */
@@ -106,7 +124,8 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
     /* geometry taken from parent link, needs to be last to append srid */
     Triple<String,String, Function<MacroscopicLinkSegment, ?>> geometryFeature =
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
-                ls -> PlanitJtsUtils.transformGeometrySafe(createOrGetLinkSegmentGeometry(ls),destinationCrsTransformer));
+                ls -> PlanitJtsUtils.transformGeometrySafe(
+                        createOrGetLinkSegmentGeometry(ls),destinationCrsTransformer));
 
     allFeatures.add(geometryFeature);
     return allFeatures;
@@ -139,7 +158,8 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
           final NetworkIdMapper networkIdMapper,
           final Collection<? extends Mode> supportedModes,
           final MathTransform destinationCrsTransformer){
-    return new PlanitMacroscopicLinkSegmentFeatureTypeContext( networkIdMapper, supportedModes, destinationCrsTransformer);
+    return new PlanitMacroscopicLinkSegmentFeatureTypeContext(
+            networkIdMapper, supportedModes, destinationCrsTransformer);
   }
 
 }

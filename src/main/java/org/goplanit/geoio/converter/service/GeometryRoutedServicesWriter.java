@@ -71,7 +71,9 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
 
     /* currently we only support macroscopic infrastructure networks */
     if(!(routedServices.getParentNetwork().getParentNetwork() instanceof MacroscopicNetwork)) {
-      throw new PlanItRunTimeException("Currently the GeometryRoutedServicesWriter only supports parent networks that are macroscopic infrastructure networks, the provided network is not of this type");
+      throw new PlanItRunTimeException("Currently the GeometryRoutedServicesWriter only supports" +
+              " parent networks that are macroscopic infrastructure networks, " +
+              "the provided network is not of this type");
     }
   }
 
@@ -87,7 +89,8 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
             String.join("_", "layer", getPrimaryIdMapper().getRoutedServiceLayerIdMapper().apply(l));
 
     prepareCoordinateReferenceSystem(
-        routedServices.getParentNetwork().getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+        routedServices.getParentNetwork().getCoordinateReferenceSystem(),
+            getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
   }
 
   /**
@@ -105,7 +108,8 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     assert (format!=null) : "Format for GeoIO routed services not allowed to be null";
     return Path.of(
         getSettings().getOutputDirectory(),
-        createLayerModeAwareBaseFileName(layer, layerMode, outputFileName) + getSettings().getFormat().extension());
+        createLayerModeAwareBaseFileName(layer, layerMode, outputFileName) +
+                getSettings().getFormat().extension());
   }
 
   /**
@@ -133,9 +137,12 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
   private Map<Class<?>, String> extractRoutedServicesPlanitEntityBaseFileNames(
       RoutedServicesLayer layer, Mode layerMode, GeometryRoutedServicesWriterSettings settings) {
     return Map.ofEntries(
-        entry(RoutedService.class, createLayerModeAwareBaseFileName(layer, layerMode, settings.getServicesFileName())),
-        entry(RoutedTripSchedule.class, createLayerModeAwareBaseFileName(layer, layerMode, settings.getTripsScheduleFileName())),
-        entry(RoutedTripFrequency.class, createLayerModeAwareBaseFileName(layer, layerMode, settings.getTripsFrequencyFileName()))
+        entry(RoutedService.class, createLayerModeAwareBaseFileName(
+                layer, layerMode, settings.getServicesFileName())),
+        entry(RoutedTripSchedule.class, createLayerModeAwareBaseFileName(
+                layer, layerMode, settings.getTripsScheduleFileName())),
+        entry(RoutedTripFrequency.class, createLayerModeAwareBaseFileName(
+                layer, layerMode, settings.getTripsFrequencyFileName()))
     );
   }
 
@@ -174,23 +181,32 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
    * @param layerLogPrefix to use
    */
   protected void writeRoutedServicesLayerServices(
-          RoutedServicesLayer layer, Mode layerMode, SimpleFeatureType featureType, PlanitRoutedServiceFeatureTypeContext featureDescription, String layerLogPrefix) {
+          RoutedServicesLayer layer,
+          Mode layerMode,
+          SimpleFeatureType featureType,
+          PlanitRoutedServiceFeatureTypeContext featureDescription,
+          String layerLogPrefix) {
 
     if(featureType==null || featureDescription == null){
-      throw new PlanItRunTimeException("No Feature type description available for PLANit routed services - services, this shouldn't happen");
+      throw new PlanItRunTimeException("No Feature type description available for PLANit routed services - " +
+              "services, this shouldn't happen");
     }
     var servicesByMode = layer.getServicesByMode(layerMode);
-    LOGGER.info(String.format("%s Services (mode: %s): %d", layerLogPrefix, layerMode.getIdsAsString(), servicesByMode.size()));
+    LOGGER.info(String.format("%s Services (mode: %s): %d",
+            layerLogPrefix, layerMode.getIdsAsString(), servicesByMode.size()));
 
     /* data store, e.g., underlying shape file(s) */
     DataStore dataStore = findDataStore(
-        featureDescription, layerMode, createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()));
+        featureDescription,
+        layerMode,
+        createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var schemaName = createLayerModeAwareBaseFileName(layer, layerMode, getSettings().getServicesFileName());
 
     /* perform persistence */
-    writeGeometryLayerForEntity(featureType, featureDescription, layerLogPrefix, dataStore, schemaName, servicesByMode);
+    writeGeometryLayerForEntity(
+            featureType, featureDescription, layerLogPrefix, dataStore, schemaName, servicesByMode);
   }
 
   /**
@@ -214,7 +230,10 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
 
         var supportedFeatures =
             GeoIoFeatureTypeBuilder.createRoutedServicesLayerFeatureContexts(
-                getPrimaryIdMapper(), layerMode, getComponentIdMappers().getServiceNetworkIdMapper(), getDestinationCrsTransformer());
+                getPrimaryIdMapper(),
+                layerMode,
+                getComponentIdMappers().getServiceNetworkIdMapper(),
+                getDestinationCrsTransformer());
 
         /* feature types per layer */
         var geoFeatureTypesByPlanitEntity =
@@ -226,10 +245,14 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
         /* services */
         if(getSettings().isPersistServices()) {
           LOGGER.info(String.format("%sPersisting services to: %s",
-              layerLogPrefix, createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()).toAbsolutePath()));
+              layerLogPrefix,
+              createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()).toAbsolutePath()));
           var featureInfo = findFeaturePairForPlanitEntity(RoutedService.class, geoFeatureTypesByPlanitEntity);
           writeRoutedServicesLayerServices(
-              layer, layerMode, featureInfo.first(), (PlanitRoutedServiceFeatureTypeContext) featureInfo.second(), layerLogPrefix);
+              layer,
+              layerMode,
+              featureInfo.first(),
+              (PlanitRoutedServiceFeatureTypeContext) featureInfo.second(), layerLogPrefix);
         }
 
         //todo: trips schedules

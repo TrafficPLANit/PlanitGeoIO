@@ -49,7 +49,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
    * @param settings to use
    * @return mapping between PLANit entity class and the chosen file name
    */
-  private static Map<Class<?>, String> extractServiceNetworkPlanitEntityBaseFileNames(GeometryServiceNetworkWriterSettings settings) {
+  private static Map<Class<?>, String> extractServiceNetworkPlanitEntityBaseFileNames(
+          GeometryServiceNetworkWriterSettings settings) {
     return Map.ofEntries(
             entry(ServiceNode.class, settings.getServiceNodesFileName()),
             entry(ServiceLeg.class, settings.getServiceLegsFileName()),
@@ -64,7 +65,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
   private void validate(ServiceNetwork serviceNetwork) {
     /* currently we only support macroscopic infrastructure networks */
     if(!(serviceNetwork.getParentNetwork() instanceof MacroscopicNetwork)) {
-      throw new PlanItRunTimeException("Currently the GeometryServiceNetworkWriter only supports parent networks that are macroscopic infrastructure networks, the provided network is not of this type");
+      throw new PlanItRunTimeException("Currently the GeometryServiceNetworkWriter only supports" +
+              " parent networks that are macroscopic infrastructure networks, the provided network is not of this type");
     }
   }
 
@@ -95,10 +97,13 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     getComponentIdMappers().populateMissingIdMappers(getIdMapperType());
     layerPrefixProducer =
             (UntypedDirectedGraphLayer<?,?,?> l) ->
-                    String.join("_", "layer", getPrimaryIdMapper().getServiceNetworkLayerIdMapper().apply( (ServiceNetworkLayer) l));
+                    String.join("_", "layer",
+                            getPrimaryIdMapper().getServiceNetworkLayerIdMapper().apply( (ServiceNetworkLayer) l));
 
     prepareCoordinateReferenceSystem(
-            serviceNetwork.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+            serviceNetwork.getCoordinateReferenceSystem(),
+            getSettings().getDestinationCoordinateReferenceSystem(),
+            getSettings().getCountry());
   }
 
 
@@ -115,13 +120,15 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
                                       PlanitServiceNodeFeatureTypeContext serviceNodeFeatureContext,
                                       String layerLogPrefix) {
     if(featureType==null || serviceNodeFeatureContext == null){
-      throw new PlanItRunTimeException("No Feature type description available for PLANit service nodes, this shouldn't happen");
+      throw new PlanItRunTimeException("No Feature type description available for PLANit service nodes," +
+              " this shouldn't happen");
     }
     LOGGER.info(String.format("%s Service nodes: %d", layerLogPrefix, serviceNetworkLayer.getServiceNodes().size()));
 
     /* data store, e.g., underlying shape file(s) */
     DataStore serviceNodeDataStore =
-        findDataStore(serviceNodeFeatureContext, createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()));
+        findDataStore(serviceNodeFeatureContext,
+                createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceNodesSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -151,13 +158,15 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
                                       PlanitServiceLegFeatureTypeContext serviceLegFeatureContext,
                                       String layerLogPrefix) {
     if(featureType==null || serviceLegFeatureContext == null){
-      throw new PlanItRunTimeException("No Feature type description available for PLANit service legs, this shouldn't happen");
+      throw new PlanItRunTimeException("No Feature type description available for PLANit service legs," +
+              " this shouldn't happen");
     }
     LOGGER.info(String.format("%s Service legs: %d", layerLogPrefix, serviceNetworkLayer.getLegs().size()));
 
     /* data store, e.g., underlying shape file(s) */
     DataStore legDataStore =
-        findDataStore(serviceLegFeatureContext,  createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
+        findDataStore(serviceLegFeatureContext,
+                createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var legsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -186,13 +195,15 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
                                       PlanitServiceLegSegmentFeatureTypeContext serviceLegSegmentFeatureContext,
                                       String layerLogPrefix) {
     if(featureType==null || serviceLegSegmentFeatureContext == null){
-      throw new PlanItRunTimeException("No Feature type description available for PLANit service leg segments, this shouldn't happen");
+      throw new PlanItRunTimeException("No Feature type description available for PLANit service leg segments," +
+              " this shouldn't happen");
     }
     LOGGER.info(String.format("%s Service leg segments: %d", layerLogPrefix, serviceNetworkLayer.getLegSegments().size()));
 
     /* data store, e.g., underlying shape file(s) */
     DataStore serviceLegSegmentsDataStore =
-        findDataStore(serviceLegSegmentFeatureContext,  createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()));
+        findDataStore(serviceLegSegmentFeatureContext,
+                createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceLegSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -220,7 +231,10 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
 
       var supportedFeatures =
           GeoIoFeatureTypeBuilder.createServiceNetworkLayerFeatureContexts(
-              getPrimaryIdMapper(), layer, getComponentIdMappers().getNetworkIdMappers(), getDestinationCrsTransformer());
+              getPrimaryIdMapper(),
+              layer,
+              getComponentIdMappers().getNetworkIdMappers(),
+              getDestinationCrsTransformer());
 
       /* feature types per layer */
       var geoFeatureTypesByPlanitEntity =
@@ -237,25 +251,37 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
       /* nodes */
       if(getSettings().isPersistServiceNodes()) {
         LOGGER.info(String.format("%sPersisting service nodes to: %s",
-                layerLogPrefix, createFullPathFromFileName(layer, getSettings().getServiceNodesFileName()).toAbsolutePath()));
+                layerLogPrefix,
+                createFullPathFromFileName(layer, getSettings().getServiceNodesFileName()).toAbsolutePath()));
         var featureInfo = findFeaturePairForPlanitEntity(ServiceNode.class, geoFeatureTypesByPlanitEntity);
-        writeServiceNetworkLayerServiceNodes(layer, featureInfo.first(), (PlanitServiceNodeFeatureTypeContext) featureInfo.second(), layerLogPrefix);
+        writeServiceNetworkLayerServiceNodes(
+                layer,
+                featureInfo.first(),
+                (PlanitServiceNodeFeatureTypeContext) featureInfo.second(),
+                layerLogPrefix);
       }
 
       /* links */
       if(getSettings().isPersistServiceLegs()){
         LOGGER.info(String.format("%sPersisting service legs to: %s",
-                layerLogPrefix, createFullPathFromFileName(layer, getSettings().getServiceLegsFileName()).toAbsolutePath()));
+                layerLogPrefix,
+                createFullPathFromFileName(layer, getSettings().getServiceLegsFileName()).toAbsolutePath()));
         var featureInfo = findFeaturePairForPlanitEntity(ServiceLeg.class, geoFeatureTypesByPlanitEntity);
-        writeServiceNetworkLayerServiceLegs(layer, featureInfo.first(), (PlanitServiceLegFeatureTypeContext) featureInfo.second(), layerLogPrefix);
+        writeServiceNetworkLayerServiceLegs(
+                layer, featureInfo.first(), (PlanitServiceLegFeatureTypeContext) featureInfo.second(), layerLogPrefix);
       }
 
       /* link segments */
       if(getSettings().isPersistServiceLegSegments()){
         LOGGER.info(String.format("%sPersisting service leg segments to: %s",
-                layerLogPrefix, createFullPathFromFileName(layer, getSettings().getServiceLegSegmentsFileName()).toAbsolutePath()));
+                layerLogPrefix,
+                createFullPathFromFileName(layer, getSettings().getServiceLegSegmentsFileName()).toAbsolutePath()));
         var featureInfo = findFeaturePairForPlanitEntity(ServiceLegSegment.class, geoFeatureTypesByPlanitEntity);
-        writeServiceNetworkLayerServiceLegSegments(layer, featureInfo.first(), (PlanitServiceLegSegmentFeatureTypeContext) featureInfo.second(), layerLogPrefix);
+        writeServiceNetworkLayerServiceLegSegments(
+                layer,
+                featureInfo.first(),
+                (PlanitServiceLegSegmentFeatureTypeContext) featureInfo.second(),
+                layerLogPrefix);
       }
 
     }

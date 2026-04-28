@@ -50,7 +50,8 @@ public class ModeShortNameConverter {
         }else if(modeIdMapper.apply(mode).length()<5){
           return "m" + modeIdMapper.apply(mode);
         }else{
-          throw new PlanItRunTimeException("Unable to create short name for mode %s, likely exceeds 5 characters", mode.toString());
+          throw new PlanItRunTimeException("Unable to create short name for mode %s, likely exceeds 5 characters",
+                  mode.toString());
         }
     }
     return "";

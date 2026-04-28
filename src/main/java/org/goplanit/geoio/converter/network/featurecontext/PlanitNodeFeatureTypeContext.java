@@ -47,7 +47,8 @@ public class PlanitNodeFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param nodeIdMapper id mapper to apply
    * @param destinationCrsTransformer crsTransform (may be null if no transformation is to be applied)
    */
-  protected PlanitNodeFeatureTypeContext(Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
+  protected PlanitNodeFeatureTypeContext(
+          Function<Node, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
     super(Node.class, createFeatureDescription(nodeIdMapper, destinationCrsTransformer));
   }
 
@@ -58,8 +59,10 @@ public class PlanitNodeFeatureTypeContext extends PlanitEntityFeatureTypeContext
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
-  public static PlanitNodeFeatureTypeContext create(Function<Vertex, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
-    return new PlanitNodeFeatureTypeContext(nodeIdMapper::apply /* convert to node as type */, destinationCrsTransformer);
+  public static PlanitNodeFeatureTypeContext create(
+          Function<Vertex, String> nodeIdMapper, final MathTransform destinationCrsTransformer){
+    return new PlanitNodeFeatureTypeContext(
+            nodeIdMapper::apply /* convert to node as type */, destinationCrsTransformer);
   }
 
 }

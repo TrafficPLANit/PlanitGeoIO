@@ -38,11 +38,17 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
             Triple.of("id", "java.lang.Long", ServiceLegSegment::getId),
             Triple.of("xml_id", "String", ServiceLegSegment::getXmlId),
             Triple.of("ext_id", "String", ServiceLegSegment::getExternalId),
-            Triple.of("parent_id", "String", sls -> serviceNetworkIdMapper.getServiceLegIdMapper().apply(sls.getParent())),
-            Triple.of("phys_segs", "String", sls -> !sls.hasPhysicalParentSegments() ? "" :   /* physical parent segments that make up for the service leg segment */
-                    sls.getPhysicalParentSegments().stream().map( ls -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(Collectors.joining(","))),
-            Triple.of("snode_up", "String", sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getUpstreamServiceNode())),
-            Triple.of("snode_down", "String", sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getDownstreamServiceNode())),
+            Triple.of("parent_id", "String",
+                    sls -> serviceNetworkIdMapper.getServiceLegIdMapper().apply(sls.getParent())),
+            Triple.of("phys_segs", "String",
+                    sls -> !sls.hasPhysicalParentSegments() ? "" :   /* physical parent segments that make up for the service leg segment */
+                    sls.getPhysicalParentSegments().stream().map(
+                            ls -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply(
+                                    (MacroscopicLinkSegment) ls)).collect(Collectors.joining(","))),
+            Triple.of("snode_up", "String",
+                    sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getUpstreamServiceNode())),
+            Triple.of("snode_down", "String",
+                    sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getDownstreamServiceNode())),
 
             /* geometry taken from parent link */
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
@@ -75,7 +81,8 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
       final ServiceNetworkIdMapper serviceNetworkIdMapper,
       final NetworkIdMapper networkIdMapper,
       final MathTransform destinationCrsTransformer){
-    super(ServiceLegSegment.class, createFeatureDescription(serviceNetworkIdMapper, networkIdMapper, destinationCrsTransformer));
+    super(ServiceLegSegment.class,
+            createFeatureDescription(serviceNetworkIdMapper, networkIdMapper, destinationCrsTransformer));
   }
 
   /**
@@ -90,7 +97,8 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
       final ServiceNetworkIdMapper serviceNetworkIdMapper,
       final NetworkIdMapper networkIdMapper,
       final MathTransform destinationCrsTransformer){
-    return new PlanitServiceLegSegmentFeatureTypeContext(serviceNetworkIdMapper, networkIdMapper, destinationCrsTransformer);
+    return new PlanitServiceLegSegmentFeatureTypeContext(
+            serviceNetworkIdMapper, networkIdMapper, destinationCrsTransformer);
   }
 
 }

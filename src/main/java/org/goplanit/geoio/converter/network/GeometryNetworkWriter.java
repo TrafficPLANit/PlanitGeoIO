@@ -58,7 +58,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
    * @param settings to use
    * @return mapping between PLANit entity class and the chosen file name
    */
-  private static Map<Class<?>, String> extractPhysicalNetworkPlanitEntityBaseFileNames(GeometryNetworkWriterSettings settings) {
+  private static Map<Class<?>, String> extractPhysicalNetworkPlanitEntityBaseFileNames(
+          GeometryNetworkWriterSettings settings) {
     return Map.ofEntries(
             entry(Node.class, settings.getNodesFileName()),
             entry(Link.class, settings.getLinksFileName()),
@@ -75,7 +76,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
   private void validate(LayeredNetwork<?,?> network) {
     /* currently we only support macroscopic infrastructure networks */
     if(!(network instanceof MacroscopicNetwork)) {
-      throw new PlanItRunTimeException("Currently the GeometryNetworkWriter only supports macroscopic infrastructure networks, the provided network is not of this type");
+      throw new PlanItRunTimeException("Currently the GeometryNetworkWriter only supports" +
+              " macroscopic infrastructure networks, the provided network is not of this type");
     }
   }
 
@@ -118,12 +120,15 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
                             getPrimaryIdMapper().getNetworkLayerIdMapper().apply((UntypedPhysicalLayer<?,?,?>)l));
 
     prepareCoordinateReferenceSystem(
-            network.getCoordinateReferenceSystem(), getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+            network.getCoordinateReferenceSystem(),
+            getSettings().getDestinationCoordinateReferenceSystem(),
+            getSettings().getCountry());
 
     // make sure directory exists before starting to write to it
     boolean directoryAvailable = FileUtils.createDirectoryFrom(getSettings().getOutputDirectory());
     if(!directoryAvailable){
-      throw new PlanItRunTimeException("Unable to persist in output location, %s not available", getSettings().getOutputDirectory());
+      throw new PlanItRunTimeException("Unable to persist in output location, %s not available",
+              getSettings().getOutputDirectory());
     }
   }
 
@@ -252,7 +257,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
    * @param linkSegmentClazz indicate which link segment class is to be persisted asthere are multiple option
    */
   protected <LS extends LinkSegment> void writeLayers(
-          UntypedPhysicalNetwork<? extends UntypedPhysicalLayer<?,?,LS>,?> physicalNetwork, Class<LS> linkSegmentClazz) {
+          UntypedPhysicalNetwork<? extends UntypedPhysicalLayer<?,?,LS>,?> physicalNetwork,
+          Class<LS> linkSegmentClazz) {
 
     /* Ensure all geo features are available and configured for the correct CRS once we start using them */
     for(var layer : physicalNetwork.getTransportLayers()) {
@@ -262,7 +268,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
               getPrimaryIdMapper(), layer, getDestinationCrsTransformer());
 
       /* feature types per layer */
-      List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>> geoFeatureTypesByPlanitEntity =
+      var geoFeatureTypesByPlanitEntity =
               GeoIoFeatureTypeBuilder.createSimpleFeatureTypesByLayer(
                   supportedFeatures,
                   layer,

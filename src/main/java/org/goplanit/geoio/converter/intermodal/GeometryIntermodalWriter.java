@@ -143,8 +143,10 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
         GeometryRoutedServicesWriterFactory.create(
             routedServicesSettings.getOutputDirectory(), routedServicesSettings.getCountry());
 
-    // routed services only requires service network entity references, those are present on the service network writer id mappings
-    routedServicesWriter.setParentIdMappers(networkIdMapper, zoningIdMapper, serviceNetworkWriter.getPrimaryIdMapper());
+    // routed services only requires service network entity references, those are present on
+    // the service network writer id mappings
+    routedServicesWriter.setParentIdMappers(
+            networkIdMapper, zoningIdMapper, serviceNetworkWriter.getPrimaryIdMapper());
 
     routedServicesWriter.setIdMapperType(getIdMapperType());
     routedServicesWriter.write(routedServices);

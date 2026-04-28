@@ -131,13 +131,15 @@ public final class GeoIODataStoreManager {
   public static DataStore createSingleEntityTypeDataStore(
       Class<?> dataStoreReferenceClass, GeoIoFormat format, Path outputFileNameWithPath){
     if(dataStoreMap.containsKey(dataStoreReferenceClass)){
-      LOGGER.severe(String.format("Datastore for class %s already registered, ignoring this call, providing existing datastore", dataStoreReferenceClass.toString()));
+      LOGGER.severe(String.format("Datastore for class %s already registered, ignoring this call, providing " +
+              "existing datastore", dataStoreReferenceClass.toString()));
       return dataStoreMap.get(dataStoreReferenceClass);
     }
 
     DataStore theDataStore = createSingleEntityTypeDataStore(format, outputFileNameWithPath);
     if(theDataStore == null){
-      throw new PlanItRunTimeException("Unable to create new datastore for class: "+ dataStoreReferenceClass.toString());
+      throw new PlanItRunTimeException("Unable to create new datastore for class: "+
+              dataStoreReferenceClass.toString());
     }
     dataStoreMap.put(dataStoreReferenceClass,theDataStore);
     return theDataStore;
@@ -159,7 +161,8 @@ public final class GeoIODataStoreManager {
           Path outputFileNameWithPath){
     Pair<Class<?>,Class<? extends Geometry>> key = Pair.of(dataStoreReferenceClass, geometryTypeClass);
     if(dataStoreMapGeoType.containsKey(key)){
-      LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, providing existing datastore", key));
+      LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call," +
+              " providing existing datastore", key));
       return dataStoreMapGeoType.get(key);
     }
     DataStore theDataStore = createSingleEntityTypeDataStore(format, outputFileNameWithPath);
@@ -187,7 +190,8 @@ public final class GeoIODataStoreManager {
           Path outputFileNameWithPath){
     Pair<Class<?>,Mode> key = Pair.of(dataStoreReferenceClass, mode);
     if(dataStoreMapMode.containsKey(key)){
-      LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, providing existing datastore", key));
+      LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, " +
+              "providing existing datastore", key));
       return dataStoreMapMode.get(key);
     }
 
@@ -219,14 +223,17 @@ public final class GeoIODataStoreManager {
    * @param feature feature to register
    */
   public static void registerFeatureOnDataStore(DataStore dataStore, SimpleFeatureType feature) {
-    PlanItRunTimeException.throwIfNull(feature, "Feature type null, unable to register on datastore, this shouldn't happen");
-    PlanItRunTimeException.throwIfNull(dataStore, "Data store null, unable to register feature on datastore, this shouldn't happen");
+    PlanItRunTimeException.throwIfNull(feature, "Feature type null, unable to register on datastore, " +
+            "this shouldn't happen");
+    PlanItRunTimeException.throwIfNull(dataStore, "Data store null, unable to register feature on datastore, " +
+            "this shouldn't happen");
 
     try{
       /* trigger exception when not available to register schema once */
       var alreadyAvailable = dataStore.getSchema(feature.getName());
       if(alreadyAvailable != null){
-        LOGGER.info(String.format("OVERWRITE datastore for feature %s already present, overwriting", feature.getTypeName()));
+        LOGGER.info(String.format("OVERWRITE datastore for feature %s already present, overwriting",
+                feature.getTypeName()));
         dataStore.removeSchema(feature.getTypeName());
         dataStore.getSchema(feature.getTypeName());
         return;

@@ -17,7 +17,8 @@ import java.util.function.Function;
  *
  * @author markr
  */
-public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> extends PlanitEntityFeatureTypeContext<Z> {
+public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry>
+        extends PlanitEntityFeatureTypeContext<Z> {
 
   /** the type of geometry the zone(s) are using */
   private final Class<T> geometryClassType;
@@ -31,8 +32,8 @@ public class PlanitZoneFeatureTypeContext<Z extends Zone, T extends Geometry> ex
    * @param zoneIdMapper to apply
    * @return feature mapping
    */
-  protected static <ZZ extends Zone, TT extends Geometry> List<Triple<String,String, Function<ZZ, ?>>> createBaseFeatureDescription(
-      Function<ZZ, String> zoneIdMapper){
+  protected static <ZZ extends Zone, TT extends Geometry> List<Triple<String,String, Function<ZZ, ?>>>
+  createBaseFeatureDescription(Function<ZZ, String> zoneIdMapper){
 
     return List.of(
             Triple.of("mapped_id", "String", zoneIdMapper),
