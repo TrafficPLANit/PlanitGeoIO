@@ -14,6 +14,9 @@ import org.goplanit.utils.network.virtual.physical.ConnectoidLink;
 import org.goplanit.utils.network.virtual.physical.ConnectoidSegment;
 import org.goplanit.utils.network.virtual.VirtualNetwork;
 import org.goplanit.utils.zoning.*;
+import org.goplanit.utils.zoning.connectoid.Connectoid;
+import org.goplanit.utils.zoning.connectoid.OdConnectoid;
+import org.goplanit.utils.zoning.connectoid.TransferConnectoid;
 import org.goplanit.zoning.Zoning;
 import org.locationtech.jts.geom.Geometry;
 

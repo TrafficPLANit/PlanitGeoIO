@@ -4,7 +4,7 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.zoning.TransferConnectoid;
+import org.goplanit.utils.zoning.connectoid.TransferConnectoid;
 import org.geotools.api.referencing.operation.MathTransform;
 
 import java.util.stream.Collectors;

@@ -7,7 +7,7 @@ import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
-import org.goplanit.utils.zoning.Connectoid;
+import org.goplanit.utils.zoning.connectoid.Connectoid;
 import org.goplanit.utils.zoning.Zone;
 
 import java.util.Collection;
