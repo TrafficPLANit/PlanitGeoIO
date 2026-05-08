@@ -16,7 +16,8 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry>
         extends PlanitZoneFeatureTypeContext<TransferZone, T> {
 
   /**
-   * Add any additional features unique to Transfer zones (and not available in base zone description) to feature description
+   * Add any additional features unique to Transfer zones (and not available in base zone description) to
+   * feature description
    */
   protected void appendTransferZoneFeatureDescription(){
 

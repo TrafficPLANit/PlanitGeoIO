@@ -37,7 +37,8 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
   private final GeoIoWriterSettings settings;
 
   /**
-   * Given the feature contexts for the available GIS features, find the one where the context matches a given PLANit entity class
+   * Given the feature contexts for the available GIS features, find the one where the context matches a given
+   * PLANit entity class
    *
    * @param <F> underlying feature type
    * @param planitEntityClass to find entry for

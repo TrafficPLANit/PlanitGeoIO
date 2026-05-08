@@ -28,10 +28,12 @@ public final class GeoIODataStoreManager {
   /** Track datastores per type of PLANit entity that we might persist by their most specific class signature */
   private static final Map<Class<?>, DataStore> dataStoreMap = new HashMap<>();
 
-  /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by geometry type) that we might persist by their most specific class signature */
+  /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by geometry type)
+   * that we might persist by their most specific class signature */
   private static final Map<Pair<Class<?>,Class<? extends Geometry>>, DataStore> dataStoreMapGeoType = new HashMap<>();
 
-  /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by mode) that we might persist by their most specific class signature */
+  /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by mode) that we
+   * might persist by their most specific class signature */
   private static final Map<Pair<Class<?>, Mode>, DataStore> dataStoreMapMode = new HashMap<>();
 
   /**
@@ -89,8 +91,8 @@ public final class GeoIODataStoreManager {
   }
 
   /**
-   * Collect a registered datastore for a given PLANit entity class and geometry type (in case multiple geometry types require multiple
-   * stores with one store per type), if not available null is returned.
+   * Collect a registered datastore for a given PLANit entity class and geometry type (in case multiple geometry
+   * types require multiple stores with one store per type), if not available null is returned.
    *
    * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
    * @param geometryTypeClass for the reference class

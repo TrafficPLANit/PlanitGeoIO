@@ -48,7 +48,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   private static Map<Class<?>, String> extractZoningPlanitEntitySchemaNames(GeometryZoningWriterSettings settings) {
     return Map.ofEntries(
         entry(TransferConnectoid.class, settings.getTransferConnectoidsFileName()),
-        entry(OdConnectoid.class, settings.getOdZonesFileName())
+        entry(OdConnectoid.class, settings.getOdConnectoidsFileName())
     );
   }
 
@@ -219,14 +219,14 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     }
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore legDataStore =
+    DataStore theDataStore =
         findDataStore(featureDescription,  createFullPathFromFileName(connectoidSchemaName));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
         featureType,
         featureDescription,
-        legDataStore,
+        theDataStore,
         connectoidSchemaName, /* schema name = file name */
         connectoids);
   }

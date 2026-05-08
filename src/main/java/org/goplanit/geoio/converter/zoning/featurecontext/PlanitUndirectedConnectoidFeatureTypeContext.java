@@ -13,7 +13,8 @@ import org.goplanit.utils.zoning.connectoid.OdConnectoid;
 public class PlanitUndirectedConnectoidFeatureTypeContext extends PlanitConnectoidFeatureTypeContext<OdConnectoid> {
 
   /**
-   * Add any additional features unique to undirected connectoids (and not available in base description) to feature description
+   * Add any additional features unique to undirected connectoids (and not available in base description) to
+   * feature description
    */
   protected void appendUndirectedConnectoidFeatureDescription(){
     // none yet
