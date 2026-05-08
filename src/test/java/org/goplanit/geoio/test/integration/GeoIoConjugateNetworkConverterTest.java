@@ -48,7 +48,6 @@ public class GeoIoConjugateNetworkConverterTest {
 
   private static final String PROJECT_PATH = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
 
-  /* the files in this location were originally sourced from PLANitIO converter test (src/test/resources/testcases/converter_test/input) */
   private static final String SIOUX_FALLS_INPUT_PATH = Path.of(PROJECT_PATH, "input", "siouxfalls").toString();
   private static final String SIOUX_FALLS_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","siouxfalls").toString();
 
