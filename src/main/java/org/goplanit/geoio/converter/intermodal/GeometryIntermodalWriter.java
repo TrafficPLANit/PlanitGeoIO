@@ -9,7 +9,6 @@ import org.goplanit.geoio.converter.zoning.GeometryZoningWriter;
 import org.goplanit.geoio.converter.zoning.GeometryZoningWriterFactory;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.ServiceNetwork;
-import org.goplanit.network.transport.TransportModelNetwork;
 import org.goplanit.network.transport.TransportModelNetworkImpl;
 import org.goplanit.service.routed.RoutedServices;
 import org.goplanit.utils.id.IdMapperType;
