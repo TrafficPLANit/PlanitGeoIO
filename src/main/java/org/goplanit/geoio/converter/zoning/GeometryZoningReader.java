@@ -108,8 +108,6 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
     var geometriesByLayer = SimpleShapeFileParser.parseShapeFileAsJtsGeometries(
         getSettings().getInputSource(), getSettings().getGisFilter(), false);
 
-    // convert each to a zone based on settings
-    final String idFieldName = getSettings().getZoneIdField();
     final String layerName = getSettings().getZoneLayerName() ;
 
     var gisLayerWithZones = geometriesByLayer.get(layerName).second();
@@ -118,8 +116,8 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
       return;
     }
 
+    // convert each to a zone based on settings
     extractZonesFromGisLayer(geometriesByLayer.get(layerName).first(), gisLayerWithZones);
-
   }
 
   /**
