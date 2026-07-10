@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 /**
  * Parse Zoning from a shape or geopackage format such that it informs the zoning both spatially and through an id
  * field that can be used to relate activities to a location area.
- * TODO: currently only support shape not geopackages
+ * TODO: currently only support shape not geopackages, and only supports parsing OD zones and their outer geometry
+ *  (no points, nor centroids)
  *
  * @author markr
  *

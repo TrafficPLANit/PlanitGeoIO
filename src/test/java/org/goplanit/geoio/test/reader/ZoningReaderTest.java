@@ -54,7 +54,7 @@ class ZoningReaderTest {
 
     var zoning = zoningReader.read();
 
-    assertNotNull(zoning, "zoning should not be null");
+    assertNotNull(zoning, "Zoning should not be null");
     Assertions.assertEquals(3378, zoning.getOdZones().size(),
         "Number of OD zones does not match expected");
   }
