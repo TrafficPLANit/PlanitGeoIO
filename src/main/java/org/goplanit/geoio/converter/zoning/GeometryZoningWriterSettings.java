@@ -16,26 +16,37 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryZoningWriterSettings.class.getCanonicalName());
 
+  /** od zones file name to use (without extension) */
   private String odZonesFileName = DEFAULT_OD_ZONES_FILE_NAME;
 
+  /** od connectoids file name to use (without extension) */
   private String odConnectoidsFileName = DEFAULT_OD_CONNECTOIDS_FILE_NAME;
 
+  /** transfer zones file name to use (without extension) */
   private String transferZonesFileName = DEFAULT_TRANSFER_ZONES_FILE_NAME;
 
+  /** transfer connectoids file name to use (without extension) */
   private String transferConnectoidsFileName = DEFAULT_TRANSFER_CONNECTOIDS_FILE_NAME;
 
+  /** connectoid edges file name to use (without extension) */
   private String connectoidEdgesFileName = DEFAULT_CONNECTOID_EDGES_FILE_NAME;
 
+  /** connectoid segments file name to use (without extension) */
   private String connectoidSegmentsFileName = DEFAULT_CONNECTOID_SEGMENTS_FILE_NAME;
 
+  /** flag indicating whether to persist origin-destination zones */
   private boolean persistOdZones = DEFAULT_PERSIST_OD_ZONES;
 
+  /** flag indicating whether to persist origin-destination connectoids */
   private boolean persistOdConnectoids = DEFAULT_PERSIST_OD_CONNECTOIDS;
 
+  /** flag indicating whether to persist transfer zones */
   private boolean persistTransferZones = DEFAULT_PERSIST_TRANSFER_ZONES;
 
+  /** flag indicating whether to persist transfer connectoids */
   private boolean persistTransferConnectoids = DEFAULT_PERSIST_TRANSFER_CONNECTOIDS;
 
+  /** flag indicating whether to persist the virtual network */
   private boolean persistVirtualNetwork = DEFAULT_PERSIST_VIRTUAL_NETWORK;
 
   /** default od zones file name to use (without extension) */

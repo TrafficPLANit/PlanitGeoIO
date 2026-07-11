@@ -16,21 +16,28 @@ public class GeometryRoutedServicesWriterSettings extends GeoIoWriterSettings im
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryRoutedServicesWriterSettings.class.getCanonicalName());
 
+  /** services file name to use (without extension) */
   private String servicesFileName = DEFAULT_SERVICES_FILE_NAME;
 
+  /** trip schedules file name to use (without extension) */
   private String tripSchedulesFileName = DEFAULT_TRIP_SCHEDULES_FILE_NAME;
 
+  /** trip frequencies file name to use (without extension) */
   private String tripFrequencyFileName = DEFAULT_TRIP_FREQUENCIES_FILE_NAME;
 
+  /** flag indicating whether to persist services */
   private boolean persistServices = DEFAULT_PERSIST_SERVICES;
 
+  /** flag indicating whether to persist schedule-based trips */
   private boolean persistTripsSchedule = DEFAULT_PERSIST_TRIPS_SCHEDULE;
 
+  /** flag indicating whether to persist frequency-based trips */
   private boolean persistTripsFrequency = DEFAULT_PERSIST_TRIPS_FREQUENCY;
 
   /** each layer gets a prefix prepended to the file name,e.g., #layer_prefix_#id_#filename */
   private String layerPrefix = DEFAULT_LAYER_PREFIX;
 
+  /** default layer prefix to use */
   public static final String DEFAULT_LAYER_PREFIX = "layer";
 
   /** default services file name to use (without extension) */

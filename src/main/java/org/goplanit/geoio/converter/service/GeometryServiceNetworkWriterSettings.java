@@ -84,50 +84,110 @@ public class GeometryServiceNetworkWriterSettings extends GeoIoWriterSettings im
     super(outputPathDirectory, countryName);
   }
 
+  /**
+   * Gets the service legs file name.
+   *
+   * @return the service legs file name (without extension)
+   */
   public String getServiceLegsFileName() {
     return serviceLegsFileName;
   }
 
+  /**
+   * Sets the service legs file name.
+   *
+   * @param serviceLegsFileName the file name to set (without extension)
+   */
   public void setServiceLegsFileName(String serviceLegsFileName) {
     this.serviceLegsFileName = serviceLegsFileName;
   }
 
+  /**
+   * Gets the service leg segments file name.
+   *
+   * @return the service leg segments file name (without extension)
+   */
   public String getServiceLegSegmentsFileName() {
     return serviceLegSegmentsFileName;
   }
 
+  /**
+   * Sets the service leg segments file name.
+   *
+   * @param serviceLegSegmentsFileName the file name to set (without extension)
+   */
   public void setServiceLegSegmentsFileName(String serviceLegSegmentsFileName) {
     this.serviceLegSegmentsFileName = serviceLegSegmentsFileName;
   }
 
+  /**
+   * Gets the service nodes file name.
+   *
+   * @return the service nodes file name (without extension)
+   */
   public String getServiceNodesFileName() {
     return serviceNodesFileName;
   }
 
+  /**
+   * Sets the service nodes file name.
+   *
+   * @param serviceNodesFileName the file name to set (without extension)
+   */
   public void setServiceNodesFileName(String serviceNodesFileName) {
     this.serviceNodesFileName = serviceNodesFileName;
   }
 
+  /**
+   * Sets whether to persist service legs.
+   *
+   * @param persistServiceLegs true to persist service legs, false otherwise
+   */
   public void setPersistServiceLegs(boolean persistServiceLegs) {
     this.persistServiceLegs = persistServiceLegs;
   }
 
+  /**
+   * Indicates whether service legs should be persisted.
+   *
+   * @return true if service legs are set to be persisted, false otherwise
+   */
   public boolean isPersistServiceLegs() {
     return persistServiceLegs;
   }
 
+  /**
+   * Sets whether to persist service leg segments.
+   *
+   * @param persistServiceLegSegments true to persist service leg segments, false otherwise
+   */
   public void setPersistServiceLegSegments(boolean persistServiceLegSegments) {
     this.persistServiceLegSegments = persistServiceLegSegments;
   }
 
+  /**
+   * Indicates whether service leg segments should be persisted.
+   *
+   * @return true if service leg segments are set to be persisted, false otherwise
+   */
   public boolean isPersistServiceLegSegments() {
     return persistServiceLegSegments;
   }
 
+  /**
+   * Indicates whether service nodes should be persisted.
+   *
+   * @return true if service nodes are set to be persisted, false otherwise
+   */
   public boolean isPersistServiceNodes() {
     return persistServiceNodes;
   }
 
+  /**
+   * Sets whether to persist service nodes.
+   *
+   * @param persistServiceNodes true to persist service nodes, false otherwise
+   */
   public void setPersistServiceNodes(boolean persistServiceNodes) {
     this.persistServiceNodes = persistServiceNodes;
   }

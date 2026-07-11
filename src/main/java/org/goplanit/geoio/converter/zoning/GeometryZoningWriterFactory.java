@@ -11,7 +11,7 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 public class GeometryZoningWriterFactory {
 
   /** Create a default geometryZoningWriter which can persist a PLANit zoning in GIS based format(s) such as shape file.
-   * It is expected the user configures the output location and other settings afterwards
+   * It is expected the user configures the output location and other settings afterward
    *
    * @return created zoning writer
    */
