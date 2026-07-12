@@ -2,6 +2,7 @@ package org.goplanit.geoio.converter.service;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.geoio.util.GeoIoWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
 
@@ -88,10 +89,11 @@ public class GeometryRoutedServicesWriterSettings extends GeoIoWriterSettings im
    * Convenience method to log all the current settings
    */
   public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("Geometry Routed Services Writer Settings"));
     super.logSettings();
-    LOGGER.info(String.format("%-40s: %s","Persist services", isPersistServices()));
-    LOGGER.info(String.format("%-40s: %s","Persist trips schedule", isPersistTripsSchedule()));
-    LOGGER.info(String.format("%-40s: %s","Persist trips frequency", isPersistTripsFrequency()));
+    LOGGER.info(LoggingUtils.settingsValue("Persist services", isPersistServices(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist trips schedule", isPersistTripsSchedule(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist trips frequency", isPersistTripsFrequency(), 0));
   }  
 
   /**

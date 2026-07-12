@@ -6,6 +6,9 @@ import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterSettings
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterSettings;
 import org.goplanit.geoio.converter.zoning.GeometryZoningWriterSettings;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.goplanit.utils.misc.LoggingUtils;
+
+import java.util.logging.Logger;
 
 /**
  * Settings for Geometry (GIS) intermodal writer
@@ -14,6 +17,9 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
  *
  */
 public class GeometryIntermodalWriterSettings implements ConverterWriterSettings {
+
+  /** logger to use */
+  private static final Logger LOGGER = Logger.getLogger(GeometryIntermodalWriterSettings.class.getCanonicalName());
 
   /** the network settings to use */
   protected final GeometryNetworkWriterSettings networkSettings;
@@ -79,6 +85,17 @@ public class GeometryIntermodalWriterSettings implements ConverterWriterSettings
     getZoningSettings().reset();
     getServiceNetworkSettings().reset();
     getRoutedServicesSettings().reset();
+  }
+
+  /**
+   * Log settings used
+   */
+  public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("Geometry Intermodal Writer Settings"));
+    getNetworkSettings().logSettings();
+    getZoningSettings().logSettings();
+    getServiceNetworkSettings().logSettings();
+    getRoutedServicesSettings().logSettings();
   }
 
   /** Collect zoning settings

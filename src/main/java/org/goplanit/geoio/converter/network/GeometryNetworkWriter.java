@@ -122,7 +122,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     prepareCoordinateReferenceSystem(
             network.getCoordinateReferenceSystem(),
             getSettings().getDestinationCoordinateReferenceSystem(),
-            getSettings().getCountry());
+            getSettings().getCountry(),
+            true);
 
     // make sure directory exists before starting to write to it
     boolean directoryAvailable = FileUtils.createDirectoryFrom(getSettings().getOutputDirectory());

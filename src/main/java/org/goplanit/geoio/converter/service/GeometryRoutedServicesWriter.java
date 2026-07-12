@@ -90,7 +90,9 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
 
     prepareCoordinateReferenceSystem(
         routedServices.getParentNetwork().getCoordinateReferenceSystem(),
-            getSettings().getDestinationCoordinateReferenceSystem(), getSettings().getCountry());
+            getSettings().getDestinationCoordinateReferenceSystem(),
+            getSettings().getCountry(),
+            true);
   }
 
   /**
@@ -288,11 +290,11 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
 
     validate(routedServices);
 
-    /* initialise */
-    initialiseWrite(routedServices);
-
     /* logging */
     getSettings().logSettings();
+
+    /* initialise */
+    initialiseWrite(routedServices);
 
     /* perform actual persistence */
     writeLayers(routedServices);

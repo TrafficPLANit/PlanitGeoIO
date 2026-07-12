@@ -2,6 +2,7 @@ package org.goplanit.geoio.converter.zoning;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.geoio.util.GeoIoWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
 
@@ -112,13 +113,13 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
    * Convenience method to log all the current settings
    */
   public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("Geometry Zoning Writer Settings"));
     super.logSettings();
-    LOGGER.info(String.format("%-40s: %s", "Persist OD zones", isPersistOdZones()));
-    LOGGER.info(String.format("%-40s: %s", "Persist OD connectoids", isPersistOdConnectoids()));
-    LOGGER.info(String.format("%-40s: %s", "Persist transfer zones", isPersistTransferZones()));
-    LOGGER.info(String.format("%-40s: %s", "Persist transfer connectoids", isPersistTransferConnectoids()));
-    LOGGER.info(String.format("%-40s: %s", "Persist transfer connectoids", isPersistVirtualNetwork()));
-    LOGGER.info(String.format("%-40s: %s", "Persist Virtual network", isPersistVirtualNetwork()));
+    LOGGER.info(LoggingUtils.settingsValue("Persist OD zones", isPersistOdZones(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist OD connectoids", isPersistOdConnectoids(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist transfer zones", isPersistTransferZones(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist transfer connectoids", isPersistTransferConnectoids(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist virtual network", isPersistVirtualNetwork(), 0));
   }
 
   /**

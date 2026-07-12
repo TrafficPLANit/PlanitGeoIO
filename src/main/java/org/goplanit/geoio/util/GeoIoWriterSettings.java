@@ -2,6 +2,7 @@ package org.goplanit.geoio.util;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.converter.FileBasedConverterWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
 
@@ -50,9 +51,8 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
    * Convenience method to log all the current settings
    */
   public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsValue("GEO format", getFormat(), 0));
     super.logSettings();
-    LOGGER.info(String.format("%-40s: %s","GEO format", getFormat().toString()));
-    LOGGER.info(String.format("%-40s: %s","Country", getCountry().toString()));
   }  
 
   /**

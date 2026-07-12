@@ -103,7 +103,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     prepareCoordinateReferenceSystem(
             serviceNetwork.getCoordinateReferenceSystem(),
             getSettings().getDestinationCoordinateReferenceSystem(),
-            getSettings().getCountry());
+            getSettings().getCountry(),
+            true);
   }
 
 
@@ -327,11 +328,11 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
 
     validate(serviceNetwork);
 
-    /* initialise */
-    initialiseWrite(serviceNetwork);
-
     /* logging */
     getSettings().logSettings();
+
+    /* initialise */
+    initialiseWrite(serviceNetwork);
 
     /* perform actual persistence */
     writeLayers(serviceNetwork);

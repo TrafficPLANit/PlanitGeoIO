@@ -2,6 +2,7 @@ package org.goplanit.geoio.converter.network;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.geoio.util.GeoIoWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
 
@@ -140,11 +141,12 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
    * Convenience method to log all the current settings
    */
   public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("Geometry Network Writer Settings"));
     super.logSettings();
-    LOGGER.info(String.format("%-40s: %s","Persist nodes", isPersistNodes()));
-    LOGGER.info(String.format("%-40s: %s","Persist links", isPersistLinks()));
-    LOGGER.info(String.format("%-40s: %s","Persist link segments", isPersistLinkSegments()));
-    LOGGER.info(String.format("%-40s: %s","Persist conjugate network", isPersistConjugateNetwork()));
+    LOGGER.info(LoggingUtils.settingsValue("Persist nodes", isPersistNodes(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist links", isPersistLinks(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist link segments", isPersistLinkSegments(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist conjugate network", isPersistConjugateNetwork(), 0));
   }  
 
   /**

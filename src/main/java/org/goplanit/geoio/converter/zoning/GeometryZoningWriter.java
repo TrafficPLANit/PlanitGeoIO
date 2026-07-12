@@ -156,7 +156,8 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     prepareCoordinateReferenceSystem(
             zoning.getCoordinateReferenceSystem(),
             getSettings().getDestinationCoordinateReferenceSystem(),
-            getSettings().getCountry());
+            getSettings().getCountry(),
+            true);
   }
 
   /**
@@ -515,11 +516,11 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
 
     validate(zoning);
 
-    /* initialise */
-    initialiseWrite(zoning);
-
     /* logging */
     getSettings().logSettings();
+
+    /* initialise */
+    initialiseWrite(zoning);
 
     /* perform actual persistence */
     writeEntities(zoning);

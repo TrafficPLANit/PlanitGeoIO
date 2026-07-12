@@ -6,6 +6,7 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.factory.CommonFactoryFinder;
 import org.goplanit.converter.ConverterReaderSettings;
 import org.goplanit.utils.id.IdMapperType;
+import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
 
@@ -158,12 +159,16 @@ public class GeometryZoningReaderSettings implements ConverterReaderSettings {
    */
   @Override
   public void logSettings() {
-    LOGGER.info(String.format("%-40s: %s", "Input source", getInputSource()));
-    LOGGER.info(String.format("%-40s: %s", "Input source CRS", getSourceCrs().getName()));
-    LOGGER.info(String.format("%-40s: %s", "Layer name", getZoneLayerName()));
-    LOGGER.info(String.format("%-40s: %s", "Layer Zone id field name", getZoneIdField()));
-    LOGGER.info(String.format("%-40s: %s", "GIS zone filter", getGisFilter()));
-    LOGGER.info(String.format("%-40s: %s", "Id mapping set to", getIdMapperType()));
+    LOGGER.info(LoggingUtils.settingsHeader("Geometry Zoning Reader Settings"));
+    LOGGER.info(LoggingUtils.settingsValue("Input source", getInputSource(), 0));
+    LOGGER.info(LoggingUtils.settingsValue(
+        "Input source CRS",
+        getSourceCrs() == null ? "not set" : getSourceCrs().getName(),
+        0));
+    LOGGER.info(LoggingUtils.settingsValue("Layer name", getZoneLayerName(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Layer zone id field name", getZoneIdField(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("GIS zone filter", getGisFilter(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Id mapping", getIdMapperType(), 0));
   }
 
 }

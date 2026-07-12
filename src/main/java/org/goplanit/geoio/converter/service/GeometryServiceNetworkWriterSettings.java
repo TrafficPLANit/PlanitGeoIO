@@ -2,6 +2,7 @@ package org.goplanit.geoio.converter.service;
 
 import org.goplanit.converter.ConverterWriterSettings;
 import org.goplanit.geoio.util.GeoIoWriterSettings;
+import org.goplanit.utils.misc.LoggingUtils;
 
 import java.util.logging.Logger;
 
@@ -196,10 +197,11 @@ public class GeometryServiceNetworkWriterSettings extends GeoIoWriterSettings im
    * Convenience method to log all the current settings
    */
   public void logSettings() {
+    LOGGER.info(LoggingUtils.settingsHeader("Geometry Service Network Writer Settings"));
     super.logSettings();
-    LOGGER.info(String.format("%-40s: %s", "Persist service nodes", isPersistServiceNodes()));
-    LOGGER.info(String.format("%-40s: %s", "Persist service legs", isPersistServiceLegs()));
-    LOGGER.info(String.format("%-40s: %s", "Persist service leg segments", isPersistServiceLegSegments()));
+    LOGGER.info(LoggingUtils.settingsValue("Persist service nodes", isPersistServiceNodes(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist service legs", isPersistServiceLegs(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist service leg segments", isPersistServiceLegSegments(), 0));
   }  
 
   /**
