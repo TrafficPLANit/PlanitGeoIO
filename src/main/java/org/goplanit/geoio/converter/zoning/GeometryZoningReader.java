@@ -2,10 +2,11 @@ package org.goplanit.geoio.converter.zoning;
 
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.api.feature.simple.SimpleFeatureType;
-import org.goplanit.converter.BaseReaderImpl;
+import org.goplanit.converter.CrsReaderImpl;
 import org.goplanit.converter.zoning.ZoningReader;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.geo.PlanitSimpleFeatureUtils;
 import org.goplanit.utils.geo.SimpleShapeFileParser;
 import org.goplanit.utils.id.IdMapperType;
@@ -16,6 +17,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -28,7 +30,7 @@ import java.util.logging.Logger;
  * @author markr
  *
  */
-public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements ZoningReader {
+public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements ZoningReader {
 
   /** the logger */
   private static final Logger LOGGER = Logger.getLogger(GeometryZoningReader.class.getCanonicalName());
@@ -87,7 +89,33 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
       zone.setExternalId(zoneSourceId);
 
       if (zoneFeature.getDefaultGeometry() instanceof Geometry) {
-        zone.setGeometry((Geometry) zoneFeature.getDefaultGeometry());
+        var geometry = (Geometry) zoneFeature.getDefaultGeometry();
+        if(geometry instanceof Polygon){
+          if(!PlanitJtsUtils.isClosed2D(((Polygon)geometry))){
+            LOGGER.warning(String.format("Found unclosed geometry for zone (%s), auto-closing",
+                zone.getIdsAsString()));
+            geometry = PlanitJtsUtils.makeClosed2D(((Polygon)geometry));
+          }
+        }else if (geometry instanceof MultiPolygon) {
+          var multiPoly = (MultiPolygon) geometry;
+          var polishedPolygons = new ArrayList<Polygon>();
+          boolean modified = false;
+          for (int i = 0; i < multiPoly.getNumGeometries(); i++) {
+            var poly = (Polygon) multiPoly.getGeometryN(i);
+            if (!PlanitJtsUtils.isClosed2D(poly)) {
+              LOGGER.warning(String.format("Found unclosed MultiPolygon member for zone (%s), auto-closing",
+                  zone.getIdsAsString()));
+              poly = PlanitJtsUtils.makeClosed2D(poly);
+              modified = true;
+            }
+            polishedPolygons.add(poly);
+          }
+          if (modified) {
+            geometry = PlanitJtsUtils.createMultiPolygon(polishedPolygons.toArray(new Polygon[0]));
+          }
+        }
+        zone.setGeometry(geometry);
+
       }else{
         LOGGER.severe(String.format(
             "Expect Zone (%s) to have a geometry, but found none, ignored", zone.getIdsAsString()));
@@ -122,6 +150,20 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
   }
 
   /**
+   * Zones parsed but still in original Crs, transform in bulk to destination Crs
+   */
+  private void transformToDestinationCrs() {
+    if(getDestinationCrsTransformer() != null){
+      // use native support instead of embedded transformer in reader
+      zoningToPopulate.setCoordinateReferenceSystem(getSettings().getSourceCrs());
+      zoningToPopulate.transform(getDestinationCoordinateReferenceSystem());
+    }else if(zoningToPopulate.getCoordinateReferenceSystem() == null){
+      // map CRS from parser onto the PLANit Crs as there is no transformation applied
+      zoningToPopulate.setCoordinateReferenceSystem(getSettings().getSourceCrs());
+    }
+  }
+
+  /**
    * Log some information about this reader's configuration
    */
   private void logInfo() {
@@ -149,6 +191,11 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
    * Validate settings
    */
   protected void validate(){
+    PlanItRunTimeException.throwIfNull(getReferenceNetwork(),
+        "Reference network not set, unable to proceed");
+  }
+
+  private void validateSettings() {
     PlanItRunTimeException.throwIfNull(getSettings().getSourceCrs(),
         "Input CRS not set for geo zoning reader, unable to proceed");
     PlanItRunTimeException.throwIfNull(getSettings().getInputSource(),
@@ -158,7 +205,7 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
     PlanItRunTimeException.throwIfNull(getSettings().getZoneIdField(),
         "Zone id field of layer in Input source not set for geo zoning reader, unable to proceed");
     PlanItRunTimeException.throwIf(getSettings().getIdMapperType().equals(IdMapperType.ID),
-        "cannot map ids to PLANit internal id, supporting only XML or EXTERNAL mapping currently");
+        "Cannot map ids to PLANit internal id, supporting only XML or EXTERNAL mapping currently");
   }
 
   /**
@@ -172,6 +219,7 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
       GeometryZoningReaderSettings settings,
       MacroscopicNetwork referenceNetwork,
       Zoning zoningToPopulate){
+    super();
     this.zoningReaderSettings = settings;
     this.referenceNetwork = referenceNetwork;
     this.zoningToPopulate = zoningToPopulate;
@@ -188,12 +236,24 @@ public class GeometryZoningReader extends BaseReaderImpl<Zoning> implements Zoni
   public Zoning read() {
 
     validate();
+    validateSettings();
 
     logInfo();
 
     initialiseIdTrackers();
 
+    if(getReferenceNetwork().isEmpty()){
+      getReferenceNetwork().setCoordinateReferenceSystem(getSettings().getSourceCrs());
+    }
+    prepareCoordinateReferenceSystem(
+        getSettings().getSourceCrs(),
+        getReferenceNetwork().getCoordinateReferenceSystem(),
+        null,
+        true);
+
     readZonesFromInput();
+
+    transformToDestinationCrs();
 
     /* log stats */
     logParsingStats();

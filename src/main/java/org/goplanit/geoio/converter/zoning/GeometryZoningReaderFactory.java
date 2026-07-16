@@ -33,6 +33,7 @@ public class GeometryZoningReaderFactory {
   public static GeometryZoningReader create(
       GeometryZoningReaderSettings settings) {
     MacroscopicNetwork dummyNetwork = new MacroscopicNetwork(IdGroupingToken.collectGlobalToken());
+    dummyNetwork.setCoordinateReferenceSystem(settings.getSourceCrs());
     return create(
         settings,
         dummyNetwork,
