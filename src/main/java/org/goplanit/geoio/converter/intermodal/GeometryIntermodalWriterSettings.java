@@ -90,12 +90,12 @@ public class GeometryIntermodalWriterSettings implements ConverterWriterSettings
   /**
    * Log settings used
    */
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("Geometry Intermodal Writer Settings"));
-    getNetworkSettings().logSettings();
-    getZoningSettings().logSettings();
-    getServiceNetworkSettings().logSettings();
-    getRoutedServicesSettings().logSettings();
+    getNetworkSettings().logSettings(level);
+    getZoningSettings().logSettings(level);
+    getServiceNetworkSettings().logSettings(level);
+    getRoutedServicesSettings().logSettings(level);
   }
 
   /** Collect zoning settings

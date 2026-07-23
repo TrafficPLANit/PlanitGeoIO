@@ -158,17 +158,17 @@ public class GeometryZoningReaderSettings implements ConverterReaderSettings {
    * {@inheritDoc}
    */
   @Override
-  public void logSettings() {
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("Geometry Zoning Reader Settings"));
-    LOGGER.info(LoggingUtils.settingsValue("Input source", getInputSource(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Input source", getInputSource(), level));
     LOGGER.info(LoggingUtils.settingsValue(
         "Input source CRS",
         getSourceCrs() == null ? "not set" : getSourceCrs().getName(),
-        0));
-    LOGGER.info(LoggingUtils.settingsValue("Layer name", getZoneLayerName(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Layer zone id field name", getZoneIdField(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("GIS zone filter", getGisFilter(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Id mapping", getIdMapperType(), 0));
+        level));
+    LOGGER.info(LoggingUtils.settingsValue("Layer name", getZoneLayerName(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Layer zone id field name", getZoneIdField(), level));
+    LOGGER.info(LoggingUtils.settingsValue("GIS zone filter", getGisFilter(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Id mapping", getIdMapperType(), level));
   }
 
 }
