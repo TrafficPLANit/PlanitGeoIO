@@ -2,9 +2,7 @@ package org.goplanit.geoio.util;
 
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.misc.Triple;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,6 +85,12 @@ public class PlanitEntityFeatureTypeContext<T> {
     }
     if (geometryClazz.equals(LineString.class)) {
       return "LineString";
+    }
+    if (geometryClazz.equals(Polygon.class)) {
+      return "Polygon";
+    }
+    if (geometryClazz.equals(MultiPolygon.class)) {
+      return "MultiPolygon";
     }
     PlanItRunTimeException.throwNew(
             "Geometry type %s not yet added as GIS geometry type, please add, aborting",

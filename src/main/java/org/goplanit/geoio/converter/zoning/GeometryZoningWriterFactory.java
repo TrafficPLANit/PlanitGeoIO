@@ -29,4 +29,13 @@ public class GeometryZoningWriterFactory {
     return new GeometryZoningWriter(outputPath, countryName);
   }
 
+  /** Create a PLANitZoningWriter which can persist a PLANit zoning in GIS based format(s) such as shape file
+   *
+   * @param settings to use
+   * @return created zoning writer
+   */
+  public static GeometryZoningWriter create(final GeometryZoningWriterSettings settings) {
+    return new GeometryZoningWriter(settings);
+  }
+
 }
