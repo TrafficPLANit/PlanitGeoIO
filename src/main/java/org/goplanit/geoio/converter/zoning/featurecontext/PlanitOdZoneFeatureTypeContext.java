@@ -36,7 +36,7 @@ public class PlanitOdZoneFeatureTypeContext<T extends Geometry> extends PlanitZo
       Function<OdZone, String> zoneIdMapper,
       Class<T> geometryType,
       final MathTransform destinationCrsTransformer){
-    super(OdZone.class, geometryType, zoneIdMapper);
+    super(OdZone.getOdZoneIdClass(), geometryType, zoneIdMapper);
 
     /* add od zone specific attributes */
     appendOdZoneFeatureDescription();
@@ -49,16 +49,16 @@ public class PlanitOdZoneFeatureTypeContext<T extends Geometry> extends PlanitZo
    * Factory method
    *
    * @param <TT> the type of geometry
-   * @param zoneIdMapper to apply for creating each od zone's unique id when persisting
+   * @param odZoneIdMapper to apply for creating each od zone's unique id when persisting
    * @param geometryType to apply for this context
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static <TT extends Geometry> PlanitOdZoneFeatureTypeContext<TT> create(
-      Function<? super Zone, String> zoneIdMapper,Class<TT> geometryType,
+      Function<? super OdZone, String> odZoneIdMapper,Class<TT> geometryType,
       final MathTransform destinationCrsTransformer){
     return new PlanitOdZoneFeatureTypeContext<>(
-        zoneIdMapper::apply /* convert to OdZone as type */,
+        odZoneIdMapper::apply /* convert to OdZone as type */,
         geometryType,
         destinationCrsTransformer);
   }

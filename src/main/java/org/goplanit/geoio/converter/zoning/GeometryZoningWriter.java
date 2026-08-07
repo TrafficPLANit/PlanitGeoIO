@@ -424,11 +424,13 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     /* zones by geometry type are treated separately */
     {
       if(getSettings().isPersistOdZones() && zoning.hasOdZones()) {
-        writeZones(zoning.getOdZones(), OdZone.class, getSettings().getOdZonesFileName());
+        writeZones(
+            zoning.getOdZones(), OdZone.getOdZoneIdClass(), getSettings().getOdZonesFileName());
       }
 
       if(getSettings().isPersistTransferZones() && zoning.hasTransferZones()) {
-        writeZones(zoning.getTransferZones(), TransferZone.class, getSettings().getTransferZonesFileName());
+        writeZones(
+            zoning.getTransferZones(), TransferZone.getTransferZoneIdClass(), getSettings().getTransferZonesFileName());
       }
     }
 

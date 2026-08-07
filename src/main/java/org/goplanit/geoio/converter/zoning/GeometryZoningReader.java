@@ -47,12 +47,12 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
   private Zoning zoningToPopulate;
 
   /**
-   * Extract zones from chosen gis layer
+   * Extract OD zones from chosen gis layer
    *
    * @param type type of features in layer
    * @param zoneFeatures the layer to extract from
    */
-  private void extractZonesFromGisLayer(SimpleFeatureType type, List<SimpleFeature> zoneFeatures) {
+  private void extractOdZonesFromGisLayer(SimpleFeatureType type, List<SimpleFeature> zoneFeatures) {
 
     if(!PlanitSimpleFeatureUtils.hasGeometryType(type, Polygon.class, MultiPolygon.class)){
       LOGGER.warning("Expected polygon-like feature type for zoning layer, but not found, abort");
@@ -121,7 +121,7 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
             "Expect Zone (%s) to have a geometry, but found none, ignored", zone.getIdsAsString()));
       }
 
-      registerBySourceId(Zone.class, zone);
+      registerBySourceId(OdZone.getOdZoneIdClass(), zone);
     }
 
 
@@ -130,7 +130,7 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
   /**
    * Conduct the parsing
    */
-  private void readZonesFromInput() {
+  private void readOdZonesFromInput() {
 
     // parse raw geometries -- for now this only supports shape file, but we should extend to geopackages to make it
     // more widely appealing
@@ -139,14 +139,14 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
 
     final String layerName = getSettings().getZoneLayerName() ;
 
-    var gisLayerWithZones = geometriesByLayer.get(layerName).second();
-    if(gisLayerWithZones == null || gisLayerWithZones.isEmpty()){
+    var gisLayerWithOdZones = geometriesByLayer.get(layerName).second();
+    if(gisLayerWithOdZones == null || gisLayerWithOdZones.isEmpty()){
       LOGGER.warning(String.format("Given layer (%s) does not exist or is empty, abort", layerName));
       return;
     }
 
     // convert each to a zone based on settings
-    extractZonesFromGisLayer(geometriesByLayer.get(layerName).first(), gisLayerWithZones);
+    extractOdZonesFromGisLayer(geometriesByLayer.get(layerName).first(), gisLayerWithOdZones);
   }
 
   /**
@@ -251,7 +251,7 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
         null,
         true);
 
-    readZonesFromInput();
+    readOdZonesFromInput();
 
     transformToDestinationCrs();
 
@@ -270,9 +270,11 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
    */
   private void initialiseIdTrackers() {
     if(getSettings().getIdMapperType().equals(IdMapperType.XML)) {
-      initialiseSourceIdMap(Zone.class, Zone::getXmlId);
+      initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getXmlId);
+      getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoningToPopulate.getOdZones());
     }else if(getSettings().getIdMapperType().equals(IdMapperType.EXTERNAL_ID)){
-      initialiseSourceIdMap(Zone.class, Zone::getExternalId);
+      initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getExternalId);
+      getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoningToPopulate.getOdZones());
     }
   }
 

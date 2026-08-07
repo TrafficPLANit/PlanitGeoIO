@@ -46,7 +46,7 @@ public class PlanitEntityFeatureTypeContext<T> {
    */
   protected PlanitEntityFeatureTypeContext(
           final Class<T> clazz,
-          Collection<Triple<String,String, Function<T, ? extends Object>>> geoFeatureDescription){
+          Collection<Triple<String,String, Function<T, ?>>> geoFeatureDescription){
     this.planitEntityClass = clazz;
     this.geoFeatureDescription = new ArrayList<>(geoFeatureDescription);
   }

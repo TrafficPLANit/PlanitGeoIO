@@ -4,6 +4,8 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.goplanit.utils.zoning.OdZone;
+import org.goplanit.utils.zoning.TransferZone;
 import org.goplanit.utils.zoning.connectoid.TransferConnectoid;
 import org.geotools.api.referencing.operation.MathTransform;
 
@@ -22,13 +24,41 @@ public class PlanitDirectedConnectoidFeatureTypeContext
    * to feature description
    *
    * @param networkIdMapper to use
+   * @param zoningIdMapper  to use
    */
-  protected void appendDirectedConnectoidFeatureDescription(final NetworkIdMapper networkIdMapper){
+  @SuppressWarnings("unchecked")
+  protected void appendDirectedConnectoidFeatureDescription(
+      final NetworkIdMapper networkIdMapper, ZoningIdMapper zoningIdMapper){
+
     this.appendToFeatureTypeDescription(
         Triple.of("phys_sgms", "String",
           c ->  c.getExplicitAccessLinkSegmentsStream().map(ls ->
                   networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ls)).collect(
                   Collectors.joining(","))));
+
+      appendToFeatureTypeDescription(
+          // todo: improve as this is now a simplification compared to PLANit data
+          Triple.of("trsfzones", "String",
+              c -> c.getAccessZoneStream().filter(z -> z instanceof TransferZone).map(
+                  z -> zoningIdMapper.getTransferZoneIdMapper().apply((TransferZone)z)).collect(
+                  Collectors.joining(","))));
+
+      // function for modes mapping tailored to TransferZones only
+      var accessZoneModesStringFunc = accessZoneModeStrFunc(
+          zoningIdMapper.getTransferZoneIdMapper(), accessModesToStringConversionFunc(networkIdMapper));
+      appendToFeatureTypeDescription(Triple.of("modes", "String",
+          c -> c.getAccessZoneStream()
+              .filter(z -> z instanceof TransferZone)
+              .map(z -> accessZoneModesStringFunc.apply((TransferZone) z, c))
+              .collect(Collectors.joining(","))));
+
+      // function for lengths mapping tailored to Od zones only
+      var accessZoneLengthStringFunc = accessZoneLengthsStrFunc(zoningIdMapper.getTransferZoneIdMapper());
+      appendToFeatureTypeDescription(
+          Triple.of("lengths_km", "String",c -> c.getAccessZoneStream()
+              .filter(z -> z instanceof TransferZone)
+              .map( z ->accessZoneLengthStringFunc.apply( (TransferZone)z, c))
+              .collect(Collectors.joining(","))));
   }
 
   /**
@@ -45,7 +75,7 @@ public class PlanitDirectedConnectoidFeatureTypeContext
     super(TransferConnectoid.class, zoningIdMapper, networkIdMapper);
 
     /* add od zone specific attributes */
-    appendDirectedConnectoidFeatureDescription(networkIdMapper);
+    appendDirectedConnectoidFeatureDescription(networkIdMapper, zoningIdMapper);
 
     /* finish with geometry */
     appendToFeatureTypeDescription(createGeometryFeatureDescription(destinationCrsTransformer));

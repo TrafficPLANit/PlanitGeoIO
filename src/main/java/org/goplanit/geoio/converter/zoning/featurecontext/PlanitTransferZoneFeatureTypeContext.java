@@ -38,7 +38,7 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry>
       Function<TransferZone, String> zoneIdMapper,
       Class<T> geometryType,
       final MathTransform destinationCrsTransformer){
-    super(TransferZone.class, geometryType, zoneIdMapper);
+    super(TransferZone.getTransferZoneIdClass(), geometryType, zoneIdMapper);
 
     /* add od zone specific attributes */
     appendTransferZoneFeatureDescription();
@@ -51,18 +51,18 @@ public class PlanitTransferZoneFeatureTypeContext<T extends Geometry>
    * Factory method
    *
    * @param <TT> the type of geometry
-   * @param zoneIdMapper to apply for creating each service node's unique id when persisting
+   * @param transferZoneIdMapper to apply for creating each transfer zone's unique id when persisting
    * @param geometryType to use
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static <TT extends Geometry> PlanitTransferZoneFeatureTypeContext<TT> create(
-    Function<? super Zone, String> zoneIdMapper,
+    Function<? super TransferZone, String> transferZoneIdMapper,
     Class<TT> geometryType,
     final MathTransform destinationCrsTransformer){
 
     return new PlanitTransferZoneFeatureTypeContext<>(
-        zoneIdMapper::apply /* convert to TransferZone as type */,
+        transferZoneIdMapper::apply /* convert to TransferZone as type */,
         geometryType,
         destinationCrsTransformer);
   }

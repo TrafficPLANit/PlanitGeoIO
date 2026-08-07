@@ -173,15 +173,15 @@ public final class GeoIoFeatureTypeBuilder {
       ZoningIdMapper primaryIdMapper,
       Class<Z> zoneClazz, Class<T> geometryType,
       final MathTransform destinationCrsTransformer) {
-    if (zoneClazz.equals(OdZone.class)) {
+    if (zoneClazz.equals(OdZone.getOdZoneIdClass())) {
       return (PlanitZoneFeatureTypeContext<Z, T>)
           PlanitOdZoneFeatureTypeContext.create(
-              primaryIdMapper.getZoneIdMapper(), geometryType, destinationCrsTransformer);
+              primaryIdMapper.getOdZoneIdMapper(), geometryType, destinationCrsTransformer);
     }
     if (zoneClazz.equals(TransferZone.class)) {
       return (PlanitZoneFeatureTypeContext<Z, T>)
           PlanitTransferZoneFeatureTypeContext.create(
-              primaryIdMapper.getZoneIdMapper(), geometryType, destinationCrsTransformer);
+              primaryIdMapper.getTransferZoneIdMapper(), geometryType, destinationCrsTransformer);
     }
     PlanItRunTimeException.throwNew("Zone type %s not yet added as supported Zone type, please add, aborting",
             zoneClazz.getCanonicalName());

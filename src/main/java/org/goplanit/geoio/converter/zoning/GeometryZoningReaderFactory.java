@@ -36,8 +36,22 @@ public class GeometryZoningReaderFactory {
     dummyNetwork.setCoordinateReferenceSystem(settings.getSourceCrs());
     return create(
         settings,
-        dummyNetwork,
-        new Zoning(dummyNetwork.getIdGroupingToken(), dummyNetwork.getNetworkGroupingTokenId()));
+        dummyNetwork);
+  }
+
+  /** Create a GeometryZoningReader
+   *
+   * @param settings to use
+   * @param referenceNetwork to use (typically empty since ActivitySim has no network and is demand only)
+   * @return created ActivitySimZoningReader
+   */
+  public static GeometryZoningReader create(
+      GeometryZoningReaderSettings settings,
+      MacroscopicNetwork referenceNetwork) {
+    return create(
+        settings,
+        referenceNetwork,
+        new Zoning(referenceNetwork.getIdGroupingToken(), referenceNetwork.getNetworkGroupingTokenId()));
   }
 
   /** Create a GeometryZoningReader
