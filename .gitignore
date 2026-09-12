@@ -10,3 +10,5 @@
 /docs
 *.class
 /src/test/resources/converter_test/outputs
+# Generated reader test output compared against reference/zoning.xml
+/src/test/resources/reader_test/travel_zones/zoning.xml
