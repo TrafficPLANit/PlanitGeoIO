@@ -331,14 +331,15 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     /* logging */
     getSettings().logSettings();
 
-    /* initialise */
-    initialiseWrite(serviceNetwork);
+    try {
+      /* initialise */
+      initialiseWrite(serviceNetwork);
 
-    /* perform actual persistence */
-    writeLayers(serviceNetwork);
-
-    /* disposes of any registered data stores */
-    GeoIODataStoreManager.reset();
+      /* perform actual persistence */
+      writeLayers(serviceNetwork);
+    } finally {
+      reset();
+    }
   }
 
   /**

@@ -519,14 +519,15 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     /* logging */
     getSettings().logSettings();
 
-    /* initialise */
-    initialiseWrite(zoning);
+    try {
+      /* initialise */
+      initialiseWrite(zoning);
 
-    /* perform actual persistence */
-    writeEntities(zoning);
-
-    /* disposes of any registered data stores */
-    GeoIODataStoreManager.reset();
+      /* perform actual persistence */
+      writeEntities(zoning);
+    } finally {
+      reset();
+    }
   }
 
 

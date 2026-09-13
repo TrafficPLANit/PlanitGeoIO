@@ -293,14 +293,15 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     /* logging */
     getSettings().logSettings();
 
-    /* initialise */
-    initialiseWrite(routedServices);
+    try {
+      /* initialise */
+      initialiseWrite(routedServices);
 
-    /* perform actual persistence */
-    writeLayers(routedServices);
-
-    /* disposes of any registered data stores */
-    GeoIODataStoreManager.reset();
+      /* perform actual persistence */
+      writeLayers(routedServices);
+    } finally {
+      reset();
+    }
   }
 
   /**

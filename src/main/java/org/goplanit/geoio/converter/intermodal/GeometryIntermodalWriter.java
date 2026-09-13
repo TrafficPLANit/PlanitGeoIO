@@ -67,7 +67,11 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
     var networkWriter = GeometryNetworkWriterFactory.create(
             networkSettings.getOutputDirectory(), networkSettings.getCountry());
     networkWriter.setIdMapperType(getIdMapperType());
-    networkWriter.write(macroscopicNetwork);
+    try {
+      networkWriter.write(macroscopicNetwork);
+    } finally {
+      networkWriter.close();
+    }
 
     /* zoning writer - with pt component via transfer zones */
     var zoningSettings = getSettings().getZoningSettings();
@@ -75,7 +79,11 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
             GeometryZoningWriterFactory.create(zoningSettings.getOutputDirectory(), zoningSettings.getCountry());
     zoningWriter.setParentIdMappers(networkWriter.getPrimaryIdMapper()); // pass on parent ref mapping
     zoningWriter.setIdMapperType(getIdMapperType());
-    zoningWriter.write(zoning);
+    try {
+      zoningWriter.write(zoning);
+    } finally {
+      zoningWriter.close();
+    }
 
     return Pair.of(networkWriter, zoningWriter);
   }
@@ -134,7 +142,11 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
     serviceNetworkWriter.setParentIdMappers(networkIdMapper, zoningIdMapper);
 
     serviceNetworkWriter.setIdMapperType(getIdMapperType());
-    serviceNetworkWriter.write(serviceNetwork);
+    try {
+      serviceNetworkWriter.write(serviceNetwork);
+    } finally {
+      serviceNetworkWriter.close();
+    }
 
     /* routed services writer */
     var routedServicesSettings = getSettings().getRoutedServicesSettings();
@@ -148,7 +160,11 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
             networkIdMapper, zoningIdMapper, serviceNetworkWriter.getPrimaryIdMapper());
 
     routedServicesWriter.setIdMapperType(getIdMapperType());
-    routedServicesWriter.write(routedServices);
+    try {
+      routedServicesWriter.write(routedServices);
+    } finally {
+      routedServicesWriter.close();
+    }
   }
 
   /**

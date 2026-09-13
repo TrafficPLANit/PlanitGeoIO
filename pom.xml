@@ -16,6 +16,12 @@
 
 	<name>planit-geoio</name>
 	<url>https://github.com/TrafficPLANit/PlanitGeoIO</url>
+
+	<properties>
+		<!-- Keep GeoTools/GIS test forks from reserving excessive Java heap on older machines.
+		     This leaves more process memory available outside the Java heap for native/file-backed GeoTools work. -->
+		<planit.geoio.surefire.argLine>-Xms64m -Xmx1024m</planit.geoio.surefire.argLine>
+	</properties>
 	
 	<!-- license based on the one published on the website -->
 	<licenses>
@@ -112,6 +118,14 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>${planit.geoio.surefire.argLine}</argLine>
+				</configuration>
 			</plugin>
 		</plugins>	    
     </build>

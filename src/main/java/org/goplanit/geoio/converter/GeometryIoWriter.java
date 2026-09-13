@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @author markr
  *
  */
-public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
+public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> implements AutoCloseable {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryIoWriter.class.getCanonicalName());
@@ -105,34 +105,36 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
             DataStoreUtils.getDataStoreGeometryAttributeDescriptor(entityDataStore, featureSchemaName);
 
     Transaction transaction = new DefaultTransaction("create");
-    try ( var featureWriter =
-              entityDataStore.getFeatureWriterAppend(featureSchemaName, transaction)) {
-      for(var planitEntity : planitEntities){
-        var entityFeature = featureWriter.next();
-        var attributeConversions = planitEntityFeatureContext.getAttributeDescription();
-        for(var attributeConversion : attributeConversions) {
+    try {
+      try (var featureWriter = entityDataStore.getFeatureWriterAppend(featureSchemaName, transaction)) {
+        for(var planitEntity : planitEntities){
+          var entityFeature = featureWriter.next();
+          var attributeConversions = planitEntityFeatureContext.getAttributeDescription();
+          for(var attributeConversion : attributeConversions) {
 
-          if(attributeConversion.first().equals(planitEntityFeatureContext.getDefaultGeometryAttributeKey())) {
-            /* geometry attribute */
-            entityFeature.setAttribute(geometryDescriptor, attributeConversion.third().apply(planitEntity));
-          }else{
-            /* regular attribute */
-            entityFeature.setAttribute(attributeConversion.first(), attributeConversion.third().apply(planitEntity));
+            if(attributeConversion.first().equals(planitEntityFeatureContext.getDefaultGeometryAttributeKey())) {
+              /* geometry attribute */
+              entityFeature.setAttribute(geometryDescriptor, attributeConversion.third().apply(planitEntity));
+            }else{
+              /* regular attribute */
+              entityFeature.setAttribute(attributeConversion.first(), attributeConversion.third().apply(planitEntity));
+            }
           }
+          featureWriter.write();
         }
-        featureWriter.write();
       }
       transaction.commit();
     }catch (Exception e){
       LOGGER.severe(String.format(
-              "Error occurred when persisting an attribute for a PLANit entity for schema %s",
-              featureSchemaName));
+          "Error occurred when persisting an attribute for a PLANit entity for schema %s",
+          featureSchemaName));
       LOGGER.severe((e.getMessage()));
       try {
         transaction.rollback();
       } catch (IOException rollbackEx) {
         e.addSuppressed(rollbackEx);
       }
+      throw new PlanItRunTimeException("Unable to write geometry layer for schema %s", featureSchemaName);
     }finally{
       try {
         transaction.close();
@@ -227,6 +229,14 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
   @Override
   public void reset() {
     GeoIODataStoreManager.reset();
+  }
+
+  /**
+   * Release any writer-owned datastore resources.
+   */
+  @Override
+  public void close() {
+    reset();
   }
   
   // GETTERS/SETTERS

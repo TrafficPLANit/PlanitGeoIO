@@ -10,6 +10,7 @@ import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterFactory;
 import org.goplanit.geoio.converter.zoning.GeometryZoningWriterFactory;
+import org.goplanit.geoio.util.GeoIoAssertionUtils;
 import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkReader;
@@ -24,11 +25,17 @@ import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.locale.CountryNames;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -44,12 +51,46 @@ public class GeoIoConjugateNetworkConverterTest {
   /** the logger */
   private static Logger LOGGER = null;
 
+  /** absolute coordinate tolerance when comparing GIS outputs */
+  private static final double GIS_COORDINATE_TOLERANCE = 1e-6;
+
   private static final Path TEST_CASE_PATH = Path.of("src","test","resources");
 
   private static final String PROJECT_PATH = Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
 
+  private static final String PROJECT_REFERENCE_PATH = Path.of(PROJECT_PATH, "reference").toString();
+
+  private static final String PROJECT_OUTPUT_PATH = Path.of("target", "test-output", "converter_test").toString();
+
   private static final String SIOUX_FALLS_INPUT_PATH = Path.of(PROJECT_PATH, "input", "siouxfalls").toString();
-  private static final String SIOUX_FALLS_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","siouxfalls").toString();
+  private static final String SIOUX_FALLS_OUTPUT_PATH =
+      Path.of(PROJECT_OUTPUT_PATH, "outputs", "siouxfalls", "conjugate_network").toString();
+  private static final String SIOUX_FALLS_REFERENCE_PATH =
+      Path.of(PROJECT_REFERENCE_PATH, "siouxfalls", "conjugate_network").toString();
+
+  /**
+   * Remove previous generated output and recreate the output directory.
+   *
+   * @param outputPath output directory
+   * @throws IOException when cleanup fails
+   */
+  private static void resetOutputDirectory(String outputPath) throws IOException {
+    var path = Path.of(outputPath);
+    if (Files.exists(path)) {
+      try (Stream<Path> paths = Files.walk(path)) {
+        paths.sorted(Comparator.reverseOrder()).forEach(entry -> {
+          try {
+            Files.delete(entry);
+          } catch (IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
+      } catch (UncheckedIOException e) {
+        throw e.getCause();
+      }
+    }
+    Files.createDirectories(path);
+  }
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -62,6 +103,11 @@ public class GeoIoConjugateNetworkConverterTest {
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
     IdGenerator.reset();
+  }
+
+  @AfterEach
+  public void tearDownTest() {
+    System.gc();
   }
   
   /**
@@ -86,11 +132,14 @@ public class GeoIoConjugateNetworkConverterTest {
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
       geometryWriter.getSettings().setFormat(GeoIoFormat.SHAPE);
+
+      resetOutputDirectory(SIOUX_FALLS_OUTPUT_PATH);
       
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
-      //todo used as an example rather than test
+      GeoIoAssertionUtils.assertGeometryFilesSimilar(
+          SIOUX_FALLS_OUTPUT_PATH, SIOUX_FALLS_REFERENCE_PATH, GIS_COORDINATE_TOLERANCE);
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());

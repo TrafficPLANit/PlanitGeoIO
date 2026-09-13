@@ -343,14 +343,15 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
           String filePrefix,
           Class<LS> linkSegmentClazz) {
 
-    /* initialise */
-    initialiseWrite(network, filePrefix);
+    try {
+      /* initialise */
+      initialiseWrite(network, filePrefix);
 
-    /* perform actual persistence */
-    writeLayers(network, linkSegmentClazz);
-
-    /* disposes of any registered data stores */
-    GeoIODataStoreManager.reset();
+      /* perform actual persistence */
+      writeLayers(network, linkSegmentClazz);
+    } finally {
+      reset();
+    }
   }
 
   /** Constructor
