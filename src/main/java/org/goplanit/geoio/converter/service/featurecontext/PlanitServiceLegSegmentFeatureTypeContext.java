@@ -34,14 +34,16 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
           final MathTransform destinationCrsTransformer){
     return List.of(
             /* service leg segment info (fixed) */
-            Triple.of("mapped_id", "java.lang.String", serviceNetworkIdMapper.getServiceLegSegmentIdMapper()),
+            Triple.of("mapped_id", "java.lang.String",
+                serviceNetworkIdMapper.getServiceLegSegmentIdMapper()),
             Triple.of("id", "java.lang.Long", ServiceLegSegment::getId),
             Triple.of("xml_id", "String", ServiceLegSegment::getXmlId),
             Triple.of("ext_id", "String", ServiceLegSegment::getExternalId),
             Triple.of("parent_id", "String",
                     sls -> serviceNetworkIdMapper.getServiceLegIdMapper().apply(sls.getParent())),
+            /* physical parent segments that make up for the service leg segment */
             Triple.of("phys_segs", "String",
-                    sls -> !sls.hasPhysicalParentSegments() ? "" :   /* physical parent segments that make up for the service leg segment */
+                    sls -> !sls.hasPhysicalParentSegments() ? "" :
                     sls.getPhysicalParentSegments().stream().map(
                             ls -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply(
                                     (MacroscopicLinkSegment) ls)).collect(Collectors.joining(","))),

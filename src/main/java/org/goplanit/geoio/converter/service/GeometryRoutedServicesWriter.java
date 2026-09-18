@@ -96,8 +96,8 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
   }
 
   /**
-   * Construct consistent file path (with file name) based on desired output file name and settings configuration, taking the
-   * current layer into account
+   * Construct consistent file path (with file name) based on desired output file name and settings configuration,
+   * taking the current layer into account
    *
    * @param layer to use
    * @param layerMode to use
@@ -152,7 +152,8 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
    * Find data store to use, if not present, create it if possible
    *
    * @param featureContext to create data store for and register on GeoIODataStoreManager
-   * @param mode mode specific version of the same data store feature (but in different location for entries of that mode)
+   * @param mode mode specific version of the same data store feature (but in different
+   *             location for entries of that mode)
    * @param fullOutputPath on where to store results
    * @return dataStore to use
    *

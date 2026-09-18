@@ -65,12 +65,15 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
                     ls -> networkIdMapper.getLinkIdMapper().apply(ls.getParent())),
             Triple.of("lanes", "Integer",
                     MacroscopicLinkSegment::getNumberOfLanes),
+            /* max flow in pcu per hour across all lanes */
             Triple.of("cap_pcuh", "Float",
-                    MacroscopicLinkSegment::getCapacityOrDefaultPcuH),    /* max flow in pcu per hour across all lanes */
+                    MacroscopicLinkSegment::getCapacityOrDefaultPcuH),
+            /* speed limit on sign, not mode dependent */
             Triple.of("speed_kmh", "Float",
-                    MacroscopicLinkSegment::getPhysicalSpeedLimitKmH),   /* speed limit on sign, not mode dependent */
+                    MacroscopicLinkSegment::getPhysicalSpeedLimitKmH),
+            /* does geometry run in opposite direction to travel direction */
             Triple.of("geom_opp", "Boolean",
-                    ls -> !ls.isParentGeometryInSegmentDirection(true)),     /* does geometry run in opposite direction to travel direction */
+                    ls -> !ls.isParentGeometryInSegmentDirection(true)),
             Triple.of("node_up", "String",
                     ls -> networkIdMapper.getVertexIdMapper().apply(ls.getUpstreamNode())),
             Triple.of("node_down", "String",
@@ -89,7 +92,8 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
    * The mapping from PLANit link instance to GIS attributes
    *
    * @param networkIdMapper to apply
-   * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param supportedModes modes supported on at least a single link segment type on the layer,
+   *                       hence included in all records
    * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
@@ -135,7 +139,8 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
    * Constructor
    *
    * @param networkIdMapper id mapper to apply
-   * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param supportedModes modes supported on at least a single link segment type on the layer,
+   *                       hence included in all records
    * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitMacroscopicLinkSegmentFeatureTypeContext(
@@ -150,7 +155,8 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
    * Factory method
    *
    * @param networkIdMapper to apply for creating each ids when persisting
-   * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param supportedModes modes supported on at least a single link segment type on the layer,
+   *                       hence included in all records
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */

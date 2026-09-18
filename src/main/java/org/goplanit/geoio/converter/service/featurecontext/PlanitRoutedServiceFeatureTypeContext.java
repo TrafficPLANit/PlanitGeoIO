@@ -48,7 +48,8 @@ public class PlanitRoutedServiceFeatureTypeContext extends PlanitEntityFeatureTy
         /* geometry taken from underlying trips */
         Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "MultiLineString",
                 rs -> PlanitJtsUtils.transformGeometrySafe(
-                    rs.extractGeometry(true, true), destinationCrsTransformer)));
+                    rs.extractGeometry(
+                        true, true), destinationCrsTransformer)));
   }
 
   /**

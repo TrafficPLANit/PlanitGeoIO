@@ -18,8 +18,8 @@ import org.goplanit.zoning.Zoning;
 import java.util.logging.Logger;
 
 /**
- * Geometry intermodal writer to persist in GIS format, wrapping a Geometry network writer and Geometry zoning writer (and optionally a
- * service network and routes services writer )in one
+ * Geometry intermodal writer to persist in GIS format, wrapping a Geometry network writer and Geometry zoning writer
+ * (and optionally a service network and routes services writer )in one
  * 
  * @author markr
  *
@@ -38,8 +38,8 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
   protected IdMapperType idMapper;
 
   /**
-   * Persist network and zoning and return writers used. If the virtual network of the combination of zoning and network is
-   * indicated to be persisted, then this is done automatically.
+   * Persist network and zoning and return writers used. If the virtual network of the combination of zoning
+   * and network is indicated to be persisted, then this is done automatically.
    *
    * @param macroscopicNetwork to persist
    * @param zoning to persist

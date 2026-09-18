@@ -23,7 +23,8 @@ import java.util.function.Function;
 public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext<Link> {
 
   /**
-   * Create or obtain link geometry. When no dedicated geometry is present it is created in AB direction from edge vertices
+   * Create or obtain link geometry. When no dedicated geometry is present it is created in AB direction
+   * from edge vertices
    *
    * @param link to use
    * @return geometry found
@@ -89,7 +90,7 @@ public class PlanitLinkFeatureTypeContext extends PlanitEntityFeatureTypeContext
       final MathTransform destinationCrsTransformer){
 
     return new PlanitLinkFeatureTypeContext(
-        linkIdMapper::apply /* convert to link as type */,
+        linkIdMapper /* convert to link as type */,
         nodeIdMapper::apply /* convert to node as type */,
         destinationCrsTransformer);
   }

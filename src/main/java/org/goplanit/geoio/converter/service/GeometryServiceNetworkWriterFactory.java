@@ -9,7 +9,8 @@ import org.goplanit.utils.locale.CountryNames;
  */
 public class GeometryServiceNetworkWriterFactory {
   
-  /** Create a GeometryServiceNetworkWriter which persists PLANit service networks in common GIS formats in current working directory
+  /** Create a GeometryServiceNetworkWriter which persists PLANit service networks in common GIS formats
+   * in current working directory
    * 
    * @return created GeometryServiceNetworkWriter
    */
@@ -29,7 +30,8 @@ public class GeometryServiceNetworkWriterFactory {
   /** Create a GeometryServiceNetworkWriter which persists PLANit service networks in common GIS formats
    * 
    * @param outputDirectory to use
-   * @param countryName country which the input file represents, used to determine defaults in case not specifically specified, when left blank global defaults will be used
+   * @param countryName country which the input file represents, used to determine defaults in case not
+   *                    specifically specified, when left blank global defaults will be used
    * based on a right hand driving approach
    * @return created GeometryServiceNetworkWriter
    */

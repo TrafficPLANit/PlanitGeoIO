@@ -93,7 +93,8 @@ public class PlanitConjugateLinkSegmentFeatureTypeContext extends PlanitEntityFe
    * Constructor
    *
    * @param networkIdMapper id mapper to apply
-   * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param supportedModes modes supported on at least a single link segment type on the layer,
+   *                       hence included in all records
    * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitConjugateLinkSegmentFeatureTypeContext(
@@ -107,7 +108,8 @@ public class PlanitConjugateLinkSegmentFeatureTypeContext extends PlanitEntityFe
    * Factory method
    *
    * @param networkIdMapper to apply for creating each ids when persisting
-   * @param supportedModes modes supported on at least a single link segment type on the layer, hence included in all records
+   * @param supportedModes modes supported on at least a single link segment type on the layer,
+   *                       hence included in all records
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */

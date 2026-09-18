@@ -8,8 +8,8 @@ package org.goplanit.geoio.converter.service;
  */
 public class GeometryRoutedServicesWriterFactory {
   
-  /** Create a GeometryRoutedServicesWriter which can persist a PLANit RoutedServices in GIS format with all defaults. It is expected the user sets the required
-   * minimum configuration afterwards to be able to persist
+  /** Create a GeometryRoutedServicesWriter which can persist a PLANit RoutedServices in GIS format with all defaults.
+   * It is expected the user sets the required minimum configuration afterwards to be able to persist
    * 
    * @return created PLANit GeometryRoutedServicesWriter writer
    */

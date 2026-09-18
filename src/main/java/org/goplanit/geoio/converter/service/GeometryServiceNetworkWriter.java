@@ -29,8 +29,8 @@ import java.util.logging.Logger;
 import static java.util.Map.entry;
 
 /**
- * Writer to persist a PLANit service network to disk in a geometry centric format such as Shape files. Id mapping default is
- * set to internal ids (not XML ids) by default
+ * Writer to persist a PLANit service network to disk in a geometry centric format such as Shape files.
+ * Id mapping default is set to internal ids (not XML ids) by default
  * 
  * @author markr
  *
@@ -66,13 +66,14 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     /* currently we only support macroscopic infrastructure networks */
     if(!(serviceNetwork.getParentNetwork() instanceof MacroscopicNetwork)) {
       throw new PlanItRunTimeException("Currently the GeometryServiceNetworkWriter only supports" +
-              " parent networks that are macroscopic infrastructure networks, the provided network is not of this type");
+           " parent networks that are macroscopic infrastructure networks, " +
+          "the provided network is not of this type");
     }
   }
 
   /**
-   * Construct consistent file path (with file name) based on desired output file name and settings configuration, taking the
-   * current layer into account
+   * Construct consistent file path (with file name) based on desired output file name and settings configuration,
+   * taking the current layer into account
    *
    * @param serviceNetworkLayer this applies to
    * @param outputFileName to use
@@ -199,7 +200,8 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
       throw new PlanItRunTimeException("No Feature type description available for PLANit service leg segments," +
               " this shouldn't happen");
     }
-    LOGGER.info(String.format("%s Service leg segments: %d", layerLogPrefix, serviceNetworkLayer.getLegSegments().size()));
+    LOGGER.info(String.format("%s Service leg segments: %d",
+        layerLogPrefix, serviceNetworkLayer.getLegSegments().size()));
 
     /* data store, e.g., underlying shape file(s) */
     DataStore serviceLegSegmentsDataStore =
