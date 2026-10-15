@@ -64,18 +64,24 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
 
     /* network writer */
     var networkSettings = getSettings().getNetworkSettings();
-    var networkWriter = GeometryNetworkWriterFactory.create(
-            networkSettings.getOutputDirectory(), networkSettings.getCountry());
+    var networkWriter = GeometryNetworkWriterFactory.create(networkSettings);
     networkWriter.setIdMapperType(getIdMapperType());
-    networkWriter.write(macroscopicNetwork);
+    try {
+      networkWriter.write(macroscopicNetwork);
+    } finally {
+      networkWriter.close();
+    }
 
     /* zoning writer - with pt component via transfer zones */
     var zoningSettings = getSettings().getZoningSettings();
-    var zoningWriter =
-            GeometryZoningWriterFactory.create(zoningSettings.getOutputDirectory(), zoningSettings.getCountry());
+    var zoningWriter = GeometryZoningWriterFactory.create(zoningSettings);
     zoningWriter.setParentIdMappers(networkWriter.getPrimaryIdMapper()); // pass on parent ref mapping
     zoningWriter.setIdMapperType(getIdMapperType());
-    zoningWriter.write(zoning);
+    try {
+      zoningWriter.write(zoning);
+    } finally {
+      zoningWriter.close();
+    }
 
     return Pair.of(networkWriter, zoningWriter);
   }
@@ -125,8 +131,7 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
     /* service network writer */
     var serviceNetworkSettings = getSettings().getServiceNetworkSettings();
     var serviceNetworkWriter =
-            GeometryServiceNetworkWriterFactory.create(
-                    serviceNetworkSettings.getOutputDirectory(), serviceNetworkSettings.getCountry());
+            GeometryServiceNetworkWriterFactory.create(serviceNetworkSettings);
 
     // service network writer requires physical network id ref mapping and possibly zoning one as well
     var networkIdMapper = networkAndZoningWriter.first().getPrimaryIdMapper();
@@ -134,13 +139,16 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
     serviceNetworkWriter.setParentIdMappers(networkIdMapper, zoningIdMapper);
 
     serviceNetworkWriter.setIdMapperType(getIdMapperType());
-    serviceNetworkWriter.write(serviceNetwork);
+    try {
+      serviceNetworkWriter.write(serviceNetwork);
+    } finally {
+      serviceNetworkWriter.close();
+    }
 
     /* routed services writer */
     var routedServicesSettings = getSettings().getRoutedServicesSettings();
     var routedServicesWriter =
-        GeometryRoutedServicesWriterFactory.create(
-            routedServicesSettings.getOutputDirectory(), routedServicesSettings.getCountry());
+        GeometryRoutedServicesWriterFactory.create(routedServicesSettings);
 
     // routed services only requires service network entity references, those are present on
     // the service network writer id mappings
@@ -148,7 +156,11 @@ public class GeometryIntermodalWriter implements IntermodalWriter<ServiceNetwork
             networkIdMapper, zoningIdMapper, serviceNetworkWriter.getPrimaryIdMapper());
 
     routedServicesWriter.setIdMapperType(getIdMapperType());
-    routedServicesWriter.write(routedServices);
+    try {
+      routedServicesWriter.write(routedServices);
+    } finally {
+      routedServicesWriter.close();
+    }
   }
 
   /**

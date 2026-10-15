@@ -8,11 +8,9 @@ import org.goplanit.geoio.converter.GeometryIoWriter;
 import org.goplanit.geoio.converter.service.featurecontext.PlanitRoutedServiceFeatureTypeContext;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
-import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.service.routed.RoutedServices;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.misc.LoggingUtils;
 import org.goplanit.utils.mode.Mode;
@@ -149,32 +147,6 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
   }
 
   /**
-   * Find data store to use, if not present, create it if possible
-   *
-   * @param featureContext to create data store for and register on GeoIODataStoreManager
-   * @param mode mode specific version of the same data store feature (but in different
-   *             location for entries of that mode)
-   * @param fullOutputPath on where to store results
-   * @return dataStore to use
-   *
-   * @param <TT> type of PLANit entity the data store is to be used for
-   */
-  protected <TT extends ManagedId> DataStore findDataStore(
-      PlanitEntityFeatureTypeContext<TT> featureContext, Mode mode, Path fullOutputPath){
-    /* data store, e.g., underlying shape file(s) */
-    DataStore modeAwareDataStore = GeoIODataStoreManager.getDataStore(
-        featureContext.getPlanitEntityClass(), mode);
-    if(modeAwareDataStore == null) {
-      modeAwareDataStore = GeoIODataStoreManager.createSingleEntityTypeDataStore(
-          featureContext.getPlanitEntityClass(),
-          getSettings().getFormat(),
-          mode,
-          fullOutputPath);
-    }
-    return modeAwareDataStore;
-  }
-
-  /**
    * Writer the services of the layer mode combination
    *
    * @param layer          to persist services for
@@ -199,10 +171,8 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
             layerLogPrefix, layerMode.getIdsAsString(), servicesByMode.size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore dataStore = findDataStore(
-        featureDescription,
-        layerMode,
-        createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()));
+    DataStore dataStore =
+        findDataStore(createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var schemaName = createLayerModeAwareBaseFileName(layer, layerMode, getSettings().getServicesFileName());
@@ -271,8 +241,16 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
    * @param countryName to optimise projection for (if available, otherwise ignore)
    */
   protected GeometryRoutedServicesWriter(String outputPath, String countryName) {
+    this(new GeometryRoutedServicesWriterSettings(outputPath, countryName));
+  }
+
+  /** Constructor
+   *
+   * @param routedServicesSettings to use
+   */
+  protected GeometryRoutedServicesWriter(GeometryRoutedServicesWriterSettings routedServicesSettings) {
     super();
-    this.settings = new GeometryRoutedServicesWriterSettings(outputPath, countryName);
+    this.settings = routedServicesSettings;
   }
 
   /**
@@ -294,14 +272,15 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     /* logging */
     getSettings().logSettings();
 
-    /* initialise */
-    initialiseWrite(routedServices);
+    try {
+      /* initialise */
+      initialiseWrite(routedServices);
 
-    /* perform actual persistence */
-    writeLayers(routedServices);
-
-    /* disposes of any registered data stores */
-    GeoIODataStoreManager.reset();
+      /* perform actual persistence */
+      writeLayers(routedServices);
+    } finally {
+      reset();
+    }
   }
 
   /**

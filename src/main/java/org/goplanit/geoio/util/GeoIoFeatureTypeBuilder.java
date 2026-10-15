@@ -5,6 +5,8 @@ import org.geotools.api.referencing.operation.MathTransform;
 import org.geotools.data.DataUtilities;
 import org.goplanit.converter.idmapping.*;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitConjugateLinkSegmentFeatureTypeContext;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitIntersectionNodesFeatureTypeContext;
+import org.goplanit.geoio.converter.network.featurecontext.PlanitIntersectionSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitLinkFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitMacroscopicLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitNodeFeatureTypeContext;
@@ -14,12 +16,15 @@ import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegme
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
 import org.goplanit.geoio.converter.zoning.featurecontext.*;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
+import org.goplanit.utils.graph.directed.BannedMovement;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.ServiceNetworkLayer;
 import org.goplanit.utils.network.layer.UntypedDirectedGraphLayer;
+import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.goplanit.utils.network.layer.macroscopic.intersection.Intersections;
 import org.goplanit.utils.network.layer.physical.UntypedPhysicalLayer;
 import org.goplanit.utils.zoning.OdZone;
 import org.goplanit.utils.zoning.TransferZone;
@@ -127,6 +132,37 @@ public final class GeoIoFeatureTypeBuilder {
             /* link segments (conjugate) */
             PlanitConjugateLinkSegmentFeatureTypeContext.create(
                     primaryIdMapper, layer.getSupportedModes(), destinationCrsTransformer));
+  }
+
+  /**
+   * Construct the GIS feature context containing the information required for persistence of intersections
+   *
+   * @param networkIdMapper to use for id conversion of intersections, their member nodes and segments
+   * @param destinationCrsTransformer to use (may be null)
+   * @return intersection feature context
+   */
+  public static PlanitIntersectionNodesFeatureTypeContext createIntersectionNodesFeatureContext(
+      NetworkIdMapper networkIdMapper, final MathTransform destinationCrsTransformer){
+    return PlanitIntersectionNodesFeatureTypeContext.create(networkIdMapper, destinationCrsTransformer);
+  }
+
+  /**
+   * Construct the GIS feature context containing the information required for persistence of the approach and
+   * internal segments of intersections
+   *
+   * @param networkIdMapper to use for id conversion of intersections, link segments and nodes
+   * @param intersections the segments belong to
+   * @param bansByApproachSegment banned movements per approach segment, by identity
+   * @param destinationCrsTransformer to use (may be null)
+   * @return intersection segment feature context
+   */
+  public static PlanitIntersectionSegmentFeatureTypeContext createIntersectionSegmentFeatureContext(
+      NetworkIdMapper networkIdMapper,
+      Intersections intersections,
+      Map<MacroscopicLinkSegment, List<BannedMovement>> bansByApproachSegment,
+      final MathTransform destinationCrsTransformer){
+    return PlanitIntersectionSegmentFeatureTypeContext.create(
+        networkIdMapper, intersections, bansByApproachSegment, destinationCrsTransformer);
   }
 
   /**
@@ -352,7 +388,7 @@ public final class GeoIoFeatureTypeBuilder {
    * @param planitEntityFileName                  the file name to use for the feature
    * @return the feature type that has been created
    */
-  public static SimpleFeatureType createSimpleZoningFeatureType(
+  public static SimpleFeatureType createSimpleFeatureType(
       PlanitEntityFeatureTypeContext<?> featureContext,
       CoordinateReferenceSystem destinationCoordinateReferenceSystem,
       String planitEntityFileName){

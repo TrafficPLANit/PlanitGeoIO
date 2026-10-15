@@ -33,7 +33,16 @@ public class GeometryRoutedServicesWriterFactory {
    * @return created GeometryRoutedServicesWriter
    */
   public static GeometryRoutedServicesWriter create(String outputPath, String countryName) {
-    return new GeometryRoutedServicesWriter(outputPath, countryName);
+    return create(new GeometryRoutedServicesWriterSettings(outputPath, countryName));
+  }
+
+  /** Create a GeometryRoutedServicesWriter which can persist a PLANit RoutedServices in GIS format
+   *
+   * @param routedServicesSettings to use
+   * @return created GeometryRoutedServicesWriter
+   */
+  public static GeometryRoutedServicesWriter create(GeometryRoutedServicesWriterSettings routedServicesSettings) {
+    return new GeometryRoutedServicesWriter(routedServicesSettings);
   }
      
 }

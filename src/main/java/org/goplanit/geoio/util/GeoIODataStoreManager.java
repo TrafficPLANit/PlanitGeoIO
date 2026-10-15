@@ -1,20 +1,21 @@
 package org.goplanit.geoio.util;
 
 import org.geotools.api.data.DataStore;
+import org.geotools.api.data.FileDataStore;
 import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitGeoDataStoreUtils;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.UrlUtils;
-import org.goplanit.utils.mode.Mode;
-import org.locationtech.jts.geom.Geometry;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -25,16 +26,21 @@ public final class GeoIODataStoreManager {
   /** Logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeoIODataStoreManager.class.getCanonicalName());
 
-  /** Track datastores per type of PLANit entity that we might persist by their most specific class signature */
-  private static final Map<Class<?>, DataStore> dataStoreMap = new HashMap<>();
+  /** Track datastores by the absolute path of the output file they persist to, one datastore per file */
+  private static final Map<Path, DataStore> dataStoreMap = new HashMap<>();
 
-  /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by geometry type)
-   * that we might persist by their most specific class signature */
-  private static final Map<Pair<Class<?>,Class<? extends Geometry>>, DataStore> dataStoreMapGeoType = new HashMap<>();
+  /** Track the names of the feature types registered on each datastore, by identity of the datastore */
+  private static final Map<DataStore, Set<String>> featureTypeNamesByDataStore = new IdentityHashMap<>();
 
-  /** Track datastores per type of PLANit entity (for which we have multiple entries differentiated by mode) that we
-   * might persist by their most specific class signature */
-  private static final Map<Pair<Class<?>, Mode>, DataStore> dataStoreMapMode = new HashMap<>();
+  /**
+   * Key under which the datastore of an output file is tracked
+   *
+   * @param outputFileNameWithPath the output file path
+   * @return absolute and normalised path
+   */
+  private static Path createDataStoreKey(Path outputFileNameWithPath){
+    return outputFileNameWithPath.toAbsolutePath().normalize();
+  }
 
   /**
    * Create a datastore for the given file location
@@ -43,7 +49,7 @@ public final class GeoIODataStoreManager {
    * @param outputFileNameWithPath to use
    * @return data store created, null if not possible
    */
-  protected static DataStore createSingleEntityTypeDataStore(GeoIoFormat format, Path outputFileNameWithPath){
+  protected static DataStore createDataStore(GeoIoFormat format, Path outputFileNameWithPath){
     DataStore dataStore = null;
     try {
       // obtain full local path in case only relative path is provided
@@ -77,133 +83,35 @@ public final class GeoIODataStoreManager {
   }
 
   /**
-   * Collect a registered datastore for a given PLANit entity class (for which only a single geometry type exists),
-   * if not available null is returned.
+   * Collect the registered datastore of the given output file, if not available null is returned.
    *
-   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
-   * @return the datastore
+   * @param outputFileNameWithPath the output file path the datastore persists to
+   * @return the datastore, null when none is registered
    */
-  public static DataStore getDataStore(Class<?> dataStoreReferenceClass){
-    if(!dataStoreMap.containsKey(dataStoreReferenceClass)){
-      return null;
-    }
-    return dataStoreMap.get(dataStoreReferenceClass);
+  public static DataStore getDataStore(Path outputFileNameWithPath){
+    return dataStoreMap.get(createDataStoreKey(outputFileNameWithPath));
   }
 
   /**
-   * Collect a registered datastore for a given PLANit entity class and geometry type (in case multiple geometry
-   * types require multiple stores with one store per type), if not available null is returned.
+   * Collect the registered datastore of the given output file, and create and register it when not yet available.
+   * We track datastores here to avoid the overhead of recreating them.
    *
-   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
-   * @param geometryTypeClass for the reference class
-   * @return the datastore
-   */
-  public static DataStore getDataStore(Class<?> dataStoreReferenceClass, Class<? extends Geometry> geometryTypeClass){
-    var key = Pair.of(dataStoreReferenceClass, geometryTypeClass);
-    if(!dataStoreMapGeoType.containsKey(key)){
-      return null;
-    }
-    return dataStoreMapGeoType.get(key);
-  }
-
-  /**
-   * Collect a registered datastore for a given PLANit entity class and mode (in case multiple modes require multiple
-   * stores with one store per type), if not available null is returned.
-   *
-   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
-   * @param mode for the reference class
-   * @return the datastore
-   */
-  public static DataStore getDataStore(Class<?> dataStoreReferenceClass, Mode mode){
-    var key = Pair.of(dataStoreReferenceClass, mode);
-    if(!dataStoreMapMode.containsKey(key)){
-      return null;
-    }
-    return dataStoreMapMode.get(key);
-  }
-
-  /**
-   * For a given PLANit entity that we persist to file, we track its datastore here to avoid overhead of recreating it
-   *
-   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
    * @param format to use
    * @param outputFileNameWithPath the output file path to persist to
    * @return the datastore
    */
-  public static DataStore createSingleEntityTypeDataStore(
-      Class<?> dataStoreReferenceClass, GeoIoFormat format, Path outputFileNameWithPath){
-    if(dataStoreMap.containsKey(dataStoreReferenceClass)){
-      LOGGER.severe(String.format("Datastore for class %s already registered, ignoring this call, providing " +
-              "existing datastore", dataStoreReferenceClass.toString()));
-      return dataStoreMap.get(dataStoreReferenceClass);
+  public static DataStore findOrCreateDataStore(GeoIoFormat format, Path outputFileNameWithPath){
+    var dataStore = getDataStore(outputFileNameWithPath);
+    if(dataStore != null){
+      return dataStore;
     }
 
-    DataStore theDataStore = createSingleEntityTypeDataStore(format, outputFileNameWithPath);
-    if(theDataStore == null){
-      throw new PlanItRunTimeException("Unable to create new datastore for class: "+
-              dataStoreReferenceClass.toString());
+    dataStore = createDataStore(format, outputFileNameWithPath);
+    if(dataStore == null){
+      throw new PlanItRunTimeException("Unable to create new datastore for file: %s", outputFileNameWithPath);
     }
-    dataStoreMap.put(dataStoreReferenceClass,theDataStore);
-    return theDataStore;
-  }
-
-  /**
-   * For a given PLANit entity that we persist to file, we track its datastore here to avoid overhead of recreating it
-   *
-   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
-   * @param format to use
-   * @param geometryTypeClass for the reference class
-   * @param outputFileNameWithPath the output file path to persist to
-   * @return the datastore
-   */
-  public static DataStore createSingleEntityTypeDataStore(
-          Class<?> dataStoreReferenceClass,
-          GeoIoFormat format,
-          Class<? extends Geometry> geometryTypeClass,
-          Path outputFileNameWithPath){
-    Pair<Class<?>,Class<? extends Geometry>> key = Pair.of(dataStoreReferenceClass, geometryTypeClass);
-    if(dataStoreMapGeoType.containsKey(key)){
-      LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call," +
-              " providing existing datastore", key));
-      return dataStoreMapGeoType.get(key);
-    }
-    DataStore theDataStore = createSingleEntityTypeDataStore(format, outputFileNameWithPath);
-    if(theDataStore == null){
-      throw new PlanItRunTimeException("Unable to create new datastore for class: %s, geometry type: ",
-          dataStoreReferenceClass.toString(), geometryTypeClass.toString());
-    }
-    dataStoreMapGeoType.put(key, theDataStore);
-    return theDataStore;
-  }
-
-  /**
-   * For a given PLANit entity that we persist to file, we track its datastore here to avoid overhead of recreating it
-   *
-   * @param dataStoreReferenceClass the reference class, i.e., PLANit entity types the datastore persists
-   * @param format to use
-   * @param mode for the reference class
-   * @param outputFileNameWithPath the output file path to persist to
-   * @return the datastore
-   */
-  public static DataStore createSingleEntityTypeDataStore(
-          Class<?> dataStoreReferenceClass,
-          GeoIoFormat format,
-          Mode mode,
-          Path outputFileNameWithPath){
-    Pair<Class<?>,Mode> key = Pair.of(dataStoreReferenceClass, mode);
-    if(dataStoreMapMode.containsKey(key)){
-      LOGGER.severe(String.format("Datastore for %s > already registered, ignoring this call, " +
-              "providing existing datastore", key));
-      return dataStoreMapMode.get(key);
-    }
-
-    DataStore theDataStore = createSingleEntityTypeDataStore(format, outputFileNameWithPath);
-    if(theDataStore == null){
-      throw new PlanItRunTimeException("Unable to create new datastore for class: %s, mode: ",
-          dataStoreReferenceClass.toString(), mode.toString());
-    }
-    dataStoreMapMode.put(key, theDataStore);
-    return theDataStore;
+    dataStoreMap.put(createDataStoreKey(outputFileNameWithPath), dataStore);
+    return dataStore;
   }
 
   /**
@@ -212,10 +120,7 @@ public final class GeoIODataStoreManager {
   public static void reset(){
     dataStoreMap.values().forEach(ds -> ds.dispose());
     dataStoreMap.clear();
-    dataStoreMapGeoType.values().forEach(ds -> ds.dispose());
-    dataStoreMapGeoType.clear();
-    dataStoreMapMode.values().forEach(ds -> ds.dispose());
-    dataStoreMapMode.clear();
+    featureTypeNamesByDataStore.clear();
   }
 
   /**
@@ -229,6 +134,16 @@ public final class GeoIODataStoreManager {
             "this shouldn't happen");
     PlanItRunTimeException.throwIfNull(dataStore, "Data store null, unable to register feature on datastore, " +
             "this shouldn't happen");
+
+    /* a file datastore such as a shapefile holds one feature type only, so a second one overwrites the first */
+    var registeredTypeNames = featureTypeNamesByDataStore.computeIfAbsent(dataStore, ds -> new HashSet<>());
+    if(dataStore instanceof FileDataStore && !registeredTypeNames.isEmpty() &&
+        !registeredTypeNames.contains(feature.getTypeName())){
+      LOGGER.warning(String.format("Feature type %s overwrites feature type %s in the same file, since that file " +
+              "holds one feature type only, e.g. a shapefile; give each its own file name",
+          feature.getTypeName(), registeredTypeNames.iterator().next()));
+    }
+    registeredTypeNames.add(feature.getTypeName());
 
     try{
       /* trigger exception when not available to register schema once */

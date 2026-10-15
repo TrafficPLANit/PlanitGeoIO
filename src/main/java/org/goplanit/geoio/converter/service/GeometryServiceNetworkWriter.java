@@ -129,8 +129,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
 
     /* data store, e.g., underlying shape file(s) */
     DataStore serviceNodeDataStore =
-        findDataStore(serviceNodeFeatureContext,
-                createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()));
+        findDataStore(createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceNodesSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -167,8 +166,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
 
     /* data store, e.g., underlying shape file(s) */
     DataStore legDataStore =
-        findDataStore(serviceLegFeatureContext,
-                createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
+        findDataStore(createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var legsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -205,8 +203,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
 
     /* data store, e.g., underlying shape file(s) */
     DataStore serviceLegSegmentsDataStore =
-        findDataStore(serviceLegSegmentFeatureContext,
-                createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()));
+        findDataStore(createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceLegSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -333,14 +330,15 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     /* logging */
     getSettings().logSettings();
 
-    /* initialise */
-    initialiseWrite(serviceNetwork);
+    try {
+      /* initialise */
+      initialiseWrite(serviceNetwork);
 
-    /* perform actual persistence */
-    writeLayers(serviceNetwork);
-
-    /* disposes of any registered data stores */
-    GeoIODataStoreManager.reset();
+      /* perform actual persistence */
+      writeLayers(serviceNetwork);
+    } finally {
+      reset();
+    }
   }
 
   /**

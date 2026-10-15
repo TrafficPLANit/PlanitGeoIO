@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @author markr
  *
  */
-public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
+public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> implements AutoCloseable {
 
   /** the logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryIoWriter.class.getCanonicalName());
@@ -83,15 +83,16 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
   /**
    * Writer the geometry layer with the PLANit entities available in the container
    *
-   * @param <TT> type of PLANit entity to write
+   * @param <TT> type of entity written as a feature, a PLANit entity or a row derived from one
    * @param featureType to use
    * @param planitEntityFeatureContext the context to convert instances to features
    * @param loggingPrefix to use
    * @param entityDataStore to use for persistence
    * @param featureSchemaName the feature lives under on the datastore
    * @param planitEntities container to persist
+   * @throws PlanItRunTimeException when persisting fails, after the transaction is rolled back
    */
-  protected <TT extends ManagedId> void writeGeometryLayerForEntity(
+  protected <TT> void writeGeometryLayerForEntity(
           SimpleFeatureType featureType,
           PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
           String loggingPrefix,
@@ -105,34 +106,36 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
             DataStoreUtils.getDataStoreGeometryAttributeDescriptor(entityDataStore, featureSchemaName);
 
     Transaction transaction = new DefaultTransaction("create");
-    try ( var featureWriter =
-              entityDataStore.getFeatureWriterAppend(featureSchemaName, transaction)) {
-      for(var planitEntity : planitEntities){
-        var entityFeature = featureWriter.next();
-        var attributeConversions = planitEntityFeatureContext.getAttributeDescription();
-        for(var attributeConversion : attributeConversions) {
+    try {
+      try (var featureWriter = entityDataStore.getFeatureWriterAppend(featureSchemaName, transaction)) {
+        for(var planitEntity : planitEntities){
+          var entityFeature = featureWriter.next();
+          var attributeConversions = planitEntityFeatureContext.getAttributeDescription();
+          for(var attributeConversion : attributeConversions) {
 
-          if(attributeConversion.first().equals(planitEntityFeatureContext.getDefaultGeometryAttributeKey())) {
-            /* geometry attribute */
-            entityFeature.setAttribute(geometryDescriptor, attributeConversion.third().apply(planitEntity));
-          }else{
-            /* regular attribute */
-            entityFeature.setAttribute(attributeConversion.first(), attributeConversion.third().apply(planitEntity));
+            if(attributeConversion.first().equals(planitEntityFeatureContext.getDefaultGeometryAttributeKey())) {
+              /* geometry attribute */
+              entityFeature.setAttribute(geometryDescriptor, attributeConversion.third().apply(planitEntity));
+            }else{
+              /* regular attribute */
+              entityFeature.setAttribute(attributeConversion.first(), attributeConversion.third().apply(planitEntity));
+            }
           }
+          featureWriter.write();
         }
-        featureWriter.write();
       }
       transaction.commit();
     }catch (Exception e){
       LOGGER.severe(String.format(
-              "Error occurred when persisting an attribute for a PLANit entity for schema %s",
-              featureSchemaName));
+          "Error occurred when persisting an attribute for a PLANit entity for schema %s",
+          featureSchemaName));
       LOGGER.severe((e.getMessage()));
       try {
         transaction.rollback();
       } catch (IOException rollbackEx) {
         e.addSuppressed(rollbackEx);
       }
+      throw new PlanItRunTimeException("Unable to write geometry layer for schema %s", e, featureSchemaName);
     }finally{
       try {
         transaction.close();
@@ -150,9 +153,9 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
    * @param entityDataStore datastore to use
    * @param featureSchemaName to use
    * @param planitEntities to persist
-   * @param <TT> type of planit entity
+   * @param <TT> type of entity written as a feature, a PLANit entity or a row derived from one
    */
-  protected <TT extends ManagedId> void writeGeometryLayerForEntity(
+  protected <TT> void writeGeometryLayerForEntity(
           SimpleFeatureType featureType,
           PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
           DataStore entityDataStore,
@@ -164,28 +167,14 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
   }
 
   /**
-   * Find data store to use, if not present, create it if possible
+   * Find data store of the output file, if not present, create it and register it on GeoIODataStoreManager. Each
+   * output file has its own data store.
    *
-   * @param featureContext to create data store for and register on GeoIODataStoreManager
-   * @param fullOutputPath on where to store results
+   * @param fullOutputPath of the output file to store results in
    * @return dataStore to use
-   *
-   * @param <TT> type of PLANit entity the data store is to be used for
    */
-  protected <TT extends ManagedId> DataStore findDataStore(
-      PlanitEntityFeatureTypeContext<TT> featureContext, Path fullOutputPath){
-    /* data store, e.g., underlying file(s) */
-    DataStore dataStore = GeoIODataStoreManager.getDataStore(featureContext.getPlanitEntityClass());
-    if(dataStore == null) {
-      dataStore = GeoIODataStoreManager.createSingleEntityTypeDataStore(
-              featureContext.getPlanitEntityClass(),
-              getSettings().getFormat(),
-              fullOutputPath);
-    }
-
-
-
-    return dataStore;
+  protected DataStore findDataStore(Path fullOutputPath){
+    return GeoIODataStoreManager.findOrCreateDataStore(getSettings().getFormat(), fullOutputPath);
   }
 
   /** Constructor
@@ -227,6 +216,14 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> {
   @Override
   public void reset() {
     GeoIODataStoreManager.reset();
+  }
+
+  /**
+   * Release any writer-owned datastore resources.
+   */
+  @Override
+  public void close() {
+    reset();
   }
   
   // GETTERS/SETTERS

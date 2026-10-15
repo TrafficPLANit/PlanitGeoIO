@@ -1,25 +1,14 @@
 package org.goplanit.geoio.test.integration;
 
-import org.goplanit.converter.intermodal.IntermodalConverterFactory;
 import org.goplanit.converter.network.NetworkConverterFactory;
-import org.goplanit.converter.service.ServiceNetworkConverterFactory;
-import org.goplanit.converter.zoning.ZoningConverterFactory;
-import org.goplanit.geoio.converter.intermodal.GeometryIntermodalWriterFactory;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriter;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
-import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterFactory;
-import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterFactory;
-import org.goplanit.geoio.converter.zoning.GeometryZoningWriterFactory;
+import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
 import org.goplanit.geoio.util.GeoIoFormat;
-import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;
 import org.goplanit.io.converter.network.PlanitNetworkReader;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
-import org.goplanit.io.converter.service.PlanitServiceNetworkReaderFactory;
-import org.goplanit.io.converter.zoning.PlanitZoningReaderFactory;
-import org.goplanit.io.converter.zoning.PlanitZoningReaderSettings;
 import org.goplanit.logging.Logging;
-import org.goplanit.network.transport.TransportModelNetworkImpl;
-import org.goplanit.utils.geo.PlanitJtsCrsUtils;
+import org.goplanit.network.MacroscopicNetworkUtils;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.locale.CountryNames;
@@ -30,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+import static org.goplanit.geoio.test.util.NetworkOutputAssertionUtils.assertNodeLinkAndLinkSegmentRowCounts;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -90,7 +80,16 @@ public class GeoIoConjugateNetworkConverterTest {
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
-      //todo used as an example rather than test
+      /* conjugate created as the writer does, conjugate layer files are named after its absent XML id */
+      var network = PlanitNetworkReaderFactory.create(SIOUX_FALLS_INPUT_PATH).read();
+      var conjugateNetwork = network.createConjugate(
+          MacroscopicNetworkUtils.generateDerivedConjugateIdGroupingToken(network), null);
+      assertNodeLinkAndLinkSegmentRowCounts(network, Path.of(SIOUX_FALLS_OUTPUT_PATH), "", GeoIoFormat.SHAPE);
+      assertNodeLinkAndLinkSegmentRowCounts(
+          conjugateNetwork,
+          Path.of(SIOUX_FALLS_OUTPUT_PATH),
+          GeometryNetworkWriterSettings.DEFAULT_CONJUGATE_PREFIX,
+          GeoIoFormat.SHAPE);
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());

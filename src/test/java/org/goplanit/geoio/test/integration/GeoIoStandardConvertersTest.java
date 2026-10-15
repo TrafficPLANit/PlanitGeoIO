@@ -1,8 +1,8 @@
 package org.goplanit.geoio.test.integration;
 
 import org.goplanit.geoio.util.GeoIoFormat;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.transport.TransportModelNetworkImpl;
-import org.goplanit.utils.exceptions.PlanItException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.converter.intermodal.IntermodalConverterFactory;
@@ -31,6 +31,8 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+import static org.goplanit.geoio.test.util.NetworkOutputAssertionUtils.assertIntersectionNodeAndSegmentRowCounts;
+import static org.goplanit.geoio.test.util.NetworkOutputAssertionUtils.assertNodeLinkAndLinkSegmentRowCounts;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -54,13 +56,16 @@ public class GeoIoStandardConvertersTest {
   private static final String PROJECT_PATH =
       Path.of(TEST_CASE_PATH.toString(),"converter_test").toString();
 
-  /* the files in this location were originally sourced from PLANitIO converter test
-  (src/test/resources/testcases/converter_test/input) */
+  /* the files in this location were originally sourced from PLANitGtfs converter test output in
+  (src/test/resources/testcases/melbourne). Its network and zoning input there come from PLANitOSM reference output in
+  (src/test/resources/planit/melbourne/osm_intermodal_no_services_bb), with intersections from OSM traffic signals */
   private static final String MELBOURNE_INPUT_PATH =
       Path.of(PROJECT_PATH, "input", "melbourne").toString();
 
   /* the files in this location were originally sourced from PLANitGtfs converter test output in
-  (src/test/resources/testcases/sydney) */
+  (src/test/resources/testcases/sydney). Its network and zoning input there come from PLANitOSM reference output in
+  (src/test/resources/planit/sydney/osm_intermodal_no_services_access_egress_attach), with intersections from OSM
+  traffic signals */
   private static final String SYDNEY_INPUT_PATH =
       Path.of(PROJECT_PATH, "input", "sydney").toString();
 
@@ -99,6 +104,7 @@ public class GeoIoStandardConvertersTest {
     geometryNetworkWriter.getSettings().setFormat(format);
 
     geometryNetworkWriter.write(network);
+    assertNodeLinkAndLinkSegmentRowCounts(network, Path.of(outputPath), "", format);
 
     /* writer */
     var geometryZoningWriter = GeometryZoningWriterFactory.create(outputPath, CountryNames.AUSTRALIA);
@@ -146,14 +152,18 @@ public class GeoIoStandardConvertersTest {
       /* writer */
       GeometryNetworkWriter geometryWriter =
           GeometryNetworkWriterFactory.create(MELBOURNE_GPKG_OUTPUT_PATH, CountryNames.AUSTRALIA);
-      
+      geometryWriter.getSettings().setPersistIntersectionNodes(true);
+      geometryWriter.getSettings().setPersistIntersectionSegments(true);
+
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
 
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
 
-      //todo used as an example rather than test
+      var network = (MacroscopicNetwork) PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read();
+      assertNodeLinkAndLinkSegmentRowCounts(network, Path.of(MELBOURNE_GPKG_OUTPUT_PATH), "", GeoIoFormat.GEOPACKAGE);
+      assertIntersectionNodeAndSegmentRowCounts(network, Path.of(MELBOURNE_GPKG_OUTPUT_PATH), GeoIoFormat.GEOPACKAGE);
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
@@ -182,6 +192,12 @@ public class GeoIoStandardConvertersTest {
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
       geometryWriter.setIdMapperType(IdMapperType.ID);
 
+      assertNodeLinkAndLinkSegmentRowCounts(
+          PlanitNetworkReaderFactory.create(GRID10x10_INPUT_PATH).read(),
+          Path.of(GRID10x10_OUTPUT_PATH),
+          "",
+          GeoIoFormat.GEOPACKAGE);
+
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
       e.printStackTrace();
@@ -203,6 +219,8 @@ public class GeoIoStandardConvertersTest {
       /* writer */
       GeometryNetworkWriter geometryWriter =
           GeometryNetworkWriterFactory.create(SYDNEY_OUTPUT_PATH, CountryNames.AUSTRALIA);
+      geometryWriter.getSettings().setPersistIntersectionNodes(true);
+      geometryWriter.getSettings().setPersistIntersectionSegments(true);
 
       /* convert */
       NetworkConverterFactory.create(planitReader, geometryWriter).convert();
@@ -210,7 +228,9 @@ public class GeoIoStandardConvertersTest {
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
 
-      //todo used as an example rather than test
+      var network = (MacroscopicNetwork) PlanitNetworkReaderFactory.create(SYDNEY_INPUT_PATH).read();
+      assertNodeLinkAndLinkSegmentRowCounts(network, Path.of(SYDNEY_OUTPUT_PATH), "", GeoIoFormat.GEOPACKAGE);
+      assertIntersectionNodeAndSegmentRowCounts(network, Path.of(SYDNEY_OUTPUT_PATH), GeoIoFormat.GEOPACKAGE);
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());
@@ -328,7 +348,11 @@ public class GeoIoStandardConvertersTest {
       /* convert */
       IntermodalConverterFactory.create(planitReader, geometryWriter).convertWithServices();
 
-      //todo add assertions...
+      assertNodeLinkAndLinkSegmentRowCounts(
+          PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read(),
+          Path.of(MELBOURNE_SHAPE_OUTPUT_PATH),
+          "",
+          GeoIoFormat.GEOPACKAGE);
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());

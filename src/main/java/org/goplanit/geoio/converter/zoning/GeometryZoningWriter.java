@@ -182,15 +182,8 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
         zoneFeatureContext.getGeometryTypeClass().getSimpleName(), zones.size()));
 
     /* data store, e.g., underlying shape file(s) */
-    DataStore zoneByGeometryTypeDataStore = GeoIODataStoreManager.getDataStore(
-        zoneFeatureContext.getPlanitEntityClass(), zoneFeatureContext.getGeometryTypeClass());
-    if(zoneByGeometryTypeDataStore == null) {
-      zoneByGeometryTypeDataStore = GeoIODataStoreManager.createSingleEntityTypeDataStore(
-          zoneFeatureContext.getPlanitEntityClass(),
-          getSettings().getFormat(),
-          zoneFeatureContext.getGeometryTypeClass(),
-          createFullPathFromFileName(baseFileName, zoneFeatureContext.getGeometryTypeClass()));
-    }
+    DataStore zoneByGeometryTypeDataStore =
+        findDataStore(createFullPathFromFileName(baseFileName, zoneFeatureContext.getGeometryTypeClass()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
@@ -221,7 +214,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
 
     /* data store, e.g., underlying shape file(s) */
     DataStore theDataStore =
-        findDataStore(featureDescription,  createFullPathFromFileName(connectoidSchemaName));
+        findDataStore(createFullPathFromFileName(connectoidSchemaName));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
@@ -260,7 +253,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
 
       /* feature type */
       var zoneSimpleFeature =
-          GeoIoFeatureTypeBuilder.createSimpleZoningFeatureType(
+          GeoIoFeatureTypeBuilder.createSimpleFeatureType(
               featureContext,
               getDestinationCoordinateReferenceSystem(),
               createGeometryAwareBaseFileName(zoneFileName, geometryType));
@@ -327,7 +320,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
 
     /* data store, e.g., underlying shape file(s) */
     DataStore connectoidEdgesDataStore =
-            findDataStore(featureDescription,  createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()));
+            findDataStore(createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
@@ -360,7 +353,7 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
 
     /* data store, e.g., underlying shape file(s) */
     DataStore connectoidSegmentsDataStore =
-        findDataStore(featureDescription,  createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()));
+        findDataStore(createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
@@ -521,14 +514,15 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     /* logging */
     getSettings().logSettings();
 
-    /* initialise */
-    initialiseWrite(zoning);
+    try {
+      /* initialise */
+      initialiseWrite(zoning);
 
-    /* perform actual persistence */
-    writeEntities(zoning);
-
-    /* disposes of any registered data stores */
-    GeoIODataStoreManager.reset();
+      /* perform actual persistence */
+      writeEntities(zoning);
+    } finally {
+      reset();
+    }
   }
 
 

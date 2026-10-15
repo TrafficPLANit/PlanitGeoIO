@@ -38,6 +38,19 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** flag indicating whether to persist nodes or not */
   private boolean persistNodes =  DEFAULT_PERSIST_NODES;
 
+  /** flag indicating whether to persist the intersection nodes or not: one row per intersection, with its properties
+   * and its member nodes as a multi point */
+  private boolean persistIntersectionNodes = DEFAULT_PERSIST_INTERSECTION_NODES;
+
+  /** flag indicating whether to persist the approach and internal segments of intersections or not */
+  private boolean persistIntersectionSegments = DEFAULT_PERSIST_INTERSECTION_SEGMENTS;
+
+  /** intersection nodes file name to use */
+  private String intersectionNodesFileName = DEFAULT_INTERSECTION_NODES_FILE_NAME;
+
+  /** intersection segments file name to use */
+  private String intersectionSegmentsFileName = DEFAULT_INTERSECTION_SEGMENTS_FILE_NAME;
+
   /** each layer gets a prefix prepended to the file name,e.g., #layer_prefix_#id_#filename */
   private String layerPrefix = DEFAULT_LAYER_PREFIX;
 
@@ -49,6 +62,12 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   /** default nodes file name to use (without extension) */
   public static final String DEFAULT_NODES_FILE_NAME = "planit_nodes";
+
+  /** default intersection nodes file name to use (without extension) */
+  public static final String DEFAULT_INTERSECTION_NODES_FILE_NAME = "planit_intersection_nodes";
+
+  /** default intersection segments file name to use (without extension) */
+  public static final String DEFAULT_INTERSECTION_SEGMENTS_FILE_NAME = "planit_intersection_segments";
 
   public static final String DEFAULT_LAYER_PREFIX = "layer";
 
@@ -66,6 +85,12 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   /** default persist nodes flag value */
   public static boolean DEFAULT_PERSIST_NODES = true;
+
+  /** default persist intersection nodes flag value */
+  public static boolean DEFAULT_PERSIST_INTERSECTION_NODES = true;
+
+  /** default persist intersection segments flag value */
+  public static boolean DEFAULT_PERSIST_INTERSECTION_SEGMENTS = true;
 
   /**
    * Default constructor
@@ -129,12 +154,48 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
     this.persistLinks = persistLinks;
   }
 
+  public void setPersistLinkSegments(boolean persistLinkSegments) {
+    this.persistLinkSegments = persistLinkSegments;
+  }
+
   public boolean isPersistNodes() {
     return persistNodes;
   }
 
   public void setPersistNodes(boolean persistNodes) {
     this.persistNodes = persistNodes;
+  }
+
+  public boolean isPersistIntersectionNodes() {
+    return persistIntersectionNodes;
+  }
+
+  public void setPersistIntersectionNodes(boolean persistIntersectionNodes) {
+    this.persistIntersectionNodes = persistIntersectionNodes;
+  }
+
+  public boolean isPersistIntersectionSegments() {
+    return persistIntersectionSegments;
+  }
+
+  public void setPersistIntersectionSegments(boolean persistIntersectionSegments) {
+    this.persistIntersectionSegments = persistIntersectionSegments;
+  }
+
+  public String getIntersectionNodesFileName() {
+    return intersectionNodesFileName;
+  }
+
+  public void setIntersectionNodesFileName(String intersectionNodesFileName) {
+    this.intersectionNodesFileName = intersectionNodesFileName;
+  }
+
+  public String getIntersectionSegmentsFileName() {
+    return intersectionSegmentsFileName;
+  }
+
+  public void setIntersectionSegmentsFileName(String intersectionSegmentsFileName) {
+    this.intersectionSegmentsFileName = intersectionSegmentsFileName;
   }
 
   /**
@@ -146,6 +207,8 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
     LOGGER.info(LoggingUtils.settingsValue("Persist nodes", isPersistNodes(), 0));
     LOGGER.info(LoggingUtils.settingsValue("Persist links", isPersistLinks(), 0));
     LOGGER.info(LoggingUtils.settingsValue("Persist link segments", isPersistLinkSegments(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist intersection nodes", isPersistIntersectionNodes(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist intersection segments", isPersistIntersectionSegments(), 0));
     LOGGER.info(LoggingUtils.settingsValue("Persist conjugate network", isPersistConjugateNetwork(), 0));
   }  
 

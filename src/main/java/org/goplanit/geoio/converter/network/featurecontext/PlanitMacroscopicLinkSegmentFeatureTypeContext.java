@@ -42,6 +42,22 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
   }
 
   /**
+   * Create or obtain link geometry running in the direction of travel of the link segment, so it starts at the
+   * upstream node and ends at the downstream node. The link geometry is reversed only when it runs opposite to the
+   * link segment; a geometry created from the edge vertices already runs in link segment direction.
+   *
+   * @param linkSegment to use
+   * @return geometry in the direction of travel, the link geometry itself when it already runs in that direction
+   */
+  public static LineString createOrGetLinkSegmentGeometryInTravelDirection(MacroscopicLinkSegment linkSegment){
+    var geometry = createOrGetLinkSegmentGeometry(linkSegment);
+    if(linkSegment.hasGeometry() && !linkSegment.isParentGeometryInSegmentDirection(true)){
+      geometry = geometry.reverse();
+    }
+    return geometry;
+  }
+
+  /**
    * The mapping from PLANIT link segment instance to fixed GIS attributes of link segment (without geometry)
    *
    * @param networkIdMapper to apply
@@ -71,9 +87,10 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
             /* speed limit on sign, not mode dependent */
             Triple.of("speed_kmh", "Float",
                     MacroscopicLinkSegment::getPhysicalSpeedLimitKmH),
-            /* does geometry run in opposite direction to travel direction */
+            /* does geometry run in opposite direction to travel direction, never so for a geometry created from the
+             * node positions, since that is created in travel direction */
             Triple.of("geom_opp", "Boolean",
-                    ls -> !ls.isParentGeometryInSegmentDirection(true)),
+                    ls -> ls.hasGeometry() && !ls.isParentGeometryInSegmentDirection(true)),
             Triple.of("node_up", "String",
                     ls -> networkIdMapper.getVertexIdMapper().apply(ls.getUpstreamNode())),
             Triple.of("node_down", "String",
