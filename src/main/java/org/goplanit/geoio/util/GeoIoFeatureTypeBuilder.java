@@ -16,7 +16,7 @@ import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceLegSegme
 import org.goplanit.geoio.converter.service.featurecontext.PlanitServiceNodeFeatureTypeContext;
 import org.goplanit.geoio.converter.zoning.featurecontext.*;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
-import org.goplanit.utils.graph.directed.BannedMovement;
+import org.goplanit.utils.graph.directed.BannedTurn;
 import org.goplanit.utils.id.ManagedId;
 import org.goplanit.utils.misc.Pair;
 import org.goplanit.utils.misc.StringUtils;
@@ -152,14 +152,14 @@ public final class GeoIoFeatureTypeBuilder {
    *
    * @param networkIdMapper to use for id conversion of intersections, link segments and nodes
    * @param intersections the segments belong to
-   * @param bansByApproachSegment banned movements per approach segment, by identity
+   * @param bansByApproachSegment banned turns per approach segment, by identity
    * @param destinationCrsTransformer to use (may be null)
    * @return intersection segment feature context
    */
   public static PlanitIntersectionSegmentFeatureTypeContext createIntersectionSegmentFeatureContext(
       NetworkIdMapper networkIdMapper,
       Intersections intersections,
-      Map<MacroscopicLinkSegment, List<BannedMovement>> bansByApproachSegment,
+      Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
       final MathTransform destinationCrsTransformer){
     return PlanitIntersectionSegmentFeatureTypeContext.create(
         networkIdMapper, intersections, bansByApproachSegment, destinationCrsTransformer);

@@ -8,6 +8,7 @@ import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionUtils;
 import org.goplanit.utils.network.layer.physical.Node;
 import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
@@ -65,7 +66,7 @@ public class PlanitIntersectionNodesFeatureTypeContext extends PlanitEntityFeatu
             i.getApproachSegments(), networkIdMapper.getMacroscopicLinkSegmentIdMapper())));
     features.add(Triple.of("internals", "String",
         i -> StringUtils.toSortedCommaSeparatedString(
-            i.getInternalSegments(), networkIdMapper.getMacroscopicLinkSegmentIdMapper())));
+            IntersectionUtils.getInternalSegmentsOf(i), networkIdMapper.getMacroscopicLinkSegmentIdMapper())));
     features.add(Triple.of("node_count", "Integer", i -> i.getMemberNodes().size()));
     features.add(Triple.of("appr_count", "Integer", i -> i.getApproachSegments().size()));
 

@@ -4,7 +4,7 @@ import org.geotools.api.referencing.operation.MathTransform;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
-import org.goplanit.utils.graph.directed.BannedMovement;
+import org.goplanit.utils.graph.directed.BannedTurn;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
@@ -40,16 +40,16 @@ public class PlanitIntersectionSegmentFeatureTypeContext
   }
 
   /**
-   * Create the sorted comma-joined mapped ids of the link segments the banned movements of an approach go to
+   * Create the sorted comma-joined mapped ids of the link segments the banned turns of an approach go to
    *
    * @param segment approach or internal segment
-   * @param bansByApproachSegment banned movements per approach segment, by identity
+   * @param bansByApproachSegment banned turns per approach segment, by identity
    * @param networkIdMapper to apply
    * @return mapped ids of the banned to segments, empty for internal segments and approaches without bans
    */
   private static String createBannedToSegmentIds(
       MacroscopicLinkSegment segment,
-      Map<MacroscopicLinkSegment, List<BannedMovement>> bansByApproachSegment,
+      Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
       NetworkIdMapper networkIdMapper){
     /* internal segments are not in the map */
     var bans = bansByApproachSegment.get(segment);
@@ -65,14 +65,14 @@ public class PlanitIntersectionSegmentFeatureTypeContext
    *
    * @param networkIdMapper to apply
    * @param intersections the segments belong to
-   * @param bansByApproachSegment banned movements per approach segment, by identity
+   * @param bansByApproachSegment banned turns per approach segment, by identity
    * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
   private static List<Triple<String,String, Function<MacroscopicLinkSegment, ?>>> createFeatureDescription(
       final NetworkIdMapper networkIdMapper,
       final Intersections intersections,
-      final Map<MacroscopicLinkSegment, List<BannedMovement>> bansByApproachSegment,
+      final Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
       final MathTransform destinationCrsTransformer){
     var features = new ArrayList<Triple<String,String, Function<MacroscopicLinkSegment, ?>>>();
     features.add(Triple.of("isect_id", "String",
@@ -108,13 +108,13 @@ public class PlanitIntersectionSegmentFeatureTypeContext
    *
    * @param networkIdMapper id mapper to apply
    * @param intersections the segments belong to
-   * @param bansByApproachSegment banned movements per approach segment, by identity
+   * @param bansByApproachSegment banned turns per approach segment, by identity
    * @param destinationCrsTransformer to use (may be null)
    */
   protected PlanitIntersectionSegmentFeatureTypeContext(
       final NetworkIdMapper networkIdMapper,
       final Intersections intersections,
-      final Map<MacroscopicLinkSegment, List<BannedMovement>> bansByApproachSegment,
+      final Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
       final MathTransform destinationCrsTransformer){
     super(MacroscopicLinkSegment.class,
         createFeatureDescription(networkIdMapper, intersections, bansByApproachSegment, destinationCrsTransformer));
@@ -125,14 +125,14 @@ public class PlanitIntersectionSegmentFeatureTypeContext
    *
    * @param networkIdMapper to apply for creating the ids of intersections, link segments and nodes
    * @param intersections the segments belong to
-   * @param bansByApproachSegment banned movements per approach segment, by identity
+   * @param bansByApproachSegment banned turns per approach segment, by identity
    * @param destinationCrsTransformer to use (may be null)
    * @return created instance
    */
   public static PlanitIntersectionSegmentFeatureTypeContext create(
       final NetworkIdMapper networkIdMapper,
       final Intersections intersections,
-      final Map<MacroscopicLinkSegment, List<BannedMovement>> bansByApproachSegment,
+      final Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
       final MathTransform destinationCrsTransformer){
     return new PlanitIntersectionSegmentFeatureTypeContext(
         networkIdMapper, intersections, bansByApproachSegment, destinationCrsTransformer);

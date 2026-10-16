@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests the attributes {@link PlanitIntersectionSegmentFeatureTypeContext} gives each approach and internal segment of
- * an intersection, on the small network with three intersections. Its only banned movement runs from segment 0, an
+ * an intersection, on the small network with three intersections. Its only banned turn runs from segment 0, an
  * approach of i1, to segment 5.
  *
  * @author markr
@@ -47,7 +47,7 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
     context = GeoIoFeatureTypeBuilder.createIntersectionSegmentFeatureContext(
         new NetworkIdMapper(IdMapperType.XML),
         layer.getIntersections(),
-        IntersectionUtils.findBannedMovementsByApproachSegment(layer.getIntersections(), layer.getBannedMovements()),
+        IntersectionUtils.findBannedTurnsByApproachSegment(layer.getIntersections(), layer.getBannedTurns()),
         null);
   }
 
@@ -97,7 +97,7 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
     assertEquals("LineString", geometryAttribute.second());
   }
 
-  /** An approach lists the segments its banned movements go to, and copies control and kinds of its intersection */
+  /** An approach lists the segments its banned turns go to, and copies control and kinds of its intersection */
   @Test
   public void approachAttributes() {
     var approach0 = row("0");
@@ -119,7 +119,7 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
     assertEquals(new Coordinate(200, 0), geometry(approach8).getCoordinateN(geometry(approach8).getNumPoints() - 1));
   }
 
-  /** Internal segments are not approaches and have no banned movements */
+  /** Internal segments are not approaches and have no banned turns */
   @Test
   public void internalAttributes() {
     var internal10 = row("10");

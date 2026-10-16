@@ -128,7 +128,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     var segments = new LinkedHashSet<MacroscopicLinkSegment>();
     for(var intersection : intersections){
       segments.addAll(intersection.getApproachSegments());
-      segments.addAll(intersection.getInternalSegments());
+      segments.addAll(IntersectionUtils.getInternalSegmentsOf(intersection));
     }
     return new ArrayList<>(segments);
   }
@@ -317,8 +317,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     var intersectionSegments = collectApproachAndInternalSegments(networkLayer.getIntersections());
     LOGGER.info(String.format("%s Intersection segments: %d", layerLogPrefix, intersectionSegments.size()));
 
-    var bansByApproachSegment = IntersectionUtils.findBannedMovementsByApproachSegment(
-        networkLayer.getIntersections(), networkLayer.getBannedMovements());
+    var bansByApproachSegment = IntersectionUtils.findBannedTurnsByApproachSegment(
+        networkLayer.getIntersections(), networkLayer.getBannedTurns());
     var intersectionSegmentFeatureContext = GeoIoFeatureTypeBuilder.createIntersectionSegmentFeatureContext(
         getPrimaryIdMapper(), networkLayer.getIntersections(), bansByApproachSegment, getDestinationCrsTransformer());
     final var intersectionSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(

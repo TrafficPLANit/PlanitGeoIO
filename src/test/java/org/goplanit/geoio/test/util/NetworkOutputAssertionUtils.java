@@ -4,6 +4,7 @@ import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
 import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.network.UntypedPhysicalNetwork;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionUtils;
 
 import java.nio.file.Path;
 
@@ -64,7 +65,8 @@ public final class NetworkOutputAssertionUtils {
           outputPath, layerFilePrefix + GeometryNetworkWriterSettings.DEFAULT_INTERSECTION_NODES_FILE_NAME, format);
 
       long approachCount = layer.getIntersections().stream().mapToLong(i -> i.getApproachSegments().size()).sum();
-      long internalCount = layer.getIntersections().stream().mapToLong(i -> i.getInternalSegments().size()).sum();
+      long internalCount = layer.getIntersections().stream()
+          .mapToLong(i -> IntersectionUtils.getInternalSegmentsOf(i).size()).sum();
       var segmentRows = GeoIoOutputReaderUtils.readFeatures(
           outputPath, layerFilePrefix + GeometryNetworkWriterSettings.DEFAULT_INTERSECTION_SEGMENTS_FILE_NAME, format);
       assertEquals(approachCount + internalCount, segmentRows.size());

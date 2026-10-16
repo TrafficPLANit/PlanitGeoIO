@@ -183,19 +183,31 @@
                 </link>
             </links>
             <turns>
-                <ban id="0" fromref="0" toref="5"/>
+                <ban id="0" fromlsref="0" tolsref="5"/>
             </turns>
             <intersections>
-                <intersection id="i1" externalid="ext-1" noderefs="0" control="signalised" types="junction crossing">
-                    <segments type="approach" refs="0,2,4,7"/>
+                <intersection id="i1" externalid="ext-1" noderef="0" control="signalised" types="junction crossing">
+                    <approaches>
+                        <approach ref="0"/>
+                        <approach ref="2"/>
+                        <approach ref="4"/>
+                        <approach ref="7"/>
+                    </approaches>
                 </intersection>
-                <intersection id="i2" noderefs="4" control="unsignalised" types="crossing">
-                    <segments type="approach" refs="6,9"/>
+                <intersection id="i2" noderef="4" control="unsignalised" types="crossing">
+                    <approaches>
+                        <approach ref="6"/>
+                        <approach ref="9"/>
+                    </approaches>
                 </intersection>
-                <intersection id="i3" externalid="ext-3" noderefs="5,6" control="signalised" types="junction">
-                    <segments type="approach" refs="8,12,14"/>
-                    <segments type="internal" refs="10,11"/>
-                </intersection>
+                <spatialintersection id="i3" externalid="ext-3" noderefs="5,6" control="signalised" types="junction">
+                    <approaches>
+                        <approach ref="8"/>
+                        <approach ref="12"/>
+                        <approach ref="14"/>
+                    </approaches>
+                    <internalsegments refs="10,11"/>
+                </spatialintersection>
             </intersections>
         </layer>
         <layer id="1" modes="bus">
@@ -253,8 +265,11 @@
                 </link>
             </links>
             <intersections>
-                <intersection id="j1" noderefs="101" control="signalised" types="junction">
-                    <segments type="approach" refs="100,103"/>
+                <intersection id="j1" noderef="101" control="signalised" types="junction">
+                    <approaches>
+                        <approach ref="100"/>
+                        <approach ref="103"/>
+                    </approaches>
                 </intersection>
             </intersections>
         </layer>
