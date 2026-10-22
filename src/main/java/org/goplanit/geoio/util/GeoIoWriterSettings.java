@@ -17,8 +17,10 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
   /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeoIoWriterSettings.class.getCanonicalName());
 
+  /** the format to write */
   private GeoIoFormat format = DEFAULT_FORMAT;
 
+  /** default format to write */
   public static final GeoIoFormat DEFAULT_FORMAT = GeoIoFormat.GEOPACKAGE;
 
   /**

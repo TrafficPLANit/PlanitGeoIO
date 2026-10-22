@@ -52,6 +52,9 @@ public class GeoIoOutputReaderUtilsTest {
     assertTrue(GeoIoOutputReaderUtils.createTablePath(outputPath, "layer_0_planit_nodes", format).toFile().exists());
   }
 
+  /**
+   * Create the logger, once
+   */
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -59,6 +62,9 @@ public class GeoIoOutputReaderUtilsTest {
     }
   }
 
+  /**
+   * Close the logger and reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);

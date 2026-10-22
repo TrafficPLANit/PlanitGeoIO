@@ -103,58 +103,128 @@ public class GeometryRoutedServicesWriterSettings extends GeoIoWriterSettings im
     super.reset();
   }
 
+  /**
+   * The prefix each layer prepends to its file names, as in prefix_layer id_file name
+   *
+   * @return layer prefix
+   */
   public String getLayerPrefix() {
     return layerPrefix;
   }
 
+  /**
+   * Set the prefix each layer prepends to its file names
+   *
+   * @param layerPrefix to use
+   */
   public void setLayerPrefix(String layerPrefix) {
     this.layerPrefix = layerPrefix;
   }
 
+  /**
+   * The services file name to use (without extension)
+   *
+   * @return services file name
+   */
   public String getServicesFileName() {
     return servicesFileName;
   }
 
+  /**
+   * Set the services file name to use (without extension)
+   *
+   * @param servicesFileName to use
+   */
   public void setServicesFileName(String servicesFileName) {
     this.servicesFileName = servicesFileName;
   }
 
+  /**
+   * The schedule-based trips file name to use (without extension)
+   *
+   * @return schedule-based trips file name
+   */
   public String getTripsScheduleFileName() {
     return tripSchedulesFileName;
   }
 
+  /**
+   * Set the schedule-based trips file name to use (without extension)
+   *
+   * @param tripSchedulesFileName to use
+   */
   public void setTripsScheduleFileName(String tripSchedulesFileName) {
     this.tripSchedulesFileName = tripSchedulesFileName;
   }
 
+  /**
+   * The frequency-based trips file name to use (without extension)
+   *
+   * @return frequency-based trips file name
+   */
   public String getTripsFrequencyFileName() {
     return tripFrequencyFileName;
   }
 
+  /**
+   * Set the frequency-based trips file name to use (without extension)
+   *
+   * @param tripFrequencyFileName to use
+   */
   public void setTripsFrequencyFileName(String tripFrequencyFileName) {
     this.tripFrequencyFileName = tripFrequencyFileName;
   }
 
+  /**
+   * Verify if services are persisted
+   *
+   * @return true when persisted, false otherwise
+   */
   public boolean isPersistServices() {
     return persistServices;
   }
 
+  /**
+   * Set whether services are persisted
+   *
+   * @param persistServices true to persist, false otherwise
+   */
   public void setPersistServices(boolean persistServices) {
     this.persistServices = persistServices;
   }
 
+  /**
+   * Verify if schedule-based trips are persisted
+   *
+   * @return true when persisted, false otherwise
+   */
   public boolean isPersistTripsSchedule() {
     return persistTripsSchedule;
   }
 
+  /**
+   * Set whether schedule-based trips are persisted
+   *
+   * @param persistTripsSchedule true to persist, false otherwise
+   */
   public void setPersistTripsSchedule(boolean persistTripsSchedule) {
     this.persistTripsSchedule = persistTripsSchedule;
   }
 
+  /**
+   * Verify if frequency-based trips are persisted
+   *
+   * @return true when persisted, false otherwise
+   */
   public boolean isPersistTripsFrequency() {
     return persistTripsFrequency;
   }
 
+  /**
+   * Set whether frequency-based trips are persisted
+   *
+   * @param persistTripsFrequency true to persist, false otherwise
+   */
   public void setPersistTripsFrequency(boolean persistTripsFrequency) {
     this.persistTripsFrequency = persistTripsFrequency;
   }

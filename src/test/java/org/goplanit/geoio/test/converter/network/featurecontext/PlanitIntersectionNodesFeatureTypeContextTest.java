@@ -38,6 +38,12 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
 
   private static PlanitIntersectionNodesFeatureTypeContext context;
 
+  /**
+   * The intersection of the layer with the given XML id
+   *
+   * @param xmlId of the intersection
+   * @return the intersection, null when none
+   */
   private static Intersection intersection(String xmlId) {
     return layer.getIntersections().firstMatch(i -> xmlId.equals(i.getXmlId()));
   }
@@ -55,12 +61,18 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
     return function.apply(intersection);
   }
 
+  /**
+   * Read the three intersections network and create the intersection nodes context
+   */
   @BeforeAll
   public static void setUp() {
     layer = NetworkTestUtils.readThreeIntersectionsNetworkLayer();
     context = GeoIoFeatureTypeBuilder.createIntersectionNodesFeatureContext(new NetworkIdMapper(IdMapperType.XML), null);
   }
 
+  /**
+   * Reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     IdGenerator.reset();

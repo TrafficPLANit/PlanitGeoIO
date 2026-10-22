@@ -41,6 +41,9 @@ public class GeoIoConjugateNetworkConverterTest {
   private static final String SIOUX_FALLS_INPUT_PATH = Path.of(PROJECT_PATH, "input", "siouxfalls").toString();
   private static final String SIOUX_FALLS_OUTPUT_PATH = Path.of(PROJECT_PATH, "outputs","siouxfalls").toString();
 
+  /**
+   * Create the logger, once
+   */
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -48,6 +51,9 @@ public class GeoIoConjugateNetworkConverterTest {
     } 
   }
 
+  /**
+   * Close the logger and reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);

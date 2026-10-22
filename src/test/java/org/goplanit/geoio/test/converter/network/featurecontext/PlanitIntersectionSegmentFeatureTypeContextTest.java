@@ -64,10 +64,20 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
     return function.apply(row);
   }
 
+  /**
+   * The geometry attribute of a row
+   *
+   * @param row to take it from
+   * @return its line string
+   */
   private LineString geometry(MacroscopicLinkSegment row) {
     return (LineString) attribute(PlanitEntityFeatureTypeContext.DEFAULT_GEOMETRY_ATTRIBUTE_KEY, row);
   }
 
+  /**
+   * Read the three intersections network and create the intersection segments context, with the banned turns by
+   * approach segment
+   */
   @BeforeEach
   public void setUp() {
     layer = NetworkTestUtils.readThreeIntersectionsNetworkLayer();
@@ -78,6 +88,9 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
         null);
   }
 
+  /**
+   * Reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     IdGenerator.reset();

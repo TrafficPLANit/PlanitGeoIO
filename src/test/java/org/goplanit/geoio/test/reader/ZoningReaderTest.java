@@ -37,6 +37,9 @@ class ZoningReaderTest {
   private static final CoordinateReferenceSystem NSW_LAMBERT_CRS =
       PlanitCrsUtils.createCoordinateReferenceSystem("EPSG:8058");
 
+  /**
+   * Create the logger, once
+   */
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -44,9 +47,13 @@ class ZoningReaderTest {
     }
   }
 
+  /**
+   * Reading the travel zones shape file, filtered to the Sydney GMA by zone id, gives 3378 OD zones, written out as
+   * the PLANit zoning reference
+   */
   @Test
   @DisplayName("Verify parsing of zoning shape works properly")
-  void testZoningActivitySimZoningReader() {
+  public void testZoningActivitySimZoningReader() {
 
     final String idFieldName = "tz21_code";
     final String layerName = "tz21_combined";

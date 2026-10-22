@@ -61,6 +61,9 @@ public class GeoIoNetworkWriterTest {
     assertRowCount(2, outputPath, "layer_1_planit_intersection_segments", format);
   }
 
+  /**
+   * Create the logger, once
+   */
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -68,6 +71,9 @@ public class GeoIoNetworkWriterTest {
     }
   }
 
+  /**
+   * Close the logger and reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);

@@ -38,6 +38,11 @@ public class GeoIODataStoreManagerTest {
   private static class WarningCounter extends Handler {
     int warnings = 0;
 
+    /**
+     * Count the record when it is a warning
+     *
+     * @param record logged
+     */
     @Override
     public void publish(LogRecord record) {
       if (record.getLevel() == Level.WARNING) {
@@ -45,10 +50,16 @@ public class GeoIODataStoreManagerTest {
       }
     }
 
+    /**
+     * Nothing to flush
+     */
     @Override
     public void flush() {
     }
 
+    /**
+     * Nothing to close
+     */
     @Override
     public void close() {
     }
@@ -82,6 +93,9 @@ public class GeoIODataStoreManagerTest {
     return dataStore;
   }
 
+  /**
+   * Empty the output folder, and count the warnings the data store manager logs
+   */
   @BeforeEach
   public void setUp() throws Exception {
     FileUtils.deleteDirectory(OUTPUT_PATH.toFile());
@@ -90,6 +104,9 @@ public class GeoIODataStoreManagerTest {
     MANAGER_LOGGER.addHandler(warningCounter);
   }
 
+  /**
+   * Stop counting warnings, and reset the data store manager
+   */
   @AfterEach
   public void tearDown() {
     MANAGER_LOGGER.removeHandler(warningCounter);

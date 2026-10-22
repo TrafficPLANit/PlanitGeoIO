@@ -33,7 +33,10 @@ public class GeometryIoWriterTest {
   /** Context for plain text entities, whose only attribute function fails */
   private static class FailingAttributeContext extends PlanitEntityFeatureTypeContext<String> {
 
-    FailingAttributeContext() {
+    /**
+     * Constructor, with a name attribute whose function fails and a point geometry
+     */
+    private FailingAttributeContext() {
       super(String.class, List.of(
           Triple.of("name", "String", (Function<String, ?>) entity -> {
             throw new IllegalStateException("attribute function fails");
@@ -46,11 +49,23 @@ public class GeometryIoWriterTest {
   /** Network writer that writes one table of the given entities directly */
   private static class SingleTableWriter extends GeometryNetworkWriter {
 
-    SingleTableWriter(GeometryNetworkWriterSettings settings) {
+    /**
+     * Constructor
+     *
+     * @param settings to write with
+     */
+    private SingleTableWriter(GeometryNetworkWriterSettings settings) {
       super(settings);
     }
 
-    void writeTable(PlanitEntityFeatureTypeContext<String> context, String schemaName, List<String> entities) {
+    /**
+     * Write the given entities as one table, then reset the data stores
+     *
+     * @param context describing the features
+     * @param schemaName of the table
+     * @param entities to write
+     */
+    private void writeTable(PlanitEntityFeatureTypeContext<String> context, String schemaName, List<String> entities) {
       var featureType = GeoIoFeatureTypeBuilder.createSimpleFeatureType(
           context, PlanitJtsCrsUtils.CARTESIANCRS, schemaName);
       var outputFile = Path.of(getSettings().getOutputDirectory(), schemaName + getSettings().getFormat().extension());

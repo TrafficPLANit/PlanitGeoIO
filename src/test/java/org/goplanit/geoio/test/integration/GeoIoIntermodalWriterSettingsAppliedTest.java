@@ -66,15 +66,36 @@ public class GeoIoIntermodalWriterSettingsAppliedTest {
     return writer;
   }
 
+  /**
+   * Verify if a table of the given name was written in the given format
+   *
+   * @param outputPath to look in
+   * @param tableName of the table
+   * @param format written in
+   * @return true when written, false otherwise
+   */
   private static boolean hasFile(Path outputPath, String tableName, GeoIoFormat format) {
     return GeoIoOutputReaderUtils.createTablePath(outputPath, tableName, format).toFile().exists();
   }
 
+  /**
+   * Verify if any GeoPackage file was written
+   *
+   * @param outputPath to look in
+   * @return true when one was, false otherwise
+   */
   private static boolean hasAnyGeoPackage(Path outputPath) {
     return Arrays.stream(outputPath.toFile().listFiles())
         .anyMatch(f -> f.getName().endsWith(GeoIoFormat.GEOPACKAGE.extension()));
   }
 
+  /**
+   * Verify if any file written has a name containing the given text
+   *
+   * @param outputPath to look in
+   * @param fileName the text the file name contains
+   * @return true when one has, false otherwise
+   */
   private static boolean hasFileNameContaining(Path outputPath, String fileName) {
     return Arrays.stream(outputPath.toFile().listFiles()).anyMatch(f -> f.getName().contains(fileName));
   }
@@ -90,6 +111,9 @@ public class GeoIoIntermodalWriterSettingsAppliedTest {
     IntermodalConverterFactory.create(reader, writer).convertWithServices();
   }
 
+  /**
+   * Create the logger, once
+   */
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -97,6 +121,9 @@ public class GeoIoIntermodalWriterSettingsAppliedTest {
     }
   }
 
+  /**
+   * Close the logger and reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);

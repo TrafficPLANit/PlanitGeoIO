@@ -216,25 +216,40 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
     this.persistVirtualNetwork = flag;
   }
 
+  /**
+   * Verify if origin-destination connectoids are persisted
+   *
+   * @return true when persisted, false otherwise
+   */
   public boolean isPersistOdConnectoids() {
     return persistOdConnectoids;
   }
 
+  /**
+   * Set whether origin-destination connectoids are persisted
+   *
+   * @param persistOdConnectoids true to persist, false otherwise
+   */
   public void setPersistOdConnectoids(boolean persistOdConnectoids) {
     this.persistOdConnectoids = persistOdConnectoids;
   }
 
+  /**
+   * Verify if transfer connectoids are persisted
+   *
+   * @return true when persisted, false otherwise
+   */
   public boolean isPersistTransferConnectoids() {
     return persistTransferConnectoids;
   }
 
   /**
-   * The file name to use  (without extension or geometry type suffix)
+   * Set whether transfer connectoids are persisted
    *
-   * @param fileName file name to use
+   * @param persistTransferConnectoids true to persist, false otherwise
    */
-  public void setPersistTransferConnectoids(boolean fileName) {
-    this.persistTransferConnectoids = fileName;
+  public void setPersistTransferConnectoids(boolean persistTransferConnectoids) {
+    this.persistTransferConnectoids = persistTransferConnectoids;
   }
 
   /** File name to use (without extension or geometry type suffix)

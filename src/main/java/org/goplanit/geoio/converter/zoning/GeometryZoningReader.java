@@ -187,6 +187,10 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
         zoningToPopulate.getTransferConnectoids().size()));
   }
 
+  /**
+   * Verify the settings hold what reading needs: the source coordinate reference system, the input source, the layer
+   * name and the zone id field, and an id mapper other than the PLANit id. Throws otherwise
+   */
   private void validateSettings() {
     PlanItRunTimeException.throwIfNull(getSettings().getSourceCrs(),
         "Input CRS not set for geo zoning reader, unable to proceed");

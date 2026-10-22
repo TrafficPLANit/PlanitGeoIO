@@ -109,6 +109,9 @@ public class GeoIoIntersectionsWriterTest {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Create the logger, once
+   */
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -116,6 +119,9 @@ public class GeoIoIntersectionsWriterTest {
     }
   }
 
+  /**
+   * Close the logger and reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);

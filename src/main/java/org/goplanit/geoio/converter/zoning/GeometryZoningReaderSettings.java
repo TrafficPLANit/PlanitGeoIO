@@ -15,6 +15,7 @@ import java.util.logging.Logger;
  */
 public class GeometryZoningReaderSettings implements ConverterReaderSettings {
 
+  /** logger to use */
   private static final Logger LOGGER = Logger.getLogger(GeometryZoningReaderSettings.class.getCanonicalName());
 
   /** location of the zoning system GIS entity to parse that is expected to contain the geometries and zoning mapping
@@ -68,18 +69,38 @@ public class GeometryZoningReaderSettings implements ConverterReaderSettings {
     this.sourceCrs = sourceCrs;
   }
 
+  /**
+   * The location of the GIS source to parse, expected to hold the zone geometries and their ids
+   *
+   * @return input source
+   */
   public String getInputSource() {
     return inputSource;
   }
 
+  /**
+   * Set the location of the GIS source to parse, see {@link #getInputSource()}
+   *
+   * @param inputSource to use
+   */
   public void setInputSource(String inputSource) {
     this.inputSource = inputSource;
   }
 
+  /**
+   * The coordinate reference system of the source, to project from when it differs from the destination one
+   *
+   * @return source coordinate reference system
+   */
   public CoordinateReferenceSystem getSourceCrs() {
     return sourceCrs;
   }
 
+  /**
+   * Set the coordinate reference system of the source
+   *
+   * @param sourceCrs to use
+   */
   public void setSourceCrs(CoordinateReferenceSystem sourceCrs) {
     this.sourceCrs = sourceCrs;
   }
@@ -100,10 +121,20 @@ public class GeometryZoningReaderSettings implements ConverterReaderSettings {
     this.zoneLayerName = zoneLayerName;
   }
 
+  /**
+   * The name of the field holding the zone id
+   *
+   * @return zone id field name
+   */
   public String getZoneIdField() {
     return zoneIdField;
   }
 
+  /**
+   * Set the name of the field holding the zone id
+   *
+   * @param zoneIdField to use
+   */
   public void setZoneIdField(String zoneIdField) {
     this.zoneIdField = zoneIdField;
   }

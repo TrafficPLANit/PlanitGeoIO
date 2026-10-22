@@ -40,6 +40,9 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
     return function.apply(layer.getLinkSegments().getByXmlId(segmentXmlId));
   }
 
+  /**
+   * Reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     IdGenerator.reset();

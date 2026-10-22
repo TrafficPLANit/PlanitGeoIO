@@ -47,6 +47,7 @@ public class GeometryServiceNetworkWriterSettings extends GeoIoWriterSettings im
   /** default nodes file name to use (without extension) */
   public static final String DEFAULT_SERVICE_NODES_FILE_NAME = "planit_service_nodes";
 
+  /** default prefix each layer prepends to its file names */
   public static final String DEFAULT_LAYER_PREFIX = "layer";
 
   /** default persist links flag value */
@@ -211,10 +212,20 @@ public class GeometryServiceNetworkWriterSettings extends GeoIoWriterSettings im
     super.reset();
   }
 
+  /**
+   * The prefix each layer prepends to its file names, as in prefix_layer id_file name
+   *
+   * @return layer prefix
+   */
   public String getLayerPrefix() {
     return layerPrefix;
   }
 
+  /**
+   * Set the prefix each layer prepends to its file names
+   *
+   * @param layerPrefix to use
+   */
   public void setLayerPrefix(String layerPrefix) {
     this.layerPrefix = layerPrefix;
   }

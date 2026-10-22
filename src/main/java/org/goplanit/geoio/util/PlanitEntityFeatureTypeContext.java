@@ -54,10 +54,20 @@ public class PlanitEntityFeatureTypeContext<T> {
   /** geotools attribute key for default geometry attribute as used here across entities */
   public static final String DEFAULT_GEOMETRY_ATTRIBUTE_KEY = "*geom";
 
+  /**
+   * The PLANit entity class this context describes the features of
+   *
+   * @return PLANit entity class
+   */
   public Class<T> getPlanitEntityClass() {
     return planitEntityClass;
   }
 
+  /**
+   * The feature description: per attribute, its name, its type and the function taking its value from an entity
+   *
+   * @return attribute description
+   */
   public List<Triple<String,String, Function<T, ?>>> getAttributeDescription() {
     return geoFeatureDescription;
   }

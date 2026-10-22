@@ -125,6 +125,9 @@ public class GeoIoStandardConvertersTest {
     ZoningConverterFactory.create(reader, geometryZoningWriter).convert();
   }
 
+  /**
+   * Create the logger, once
+   */
   @BeforeAll
   public static void setUp() throws Exception {
     if (LOGGER == null) {
@@ -132,6 +135,9 @@ public class GeoIoStandardConvertersTest {
     } 
   }
 
+  /**
+   * Close the logger and reset the id generator
+   */
   @AfterAll
   public static void tearDown() {
     Logging.closeLogger(LOGGER);
