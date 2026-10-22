@@ -49,19 +49,6 @@ public class GeoIoIntermodalWriterSettingsAppliedTest {
   private static final Path OUTPUT_PATH =
       Path.of("src", "test", "resources", "converter_test", "outputs", "intermodal_writer");
 
-  @BeforeAll
-  public static void setUp() throws Exception {
-    if (LOGGER == null) {
-      LOGGER = Logging.createLogger(GeoIoIntermodalWriterSettingsAppliedTest.class);
-    }
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    Logging.closeLogger(LOGGER);
-    IdGenerator.reset();
-  }
-
   /**
    * Create an intermodal writer for an emptied output directory, writing shapefiles with cartesian coordinates for
    * both network and zoning
@@ -101,6 +88,19 @@ public class GeoIoIntermodalWriterSettingsAppliedTest {
   private static void writeSydneyWithServices(GeometryIntermodalWriter writer) throws PlanItException {
     var reader = PlanitIntermodalReaderFactory.create(SYDNEY_INPUT_PATH.toString());
     IntermodalConverterFactory.create(reader, writer).convertWithServices();
+  }
+
+  @BeforeAll
+  public static void setUp() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(GeoIoIntermodalWriterSettingsAppliedTest.class);
+    }
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
 
   /** The format and the intersection flag set on the network settings of the intermodal writer are applied */

@@ -56,20 +56,6 @@ public class GeoIODataStoreManagerTest {
 
   private WarningCounter warningCounter;
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    FileUtils.deleteDirectory(OUTPUT_PATH.toFile());
-    Files.createDirectories(OUTPUT_PATH);
-    warningCounter = new WarningCounter();
-    MANAGER_LOGGER.addHandler(warningCounter);
-  }
-
-  @AfterEach
-  public void tearDown() {
-    MANAGER_LOGGER.removeHandler(warningCounter);
-    GeoIODataStoreManager.reset();
-  }
-
   /**
    * Create a feature type with a point geometry and a name. A GeoPackage needs the geometry to carry a CRS
    *
@@ -94,6 +80,20 @@ public class GeoIODataStoreManagerTest {
       GeoIODataStoreManager.registerFeatureOnDataStore(dataStore, featureType(typeName));
     }
     return dataStore;
+  }
+
+  @BeforeEach
+  public void setUp() throws Exception {
+    FileUtils.deleteDirectory(OUTPUT_PATH.toFile());
+    Files.createDirectories(OUTPUT_PATH);
+    warningCounter = new WarningCounter();
+    MANAGER_LOGGER.addHandler(warningCounter);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    MANAGER_LOGGER.removeHandler(warningCounter);
+    GeoIODataStoreManager.reset();
   }
 
   /** A second, different feature type on a shapefile overwrites the first, which is warned about */

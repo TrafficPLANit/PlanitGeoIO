@@ -71,6 +71,22 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
   }
 
 
+  /**
+   * Collect the approach and internal segments of the intersections, each once, intersections in container order and
+   * segments in list order, approaches first
+   *
+   * @param intersections to collect the segments of
+   * @return collected segments
+   */
+  private static List<MacroscopicLinkSegment> collectApproachAndInternalSegments(Iterable<Intersection> intersections){
+    var segments = new LinkedHashSet<MacroscopicLinkSegment>();
+    for(var intersection : intersections){
+      segments.addAll(intersection.getApproachSegments());
+      segments.addAll(IntersectionUtils.getInternalSegmentsOf(intersection));
+    }
+    return new ArrayList<>(segments);
+  }
+
   /** validate before commencing actual write
    *
    * @param network to validate
@@ -115,22 +131,6 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
   private String createLayerLogPrefix(UntypedPhysicalLayer<?,?,?> physicalNetworkLayer){
     return LoggingUtils.surroundWithBrackets(String.join(" ",
         "layer:",getPrimaryIdMapper().getNetworkLayerIdMapper().apply(physicalNetworkLayer)));
-  }
-
-  /**
-   * Collect the approach and internal segments of the intersections, each once, intersections in container order and
-   * segments in list order, approaches first
-   *
-   * @param intersections to collect the segments of
-   * @return collected segments
-   */
-  private static List<MacroscopicLinkSegment> collectApproachAndInternalSegments(Iterable<Intersection> intersections){
-    var segments = new LinkedHashSet<MacroscopicLinkSegment>();
-    for(var intersection : intersections){
-      segments.addAll(intersection.getApproachSegments());
-      segments.addAll(IntersectionUtils.getInternalSegmentsOf(intersection));
-    }
-    return new ArrayList<>(segments);
   }
 
   /**

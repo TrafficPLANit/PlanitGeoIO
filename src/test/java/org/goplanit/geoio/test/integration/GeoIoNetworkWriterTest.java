@@ -36,19 +36,6 @@ public class GeoIoNetworkWriterTest {
   private static final Path OUTPUT_PATH =
       Path.of("src", "test", "resources", "converter_test", "outputs", "network_writer");
 
-  @BeforeAll
-  public static void setUp() throws Exception {
-    if (LOGGER == null) {
-      LOGGER = Logging.createLogger(GeoIoNetworkWriterTest.class);
-    }
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    Logging.closeLogger(LOGGER);
-    IdGenerator.reset();
-  }
-
   /**
    * Write the two layer network and read back each layer's tables from its own files
    *
@@ -72,6 +59,19 @@ public class GeoIoNetworkWriterTest {
     assertRowCount(4, outputPath, "layer_1_planit_linksegments", format);
     assertRowCount(1, outputPath, "layer_1_planit_intersection_nodes", format);
     assertRowCount(2, outputPath, "layer_1_planit_intersection_segments", format);
+  }
+
+  @BeforeAll
+  public static void setUp() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(GeoIoNetworkWriterTest.class);
+    }
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
 
   /** Each layer of a two layer network is written to its own GeoPackages */

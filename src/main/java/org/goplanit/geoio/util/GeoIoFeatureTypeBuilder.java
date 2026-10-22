@@ -59,30 +59,6 @@ public final class GeoIoFeatureTypeBuilder {
 
 
   /**
-   * Create the addendum to each geometry entry to signify its srid based on the chosen destination CRS
-   *
-   * @param destinationCoordinateReferenceSystem destination CRS to use
-   * @return Srid addencum string, e.g., srid=_code_ if found, otherwise empty string
-   */
-  protected static String createFeatureGeometrySridAddendum(
-      CoordinateReferenceSystem destinationCoordinateReferenceSystem){
-    String sridCodeAddendum = "";
-    if(destinationCoordinateReferenceSystem == null){
-      LOGGER.warning("Destination CRS null, ignoring attaching it to PLANit feature types");
-      return sridCodeAddendum;
-    }
-
-    var identifiers = destinationCoordinateReferenceSystem.getIdentifiers();
-    if(identifiers == null || identifiers.isEmpty()){
-      LOGGER.warning(String.format("No identifiers to extract EPSG/SRID from Destination CRS %s," +
-              " ignoring attaching it to PLANit feature types", destinationCoordinateReferenceSystem.getName()));
-    }else{
-      sridCodeAddendum = ":srid="+identifiers.stream().findFirst().get().getCode();
-    }
-    return sridCodeAddendum;
-  }
-
-  /**
    * Construct  feature type string based on the provided context information
    *
    * @param featureTypeContext to extract feature type information from
@@ -104,6 +80,30 @@ public final class GeoIoFeatureTypeBuilder {
     sb.deleteCharAt(sb.length()-1);
     sb.append(sridAddendum);
     return sb.toString();
+  }
+
+  /**
+   * Create the addendum to each geometry entry to signify its srid based on the chosen destination CRS
+   *
+   * @param destinationCoordinateReferenceSystem destination CRS to use
+   * @return Srid addencum string, e.g., srid=_code_ if found, otherwise empty string
+   */
+  protected static String createFeatureGeometrySridAddendum(
+      CoordinateReferenceSystem destinationCoordinateReferenceSystem){
+    String sridCodeAddendum = "";
+    if(destinationCoordinateReferenceSystem == null){
+      LOGGER.warning("Destination CRS null, ignoring attaching it to PLANit feature types");
+      return sridCodeAddendum;
+    }
+
+    var identifiers = destinationCoordinateReferenceSystem.getIdentifiers();
+    if(identifiers == null || identifiers.isEmpty()){
+      LOGGER.warning(String.format("No identifiers to extract EPSG/SRID from Destination CRS %s," +
+              " ignoring attaching it to PLANit feature types", destinationCoordinateReferenceSystem.getName()));
+    }else{
+      sridCodeAddendum = ":srid="+identifiers.stream().findFirst().get().getCode();
+    }
+    return sridCodeAddendum;
   }
 
   /**

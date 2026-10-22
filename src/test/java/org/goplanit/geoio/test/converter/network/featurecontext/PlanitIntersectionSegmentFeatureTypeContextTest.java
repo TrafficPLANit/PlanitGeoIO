@@ -41,21 +41,6 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
 
   private PlanitIntersectionSegmentFeatureTypeContext context;
 
-  @BeforeEach
-  public void setUp() {
-    layer = NetworkTestUtils.readThreeIntersectionsNetworkLayer();
-    context = GeoIoFeatureTypeBuilder.createIntersectionSegmentFeatureContext(
-        new NetworkIdMapper(IdMapperType.XML),
-        layer.getIntersections(),
-        IntersectionUtils.findBannedTurnsByApproachSegment(layer.getIntersections(), layer.getBannedTurns()),
-        null);
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    IdGenerator.reset();
-  }
-
   /**
    * Collect the row of the given approach or internal segment, which is the link segment itself
    *
@@ -81,6 +66,21 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
 
   private LineString geometry(MacroscopicLinkSegment row) {
     return (LineString) attribute(PlanitEntityFeatureTypeContext.DEFAULT_GEOMETRY_ATTRIBUTE_KEY, row);
+  }
+
+  @BeforeEach
+  public void setUp() {
+    layer = NetworkTestUtils.readThreeIntersectionsNetworkLayer();
+    context = GeoIoFeatureTypeBuilder.createIntersectionSegmentFeatureContext(
+        new NetworkIdMapper(IdMapperType.XML),
+        layer.getIntersections(),
+        IntersectionUtils.findBannedTurnsByApproachSegment(layer.getIntersections(), layer.getBannedTurns()),
+        null);
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    IdGenerator.reset();
   }
 
   /** Attribute names are unique and fit a shapefile, one Boolean column per intersection type, geometry last */

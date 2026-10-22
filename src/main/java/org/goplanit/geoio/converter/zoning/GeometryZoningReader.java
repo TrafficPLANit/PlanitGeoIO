@@ -187,14 +187,6 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
         zoningToPopulate.getTransferConnectoids().size()));
   }
 
-  /**
-   * Validate settings
-   */
-  protected void validate(){
-    PlanItRunTimeException.throwIfNull(getReferenceNetwork(),
-        "Reference network not set, unable to proceed");
-  }
-
   private void validateSettings() {
     PlanItRunTimeException.throwIfNull(getSettings().getSourceCrs(),
         "Input CRS not set for geo zoning reader, unable to proceed");
@@ -206,6 +198,29 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
         "Zone id field of layer in Input source not set for geo zoning reader, unable to proceed");
     PlanItRunTimeException.throwIf(getSettings().getIdMapperType().equals(IdMapperType.ID),
         "Cannot map ids to PLANit internal id, supporting only XML or EXTERNAL mapping currently");
+  }
+
+  /**
+   * initialise the id trackers and populate them,
+   * so we can lay indices on the source id as well for quick lookups
+   *
+   */
+  private void initialiseIdTrackers() {
+    if(getSettings().getIdMapperType().equals(IdMapperType.XML)) {
+      initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getXmlId);
+      getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoningToPopulate.getOdZones());
+    }else if(getSettings().getIdMapperType().equals(IdMapperType.EXTERNAL_ID)){
+      initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getExternalId);
+      getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoningToPopulate.getOdZones());
+    }
+  }
+
+  /**
+   * Validate settings
+   */
+  protected void validate(){
+    PlanItRunTimeException.throwIfNull(getReferenceNetwork(),
+        "Reference network not set, unable to proceed");
   }
 
   /**
@@ -262,21 +277,6 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
     return this.zoningToPopulate;
   }
 
-
-  /**
-   * initialise the id trackers and populate them,
-   * so we can lay indices on the source id as well for quick lookups
-   *
-   */
-  private void initialiseIdTrackers() {
-    if(getSettings().getIdMapperType().equals(IdMapperType.XML)) {
-      initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getXmlId);
-      getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoningToPopulate.getOdZones());
-    }else if(getSettings().getIdMapperType().equals(IdMapperType.EXTERNAL_ID)){
-      initialiseSourceIdMap(OdZone.getOdZoneIdClass(), Zone::getExternalId);
-      getSourceIdContainer(OdZone.getOdZoneIdClass()).addAll(zoningToPopulate.getOdZones());
-    }
-  }
 
 
   /**

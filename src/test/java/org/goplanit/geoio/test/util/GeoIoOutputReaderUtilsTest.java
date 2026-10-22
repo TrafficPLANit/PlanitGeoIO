@@ -31,19 +31,6 @@ public class GeoIoOutputReaderUtilsTest {
   private static final Path OUTPUT_PATH =
       Path.of("src", "test", "resources", "converter_test", "outputs", "test_reader");
 
-  @BeforeAll
-  public static void setUp() throws Exception {
-    if (LOGGER == null) {
-      LOGGER = Logging.createLogger(GeoIoOutputReaderUtilsTest.class);
-    }
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    Logging.closeLogger(LOGGER);
-    IdGenerator.reset();
-  }
-
   /**
    * Write the nine nodes of the small intersections network and read them back
    *
@@ -63,6 +50,19 @@ public class GeoIoOutputReaderUtilsTest {
         nodeFeatures.stream().map(f -> f.getAttribute("mapped_id").toString()).collect(Collectors.toSet()));
     assertTrue(nodeFeatures.stream().allMatch(f -> f.getDefaultGeometry() instanceof Point));
     assertTrue(GeoIoOutputReaderUtils.createTablePath(outputPath, "layer_0_planit_nodes", format).toFile().exists());
+  }
+
+  @BeforeAll
+  public static void setUp() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(GeoIoOutputReaderUtilsTest.class);
+    }
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
   }
 
   /** Nodes written as a GeoPackage are read back */

@@ -25,6 +25,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
 
+  /**
+   * Apply the geom_opp attribute function of the link segment context to a link segment
+   *
+   * @param layer of the link segment
+   * @param segmentXmlId of the link segment
+   * @return attribute value
+   */
+  private static Object geometryOppositeAttribute(MacroscopicNetworkLayer layer, String segmentXmlId) {
+    var context = PlanitMacroscopicLinkSegmentFeatureTypeContext.create(
+        new NetworkIdMapper(IdMapperType.XML), layer.getSupportedModes(), null);
+    Function<MacroscopicLinkSegment, ?> function = context.getAttributeDescription().stream()
+        .filter(a -> a.first().equals("geom_opp")).findFirst().orElseThrow().third();
+    return function.apply(layer.getLinkSegments().getByXmlId(segmentXmlId));
+  }
+
   @AfterAll
   public static void tearDown() {
     IdGenerator.reset();
@@ -68,21 +83,6 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
         PlanitMacroscopicLinkSegmentFeatureTypeContext.createOrGetLinkSegmentGeometryInTravelDirection(segmentBa);
     assertEquals(new Coordinate(100, 0), geometryBa.getCoordinateN(0));
     assertEquals(new Coordinate(0, 0), geometryBa.getCoordinateN(geometryBa.getNumPoints() - 1));
-  }
-
-  /**
-   * Apply the geom_opp attribute function of the link segment context to a link segment
-   *
-   * @param layer of the link segment
-   * @param segmentXmlId of the link segment
-   * @return attribute value
-   */
-  private static Object geometryOppositeAttribute(MacroscopicNetworkLayer layer, String segmentXmlId) {
-    var context = PlanitMacroscopicLinkSegmentFeatureTypeContext.create(
-        new NetworkIdMapper(IdMapperType.XML), layer.getSupportedModes(), null);
-    Function<MacroscopicLinkSegment, ?> function = context.getAttributeDescription().stream()
-        .filter(a -> a.first().equals("geom_opp")).findFirst().orElseThrow().third();
-    return function.apply(layer.getLinkSegments().getByXmlId(segmentXmlId));
   }
 
   /** geom_opp is true only for a segment running opposite to the geometry of its link */

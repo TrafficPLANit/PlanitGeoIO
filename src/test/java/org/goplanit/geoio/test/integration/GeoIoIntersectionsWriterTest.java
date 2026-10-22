@@ -47,19 +47,6 @@ public class GeoIoIntersectionsWriterTest {
 
   private static final String INTERSECTION_SEGMENTS_TABLE = "layer_0_planit_intersection_segments";
 
-  @BeforeAll
-  public static void setUp() throws Exception {
-    if (LOGGER == null) {
-      LOGGER = Logging.createLogger(GeoIoIntersectionsWriterTest.class);
-    }
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    Logging.closeLogger(LOGGER);
-    IdGenerator.reset();
-  }
-
   /**
    * Write the small network with three intersections to an emptied output directory
    *
@@ -107,18 +94,6 @@ public class GeoIoIntersectionsWriterTest {
     assertEquals("5", approach0.getAttribute("banned_to"));
   }
 
-  /** Both intersection tables are written to and read back from GeoPackages */
-  @Test
-  public void writesIntersectionsAsGeoPackage() {
-    writeAndReadBackIntersections(GeoIoFormat.GEOPACKAGE);
-  }
-
-  /** Both intersection tables are written to and read back from shapefiles */
-  @Test
-  public void writesIntersectionsAsShapefile() {
-    writeAndReadBackIntersections(GeoIoFormat.SHAPE);
-  }
-
   /**
    * Collect the names of the files in the output directory that hold intersection tables
    *
@@ -132,6 +107,31 @@ public class GeoIoIntersectionsWriterTest {
     }
     return Arrays.stream(files).map(File::getName).filter(name -> name.contains("intersection"))
         .collect(Collectors.toList());
+  }
+
+  @BeforeAll
+  public static void setUp() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(GeoIoIntersectionsWriterTest.class);
+    }
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    Logging.closeLogger(LOGGER);
+    IdGenerator.reset();
+  }
+
+  /** Both intersection tables are written to and read back from GeoPackages */
+  @Test
+  public void writesIntersectionsAsGeoPackage() {
+    writeAndReadBackIntersections(GeoIoFormat.GEOPACKAGE);
+  }
+
+  /** Both intersection tables are written to and read back from shapefiles */
+  @Test
+  public void writesIntersectionsAsShapefile() {
+    writeAndReadBackIntersections(GeoIoFormat.SHAPE);
   }
 
   /** With both intersection flags off no intersection file is written, while nodes still are */

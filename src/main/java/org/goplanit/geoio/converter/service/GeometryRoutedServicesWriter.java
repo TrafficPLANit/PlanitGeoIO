@@ -40,21 +40,6 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
   /** construct prefix for a given layer in String format */
   private Function<RoutedServicesLayer, String> layerPrefixProducer = null;
 
-  /** Default constructor
-   *
-   */
-  protected GeometryRoutedServicesWriter() {
-    this(null, CountryNames.GLOBAL);
-  }
-
-  /** Constructor
-   *
-   * @param outputPath to persist in
-   */
-  protected GeometryRoutedServicesWriter(String outputPath) {
-    this(outputPath, CountryNames.GLOBAL);
-  }
-
   /**
    * Validate before persisting
    *
@@ -144,6 +129,21 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
         entry(RoutedTripFrequency.class, createLayerModeAwareBaseFileName(
                 layer, layerMode, settings.getTripsFrequencyFileName()))
     );
+  }
+
+  /** Default constructor
+   *
+   */
+  protected GeometryRoutedServicesWriter() {
+    this(null, CountryNames.GLOBAL);
+  }
+
+  /** Constructor
+   *
+   * @param outputPath to persist in
+   */
+  protected GeometryRoutedServicesWriter(String outputPath) {
+    this(outputPath, CountryNames.GLOBAL);
   }
 
   /**

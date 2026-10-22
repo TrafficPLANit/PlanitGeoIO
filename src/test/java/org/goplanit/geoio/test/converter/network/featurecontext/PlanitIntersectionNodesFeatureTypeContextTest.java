@@ -38,17 +38,6 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
 
   private static PlanitIntersectionNodesFeatureTypeContext context;
 
-  @BeforeAll
-  public static void setUp() {
-    layer = NetworkTestUtils.readThreeIntersectionsNetworkLayer();
-    context = GeoIoFeatureTypeBuilder.createIntersectionNodesFeatureContext(new NetworkIdMapper(IdMapperType.XML), null);
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    IdGenerator.reset();
-  }
-
   private static Intersection intersection(String xmlId) {
     return layer.getIntersections().firstMatch(i -> xmlId.equals(i.getXmlId()));
   }
@@ -64,6 +53,17 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
     Function<Intersection, ?> function = context.getAttributeDescription().stream()
         .filter(a -> a.first().equals(name)).findFirst().orElseThrow().third();
     return function.apply(intersection);
+  }
+
+  @BeforeAll
+  public static void setUp() {
+    layer = NetworkTestUtils.readThreeIntersectionsNetworkLayer();
+    context = GeoIoFeatureTypeBuilder.createIntersectionNodesFeatureContext(new NetworkIdMapper(IdMapperType.XML), null);
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    IdGenerator.reset();
   }
 
   /** Attribute names are unique and fit a shapefile, one Boolean column per intersection type, geometry last */
