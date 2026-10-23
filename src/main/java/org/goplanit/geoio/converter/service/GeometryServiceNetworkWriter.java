@@ -1,6 +1,5 @@
 package org.goplanit.geoio.converter.service;
 
-import org.geotools.api.data.DataStore;
 import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.converter.service.ServiceNetworkWriter;
@@ -127,9 +126,6 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     }
     LOGGER.info(String.format("%s Service nodes: %d", layerLogPrefix, serviceNetworkLayer.getServiceNodes().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore serviceNodeDataStore =
-        findDataStore(createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceNodesSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -140,7 +136,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         featureType,
         serviceNodeFeatureContext,
         layerLogPrefix,
-        serviceNodeDataStore,
+        createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceNodesFileName()),
         serviceNodesSchemaName,
         serviceNetworkLayer.getServiceNodes());
 
@@ -164,9 +160,6 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     }
     LOGGER.info(String.format("%s Service legs: %d", layerLogPrefix, serviceNetworkLayer.getLegs().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore legDataStore =
-        findDataStore(createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var legsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -177,7 +170,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         featureType,
         serviceLegFeatureContext,
         layerLogPrefix,
-        legDataStore,
+        createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegsFileName()),
         legsSchemaName,
         serviceNetworkLayer.getLegs());
   }
@@ -201,9 +194,6 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
     LOGGER.info(String.format("%s Service leg segments: %d",
         layerLogPrefix, serviceNetworkLayer.getLegSegments().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore serviceLegSegmentsDataStore =
-        findDataStore(createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var serviceLegSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -214,7 +204,7 @@ public class GeometryServiceNetworkWriter extends GeometryIoWriter<ServiceNetwor
         featureType,
         serviceLegSegmentFeatureContext,
         layerLogPrefix,
-        serviceLegSegmentsDataStore,
+        createFullPathFromFileName(serviceNetworkLayer, getSettings().getServiceLegSegmentsFileName()),
         serviceLegSegmentsSchemaName,
         serviceNetworkLayer.getLegSegments());
   }

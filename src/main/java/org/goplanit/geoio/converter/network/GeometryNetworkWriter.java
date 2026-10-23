@@ -1,6 +1,5 @@
 package org.goplanit.geoio.converter.network;
 
-import org.geotools.api.data.DataStore;
 import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.converter.network.NetworkWriter;
@@ -23,9 +22,6 @@ import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionUti
 import org.goplanit.utils.network.layer.physical.*;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -68,23 +64,6 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
             entry(MacroscopicLinkSegment.class, settings.getLinkSegmentsFileName()),
             entry(ConjugateLinkSegment.class, settings.getLinkSegmentsFileName())
     );
-  }
-
-
-  /**
-   * Collect the approach and internal segments of the intersections, each once, intersections in container order and
-   * segments in list order, approaches first
-   *
-   * @param intersections to collect the segments of
-   * @return collected segments
-   */
-  private static List<MacroscopicLinkSegment> collectApproachAndInternalSegments(Iterable<Intersection> intersections){
-    var segments = new LinkedHashSet<MacroscopicLinkSegment>();
-    for(var intersection : intersections){
-      segments.addAll(intersection.getApproachSegments());
-      segments.addAll(IntersectionUtils.getInternalSegmentsOf(intersection));
-    }
-    return new ArrayList<>(segments);
   }
 
   /** validate before commencing actual write
@@ -179,9 +158,6 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     }
     LOGGER.info(String.format("%s Nodes: %d", layerLogPrefix, physicalNetworkLayer.getNodes().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore nodeDataStore =
-        findDataStore(createFullPathFromFileName(physicalNetworkLayer, getSettings().getNodesFileName()));
 
     /* the feature writer through which to provide each result row */
     final var nodesSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -192,7 +168,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
             featureType,
             nodeFeatureContext,
             layerLogPrefix,
-            nodeDataStore,
+            createFullPathFromFileName(physicalNetworkLayer, getSettings().getNodesFileName()),
             nodesSchemaName,
             physicalNetworkLayer.getNodes());
 
@@ -215,9 +191,6 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     }
     LOGGER.info(String.format("%s Links: %d", layerLogPrefix, physicalNetworkLayer.getLinks().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore linksDataStore =
-        findDataStore(createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinksFileName()));
 
     /* the feature writer through which to provide each result row */
     final var linksSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -228,7 +201,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
             featureType,
             linkFeatureContext,
             layerLogPrefix,
-            linksDataStore,
+            createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinksFileName()),
             linksSchemaName,
             physicalNetworkLayer.getLinks());
 
@@ -256,9 +229,6 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     }
     LOGGER.info(String.format("%s Link segments: %d", layerLogPrefix, physicalNetworkLayer.getLinkSegments().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore linkSegmentsDataStore =
-        findDataStore(createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinkSegmentsFileName()));
 
     /* the feature writer through which to provide each result row */
     final var linkSegmentsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
@@ -269,7 +239,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
             featureType,
             linkSegmentFeatureContext,
             layerLogPrefix,
-            linkSegmentsDataStore,
+            createFullPathFromFileName(physicalNetworkLayer, getSettings().getLinkSegmentsFileName()),
             linkSegmentsSchemaName,
             physicalNetworkLayer.getLinkSegments());
 
@@ -292,16 +262,13 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     var featureType = GeoIoFeatureTypeBuilder.createSimpleFeatureType(
         intersectionFeatureContext, getDestinationCoordinateReferenceSystem(), intersectionNodesSchemaName);
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore intersectionNodesDataStore =
-        findDataStore(createFullPathFromFileName(networkLayer, getSettings().getIntersectionNodesFileName()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
         featureType,
         intersectionFeatureContext,
         layerLogPrefix,
-        intersectionNodesDataStore,
+        createFullPathFromFileName(networkLayer, getSettings().getIntersectionNodesFileName()),
         intersectionNodesSchemaName,
         networkLayer.getIntersections());
   }
@@ -314,7 +281,8 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
    * @param layerLogPrefix to use
    */
   private void writeNetworkLayerIntersectionSegments(MacroscopicNetworkLayer networkLayer, String layerLogPrefix) {
-    var intersectionSegments = collectApproachAndInternalSegments(networkLayer.getIntersections());
+    var intersectionSegments = IntersectionUtils.collectApproachAndInternalSegments(
+        networkLayer.getIntersections());
     LOGGER.info(String.format("%s Intersection segments: %d", layerLogPrefix, intersectionSegments.size()));
 
     var bansByApproachSegment = IntersectionUtils.findBannedTurnsByApproachSegment(
@@ -326,30 +294,61 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
     var featureType = GeoIoFeatureTypeBuilder.createSimpleFeatureType(
         intersectionSegmentFeatureContext, getDestinationCoordinateReferenceSystem(), intersectionSegmentsSchemaName);
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore intersectionSegmentsDataStore =
-        findDataStore(createFullPathFromFileName(networkLayer, getSettings().getIntersectionSegmentsFileName()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
         featureType,
         intersectionSegmentFeatureContext,
         layerLogPrefix,
-        intersectionSegmentsDataStore,
+        createFullPathFromFileName(networkLayer, getSettings().getIntersectionSegmentsFileName()),
         intersectionSegmentsSchemaName,
         intersectionSegments);
   }
 
   /**
-   * Write the network layer's intersection nodes and its intersection segments, each to its own file when its flag is
-   * on. A layer without intersections gets no intersection files.
+   * Write the movements of the network layer's spatial intersections, one entry per movement, with its own green ratio
+   * and saturation flow factor and those it uses
    *
-   * @param networkLayer to persist intersection nodes and segments for
+   * @param networkLayer to persist intersection movements for
    * @param layerLogPrefix to use
    */
-  private void writeNetworkLayerIntersectionNodesAndSegments(
+  private void writeNetworkLayerIntersectionMovements(MacroscopicNetworkLayer networkLayer, String layerLogPrefix) {
+    var intersectionMovements = IntersectionUtils.collectMovementsOfSpatialIntersections(
+        networkLayer.getIntersections());
+    LOGGER.info(String.format("%s Intersection movements: %d", layerLogPrefix, intersectionMovements.size()));
+
+    var intersectionMovementFeatureContext = GeoIoFeatureTypeBuilder.createIntersectionMovementFeatureContext(
+        getPrimaryIdMapper(),
+        networkLayer,
+        getSettings().isIntersectionMovementGeometryThroughInternalSegments(),
+        getDestinationCrsTransformer());
+    final var intersectionMovementsSchemaName = GeoIoFeatureTypeBuilder.createFeatureTypeSchemaName(
+        networkLayer, layerPrefixProducer, getSettings().getIntersectionMovementsFileName());
+    var featureType = GeoIoFeatureTypeBuilder.createSimpleFeatureType(
+        intersectionMovementFeatureContext, getDestinationCoordinateReferenceSystem(), intersectionMovementsSchemaName);
+
+
+    /* perform persistence */
+    writeGeometryLayerForEntity(
+        featureType,
+        intersectionMovementFeatureContext,
+        layerLogPrefix,
+        createFullPathFromFileName(networkLayer, getSettings().getIntersectionMovementsFileName()),
+        intersectionMovementsSchemaName,
+        intersectionMovements);
+  }
+
+  /**
+   * Write the network layer's intersection nodes, its intersection segments and the movements of its spatial
+   * intersections, each to its own file when its flag is on. A layer without intersections gets no intersection files.
+   *
+   * @param networkLayer to persist intersection nodes, segments and movements for
+   * @param layerLogPrefix to use
+   */
+  private void writeNetworkLayerIntersectionNodesSegmentsAndMovements(
       MacroscopicNetworkLayer networkLayer, String layerLogPrefix) {
-    if(!getSettings().isPersistIntersectionNodes() && !getSettings().isPersistIntersectionSegments()){
+    if(!getSettings().isPersistIntersectionNodes() && !getSettings().isPersistIntersectionSegments()
+        && !getSettings().isPersistIntersectionMovements()){
       return;
     }
     if(!networkLayer.hasIntersections()){
@@ -369,6 +368,13 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
       LOGGER.info(String.format("%sPersisting intersection segments to: %s", layerLogPrefix,
           createFullPathFromFileName(networkLayer, getSettings().getIntersectionSegmentsFileName()).toAbsolutePath()));
       writeNetworkLayerIntersectionSegments(networkLayer, layerLogPrefix);
+    }
+
+    /* intersection movements */
+    if(getSettings().isPersistIntersectionMovements()){
+      LOGGER.info(String.format("%sPersisting intersection movements to: %s", layerLogPrefix,
+          createFullPathFromFileName(networkLayer, getSettings().getIntersectionMovementsFileName()).toAbsolutePath()));
+      writeNetworkLayerIntersectionMovements(networkLayer, layerLogPrefix);
     }
   }
 
@@ -430,9 +436,9 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
                 layer, featureInfo.first(), featureInfo.second(), layerLogPrefix);
       }
 
-      /* intersection nodes and segments, only a macroscopic network layer has intersections */
+      /* intersection nodes, segments and movements, only a macroscopic network layer has intersections */
       if(layer instanceof MacroscopicNetworkLayer){
-        writeNetworkLayerIntersectionNodesAndSegments((MacroscopicNetworkLayer) layer, layerLogPrefix);
+        writeNetworkLayerIntersectionNodesSegmentsAndMovements((MacroscopicNetworkLayer) layer, layerLogPrefix);
       }
 
     }

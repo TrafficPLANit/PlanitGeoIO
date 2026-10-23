@@ -4,6 +4,7 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitMacroscopicLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.test.util.NetworkTestUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
+import org.goplanit.utils.graph.directed.EdgeSegmentUtils;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
@@ -17,8 +18,9 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests the link segment geometry of {@link PlanitMacroscopicLinkSegmentFeatureTypeContext}, on link 3 of the small
- * network with three intersections, which runs from node 0 at (0,0) to node 4 at (100,0) and has segment 6 (a_b) and
+ * Tests the link segment geometry of {@link PlanitMacroscopicLinkSegmentFeatureTypeContext} and
+ * {@link EdgeSegmentUtils#createOrGetParentGeometryInSegmentDirection}, on link 3 of the small network with three
+ * intersections, which runs from node 0 at (0,0) to node 4 at (100,0) and has segment 6 (a_b) and
  * segment 7 (b_a)
  *
  * @author markr
@@ -59,7 +61,7 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
 
     var segmentBa = layer.getLinkSegments().getByXmlId("7");
     var geometryBa =
-        PlanitMacroscopicLinkSegmentFeatureTypeContext.createOrGetLinkSegmentGeometryInTravelDirection(segmentBa);
+        EdgeSegmentUtils.createOrGetParentGeometryInSegmentDirection(segmentBa);
     assertEquals(3, geometryBa.getNumPoints());
     assertEquals(new Coordinate(100, 0), geometryBa.getCoordinateN(0));
     assertEquals(new Coordinate(50, 10), geometryBa.getCoordinateN(1));
@@ -67,7 +69,7 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
 
     var segmentAb = layer.getLinkSegments().getByXmlId("6");
     var geometryAb =
-        PlanitMacroscopicLinkSegmentFeatureTypeContext.createOrGetLinkSegmentGeometryInTravelDirection(segmentAb);
+        EdgeSegmentUtils.createOrGetParentGeometryInSegmentDirection(segmentAb);
     assertEquals(new Coordinate(0, 0), geometryAb.getCoordinateN(0));
     assertEquals(new Coordinate(100, 0), geometryAb.getCoordinateN(2));
 
@@ -83,7 +85,7 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
 
     var segmentBa = layer.getLinkSegments().getByXmlId("7");
     var geometryBa =
-        PlanitMacroscopicLinkSegmentFeatureTypeContext.createOrGetLinkSegmentGeometryInTravelDirection(segmentBa);
+        EdgeSegmentUtils.createOrGetParentGeometryInSegmentDirection(segmentBa);
     assertEquals(new Coordinate(100, 0), geometryBa.getCoordinateN(0));
     assertEquals(new Coordinate(0, 0), geometryBa.getCoordinateN(geometryBa.getNumPoints() - 1));
   }

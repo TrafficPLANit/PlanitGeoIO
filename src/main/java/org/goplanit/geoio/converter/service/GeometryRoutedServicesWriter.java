@@ -1,6 +1,5 @@
 package org.goplanit.geoio.converter.service;
 
-import org.geotools.api.data.DataStore;
 import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.RoutedServicesIdMapper;
 import org.goplanit.converter.service.RoutedServicesWriter;
@@ -170,16 +169,12 @@ public class GeometryRoutedServicesWriter extends GeometryIoWriter<RoutedService
     LOGGER.info(String.format("%s Services (mode: %s): %d",
             layerLogPrefix, layerMode.getIdsAsString(), servicesByMode.size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore dataStore =
-        findDataStore(createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()));
-
     /* the feature writer through which to provide each result row */
     final var schemaName = createLayerModeAwareBaseFileName(layer, layerMode, getSettings().getServicesFileName());
 
     /* perform persistence */
-    writeGeometryLayerForEntity(
-            featureType, featureDescription, layerLogPrefix, dataStore, schemaName, servicesByMode);
+    writeGeometryLayerForEntity(featureType, featureDescription, layerLogPrefix,
+        createFullPathFromFileName(layer, layerMode, getSettings().getServicesFileName()), schemaName, servicesByMode);
   }
 
   /**

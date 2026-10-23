@@ -63,10 +63,10 @@ public class PlanitIntersectionNodesFeatureTypeContext extends PlanitEntityFeatu
         i -> StringUtils.toSortedCommaSeparatedString(i.getMemberNodes(), networkIdMapper.getVertexIdMapper())));
     features.add(Triple.of("approaches", "String",
         i -> StringUtils.toSortedCommaSeparatedString(
-            i.getApproachSegments(), networkIdMapper.getMacroscopicLinkSegmentIdMapper())));
+            i.getApproachSegments(), networkIdMapper.getLinkSegmentIdMapper())));
     features.add(Triple.of("internals", "String",
         i -> StringUtils.toSortedCommaSeparatedString(
-            IntersectionUtils.getInternalSegmentsOf(i), networkIdMapper.getMacroscopicLinkSegmentIdMapper())));
+            IntersectionUtils.getInternalSegmentsOf(i), networkIdMapper.getLinkSegmentIdMapper())));
     features.add(Triple.of("node_count", "Integer", i -> i.getMemberNodes().size()));
     features.add(Triple.of("appr_count", "Integer", i -> i.getApproachSegments().size()));
 

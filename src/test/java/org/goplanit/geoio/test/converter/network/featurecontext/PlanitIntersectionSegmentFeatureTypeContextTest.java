@@ -11,8 +11,11 @@ import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
+import org.goplanit.utils.network.layer.macroscopic.intersection.CapacityFactorOrigin;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSignalSegment;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionUtils;
+import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -59,7 +63,7 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
    * @return attribute value
    */
   private Object attribute(String name, MacroscopicLinkSegment row) {
-    Function<MacroscopicLinkSegment, ?> function = context.getAttributeDescription().stream()
+    Function<LinkSegment, ?> function = context.getAttributeDescription().stream()
         .filter(a -> a.first().equals(name)).findFirst().orElseThrow().third();
     return function.apply(row);
   }
@@ -99,7 +103,7 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
   /** Attribute names are unique and fit a shapefile, one Boolean column per intersection type, geometry last */
   @Test
   public void attributeNamesAreUniqueAndShapefileSafe() {
-    assertSame(MacroscopicLinkSegment.class, context.getPlanitEntityClass());
+    assertSame(LinkSegment.class, context.getPlanitEntityClass());
     var names = context.getAttributeDescription().stream().map(Triple::first).collect(Collectors.toList());
     assertEquals(names.size(), new HashSet<>(names).size());
     assertTrue(names.stream().allMatch(name -> name.length() <= 10));
@@ -144,6 +148,61 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
     assertEquals("i3", attribute("isect_id", internal10));
     assertEquals("6", attribute("node_down", internal10));
     assertEquals("5", attribute("node_down", internal11));
+  }
+
+  /**
+   * An approach holds the green ratio and saturation flow factor the model uses, 1 when not set, with how each got its
+   * value; one without a signal of its own has no green ratio. Approach 8 has 0.44 and 0.9 set directly, approach 4
+   * has no signal and 0.5, approach 0 has a signal and no values
+   */
+  @Test
+  public void approachCapacityFactors() {
+    var approach8 = row("8");
+    assertEquals(true, attribute("signal", approach8));
+    assertEquals(0.44, attribute("green", approach8));
+    assertEquals("set_directly", attribute("green_src", approach8));
+    assertEquals(0.9, attribute("sat_flow", approach8));
+    assertEquals("set_directly", attribute("sat_src", approach8));
+    assertEquals(0.396, (Double) attribute("eff_cap", approach8), 1e-9);
+
+    var approach4 = row("4");
+    assertEquals(false, attribute("signal", approach4));
+    assertNull(attribute("green", approach4));
+    assertEquals("", attribute("green_src", approach4));
+    assertEquals(0.5, attribute("sat_flow", approach4));
+    assertEquals(0.5, attribute("eff_cap", approach4));
+
+    var approach0 = row("0");
+    assertEquals(true, attribute("signal", approach0));
+    assertEquals(1.0, attribute("green", approach0));
+    assertEquals("", attribute("green_src", approach0));
+    assertEquals(1.0, attribute("sat_flow", approach0));
+    assertEquals("", attribute("sat_src", approach0));
+    assertEquals(1.0, attribute("eff_cap", approach0));
+  }
+
+  /** A computed green ratio says so */
+  @Test
+  public void computedGreenRatioSaysSo() {
+    var approach12 = row("12");
+    var intersection = layer.getIntersections().getByMemberNode(approach12.getDownstreamNode());
+    ((IntersectionSignalSegment) intersection.getApproach(approach12)).setGreenRatio(0.3, CapacityFactorOrigin.COMPUTED);
+    assertEquals(0.3, attribute("green", approach12));
+    assertEquals("computed", attribute("green_src", approach12));
+  }
+
+  /** An internal segment with a signal holds its values, a plain one only a saturation flow factor */
+  @Test
+  public void internalCapacityFactors() {
+    var internal11 = row("11");
+    assertEquals(true, attribute("signal", internal11));
+    assertEquals(0.6, attribute("green", internal11));
+    assertEquals(0.9, attribute("sat_flow", internal11));
+
+    var internal10 = row("10");
+    assertEquals(false, attribute("signal", internal10));
+    assertNull(attribute("green", internal10));
+    assertEquals(1.0, attribute("sat_flow", internal10));
   }
 
   /** The geometry of an approach on the b_a segment of a link with geometry from a to b ends at the member node */

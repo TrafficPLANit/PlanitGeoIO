@@ -45,11 +45,22 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   /** flag indicating whether to persist the approach and internal segments of intersections or not */
   private boolean persistIntersectionSegments = DEFAULT_PERSIST_INTERSECTION_SEGMENTS;
 
+  /** flag indicating whether to persist the movements of spatial intersections or not */
+  private boolean persistIntersectionMovements = DEFAULT_PERSIST_INTERSECTION_MOVEMENTS;
+
+  /** flag indicating whether the geometry of a movement runs through the internal segments it passes, or holds only its
+   * from and to segment */
+  private boolean intersectionMovementGeometryThroughInternalSegments =
+      DEFAULT_INTERSECTION_MOVEMENT_GEOMETRY_THROUGH_INTERNAL_SEGMENTS;
+
   /** intersection nodes file name to use */
   private String intersectionNodesFileName = DEFAULT_INTERSECTION_NODES_FILE_NAME;
 
   /** intersection segments file name to use */
   private String intersectionSegmentsFileName = DEFAULT_INTERSECTION_SEGMENTS_FILE_NAME;
+
+  /** intersection movements file name to use */
+  private String intersectionMovementsFileName = DEFAULT_INTERSECTION_MOVEMENTS_FILE_NAME;
 
   /** each layer gets a prefix prepended to the file name,e.g., #layer_prefix_#id_#filename */
   private String layerPrefix = DEFAULT_LAYER_PREFIX;
@@ -68,6 +79,9 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   /** default intersection segments file name to use (without extension) */
   public static final String DEFAULT_INTERSECTION_SEGMENTS_FILE_NAME = "planit_intersection_segments";
+
+  /** default intersection movements file name to use (without extension) */
+  public static final String DEFAULT_INTERSECTION_MOVEMENTS_FILE_NAME = "planit_intersection_movements";
 
   /** default prefix each layer prepends to its file names */
   public static final String DEFAULT_LAYER_PREFIX = "layer";
@@ -93,6 +107,12 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
 
   /** default persist intersection segments flag value */
   public static boolean DEFAULT_PERSIST_INTERSECTION_SEGMENTS = true;
+
+  /** default persist intersection movements flag value */
+  public static boolean DEFAULT_PERSIST_INTERSECTION_MOVEMENTS = true;
+
+  /** default flag value for the geometry of a movement running through the internal segments it passes */
+  public static boolean DEFAULT_INTERSECTION_MOVEMENT_GEOMETRY_THROUGH_INTERNAL_SEGMENTS = true;
 
   /**
    * Default constructor
@@ -266,6 +286,46 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   }
 
   /**
+   * Verify if the movements of spatial intersections are persisted
+   *
+   * @return true when persisted, false otherwise
+   */
+  public boolean isPersistIntersectionMovements() {
+    return persistIntersectionMovements;
+  }
+
+  /**
+   * Set whether the movements of spatial intersections are persisted
+   *
+   * @param persistIntersectionMovements true to persist, false otherwise
+   */
+  public void setPersistIntersectionMovements(boolean persistIntersectionMovements) {
+    this.persistIntersectionMovements = persistIntersectionMovements;
+  }
+
+  /**
+   * Verify if the geometry of a persisted movement runs through the internal segments it passes: its from segment, the
+   * internal segments on its shortest connection, and its to segment. Otherwise it holds only its from and to segment
+   *
+   * @return true when it runs through the internal segments, false otherwise
+   */
+  public boolean isIntersectionMovementGeometryThroughInternalSegments() {
+    return intersectionMovementGeometryThroughInternalSegments;
+  }
+
+  /**
+   * Set whether the geometry of a persisted movement runs through the internal segments it passes, see
+   * {@link #isIntersectionMovementGeometryThroughInternalSegments()}
+   *
+   * @param intersectionMovementGeometryThroughInternalSegments true to run through them, false for only the from and to
+   *                                                            segment
+   */
+  public void setIntersectionMovementGeometryThroughInternalSegments(
+      boolean intersectionMovementGeometryThroughInternalSegments) {
+    this.intersectionMovementGeometryThroughInternalSegments = intersectionMovementGeometryThroughInternalSegments;
+  }
+
+  /**
    * The intersection nodes file name to use (without extension)
    *
    * @return intersection nodes file name
@@ -302,6 +362,24 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   }
 
   /**
+   * The intersection movements file name to use (without extension)
+   *
+   * @return intersection movements file name
+   */
+  public String getIntersectionMovementsFileName() {
+    return intersectionMovementsFileName;
+  }
+
+  /**
+   * Set the intersection movements file name to use (without extension)
+   *
+   * @param intersectionMovementsFileName to use
+   */
+  public void setIntersectionMovementsFileName(String intersectionMovementsFileName) {
+    this.intersectionMovementsFileName = intersectionMovementsFileName;
+  }
+
+  /**
    * Convenience method to log all the current settings
    */
   public void logSettings() {
@@ -312,6 +390,9 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
     LOGGER.info(LoggingUtils.settingsValue("Persist link segments", isPersistLinkSegments(), 0));
     LOGGER.info(LoggingUtils.settingsValue("Persist intersection nodes", isPersistIntersectionNodes(), 0));
     LOGGER.info(LoggingUtils.settingsValue("Persist intersection segments", isPersistIntersectionSegments(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Persist intersection movements", isPersistIntersectionMovements(), 0));
+    LOGGER.info(LoggingUtils.settingsValue("Intersection movement geometry through internal segments",
+        isIntersectionMovementGeometryThroughInternalSegments(), 0));
     LOGGER.info(LoggingUtils.settingsValue("Persist conjugate network", isPersistConjugateNetwork(), 0));
   }  
 

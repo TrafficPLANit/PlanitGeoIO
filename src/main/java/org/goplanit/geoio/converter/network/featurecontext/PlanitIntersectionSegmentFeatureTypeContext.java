@@ -5,12 +5,14 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.graph.directed.BannedTurn;
+import org.goplanit.utils.graph.directed.EdgeSegmentUtils;
 import org.goplanit.utils.misc.StringUtils;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
-import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
+import org.goplanit.utils.network.layer.macroscopic.intersection.CapacityFactorOrigin;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionSignalSegment;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersections;
+import org.goplanit.utils.network.layer.physical.LinkSegment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +28,16 @@ import java.util.function.Function;
  * @author markr
  */
 public class PlanitIntersectionSegmentFeatureTypeContext
-    extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
+    extends PlanitEntityFeatureTypeContext<LinkSegment> {
 
   /**
-   * Find the intersection of an approach or internal segment: the one holding its downstream node as a member node
+   * The text of how a value got its value, as written in the origin columns
    *
-   * @param intersections to search
-   * @param segment approach or internal segment
-   * @return intersection of the segment
+   * @param origin of the value, null when not set
+   * @return the origin's value, empty when not set
    */
-  private static Intersection findIntersection(Intersections intersections, MacroscopicLinkSegment segment){
-    return intersections.getByMemberNode(segment.getDownstreamNode());
+  private static String createOriginText(CapacityFactorOrigin origin){
+    return origin == null ? "" : origin.value();
   }
 
   /**
@@ -48,8 +49,8 @@ public class PlanitIntersectionSegmentFeatureTypeContext
    * @return mapped ids of the banned to segments, empty for internal segments and approaches without bans
    */
   private static String createBannedToSegmentIds(
-      MacroscopicLinkSegment segment,
-      Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
+      LinkSegment segment,
+      Map<LinkSegment, List<BannedTurn>> bansByApproachSegment,
       NetworkIdMapper networkIdMapper){
     /* internal segments are not in the map */
     var bans = bansByApproachSegment.get(segment);
@@ -57,7 +58,7 @@ public class PlanitIntersectionSegmentFeatureTypeContext
       return "";
     }
     return StringUtils.toSortedCommaSeparatedString(bans,
-        ban -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply((MacroscopicLinkSegment) ban.getSegmentTo()));
+        ban -> networkIdMapper.getLinkSegmentIdMapper().apply((LinkSegment) ban.getSegmentTo()));
   }
 
   /**
@@ -69,36 +70,57 @@ public class PlanitIntersectionSegmentFeatureTypeContext
    * @param destinationCrsTransformer to use (may be null)
    * @return feature mapping
    */
-  private static List<Triple<String,String, Function<MacroscopicLinkSegment, ?>>> createFeatureDescription(
+  private static List<Triple<String,String, Function<LinkSegment, ?>>> createFeatureDescription(
       final NetworkIdMapper networkIdMapper,
       final Intersections intersections,
-      final Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
+      final Map<LinkSegment, List<BannedTurn>> bansByApproachSegment,
       final MathTransform destinationCrsTransformer){
-    var features = new ArrayList<Triple<String,String, Function<MacroscopicLinkSegment, ?>>>();
+    var features = new ArrayList<Triple<String,String, Function<LinkSegment, ?>>>();
     features.add(Triple.of("isect_id", "String",
-        s -> networkIdMapper.getIntersectionIdMapper().apply(findIntersection(intersections, s))));
+        s -> networkIdMapper.getIntersectionIdMapper().apply(intersections.getByDownstreamNodeOf(s))));
     features.add(Triple.of("approach", "Boolean",
-        s -> findIntersection(intersections, s).getApproachSegment(s.getId()) != null));
-    features.add(Triple.of("seg_id", "String", s -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply(s)));
+        s -> intersections.getByDownstreamNodeOf(s).getApproachSegment(s.getId()) != null));
+    features.add(Triple.of("seg_id", "String", s -> networkIdMapper.getLinkSegmentIdMapper().apply(s)));
     features.add(Triple.of("node_up", "String",
         s -> networkIdMapper.getVertexIdMapper().apply(s.getUpstreamNode())));
     features.add(Triple.of("node_down", "String",
         s -> networkIdMapper.getVertexIdMapper().apply(s.getDownstreamNode())));
-    features.add(Triple.of("control", "String", s -> findIntersection(intersections, s).getControlType().value()));
+    features.add(Triple.of("control", "String", s -> intersections.getByDownstreamNodeOf(s).getControlType().value()));
 
     /* one column per kind of intersection */
     for(var type : IntersectionType.values()){
       features.add(Triple.of(
-          type.value(), "Boolean", s -> findIntersection(intersections, s).getTypes().contains(type)));
+          type.value(), "Boolean", s -> intersections.getByDownstreamNodeOf(s).getTypes().contains(type)));
     }
 
     features.add(Triple.of("banned_to", "String",
         s -> createBannedToSegmentIds(s, bansByApproachSegment, networkIdMapper)));
 
+    /* green ratio and saturation flow factor the model uses, 1 when not set; no green ratio without a signal */
+    features.add(Triple.of("signal", "Boolean",
+        s -> intersections.getByDownstreamNodeOf(s).getApproachOrInternalSegment(s).hasSignal()));
+    features.add(Triple.of("green", "java.lang.Double", s -> {
+      var intersectionSegment = intersections.getByDownstreamNodeOf(s).getApproachOrInternalSegment(s);
+      return intersectionSegment instanceof IntersectionSignalSegment ?
+          ((IntersectionSignalSegment) intersectionSegment).getGreenRatio() : null;
+    }));
+    features.add(Triple.of("green_src", "String", s -> {
+      var intersectionSegment = intersections.getByDownstreamNodeOf(s).getApproachOrInternalSegment(s);
+      return intersectionSegment instanceof IntersectionSignalSegment ?
+          createOriginText(((IntersectionSignalSegment) intersectionSegment).getGreenRatioOrigin()) : "";
+    }));
+    features.add(Triple.of("sat_flow", "java.lang.Double",
+        s -> intersections.getByDownstreamNodeOf(s).getApproachOrInternalSegment(s).getSaturationFlowFactor()));
+    features.add(Triple.of("sat_src", "String",
+        s -> createOriginText(
+            intersections.getByDownstreamNodeOf(s).getApproachOrInternalSegment(s).getSaturationFlowFactorOrigin())));
+    features.add(Triple.of("eff_cap", "java.lang.Double",
+        s -> intersections.getByDownstreamNodeOf(s).getApproachOrInternalSegment(s).getEffectiveCapacityFactor()));
+
     /* geometry last to append srid */
     features.add(Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
         s -> PlanitJtsUtils.transformGeometrySafe(
-            PlanitMacroscopicLinkSegmentFeatureTypeContext.createOrGetLinkSegmentGeometryInTravelDirection(s),
+            EdgeSegmentUtils.createOrGetParentGeometryInSegmentDirection(s),
             destinationCrsTransformer)));
     return features;
   }
@@ -114,9 +136,9 @@ public class PlanitIntersectionSegmentFeatureTypeContext
   protected PlanitIntersectionSegmentFeatureTypeContext(
       final NetworkIdMapper networkIdMapper,
       final Intersections intersections,
-      final Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
+      final Map<LinkSegment, List<BannedTurn>> bansByApproachSegment,
       final MathTransform destinationCrsTransformer){
-    super(MacroscopicLinkSegment.class,
+    super(LinkSegment.class,
         createFeatureDescription(networkIdMapper, intersections, bansByApproachSegment, destinationCrsTransformer));
   }
 
@@ -132,7 +154,7 @@ public class PlanitIntersectionSegmentFeatureTypeContext
   public static PlanitIntersectionSegmentFeatureTypeContext create(
       final NetworkIdMapper networkIdMapper,
       final Intersections intersections,
-      final Map<MacroscopicLinkSegment, List<BannedTurn>> bansByApproachSegment,
+      final Map<LinkSegment, List<BannedTurn>> bansByApproachSegment,
       final MathTransform destinationCrsTransformer){
     return new PlanitIntersectionSegmentFeatureTypeContext(
         networkIdMapper, intersections, bansByApproachSegment, destinationCrsTransformer);

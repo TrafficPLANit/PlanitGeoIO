@@ -81,13 +81,14 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> implements Au
   }
 
   /**
-   * Writer the geometry layer with the PLANit entities available in the container
+   * Writer the geometry layer with the PLANit entities available in the container. A layer without entities gets no
+   * file, since an empty file only takes up space
    *
    * @param <TT> type of entity written as a feature, a PLANit entity or a row derived from one
    * @param featureType to use
    * @param planitEntityFeatureContext the context to convert instances to features
    * @param loggingPrefix to use
-   * @param entityDataStore to use for persistence
+   * @param fullOutputPath of the file to persist in, its data store is created only when there is an entity to write
    * @param featureSchemaName the feature lives under on the datastore
    * @param planitEntities container to persist
    * @throws PlanItRunTimeException when persisting fails, after the transaction is rolled back
@@ -96,9 +97,17 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> implements Au
           SimpleFeatureType featureType,
           PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
           String loggingPrefix,
-          DataStore entityDataStore,
+          Path fullOutputPath,
           String featureSchemaName,
           Iterable<? extends TT> planitEntities) {
+
+    if(!planitEntities.iterator().hasNext()){
+      LOGGER.info(String.format("%s Nothing to persist for %s, no file written", loggingPrefix, featureSchemaName));
+      return;
+    }
+
+    /* data store, e.g., underlying shape file(s) */
+    DataStore entityDataStore = findDataStore(fullOutputPath);
 
     /* place feature on data store */
     GeoIODataStoreManager.registerFeatureOnDataStore(entityDataStore, featureType);
@@ -146,11 +155,11 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> implements Au
     }
   }
 
-  /** {@link #writeGeometryLayerForEntity(SimpleFeatureType, PlanitEntityFeatureTypeContext, String, DataStore, String, Iterable)}
+  /** {@link #writeGeometryLayerForEntity(SimpleFeatureType, PlanitEntityFeatureTypeContext, String, Path, String, Iterable)}
    *
    * @param featureType to write
    * @param planitEntityFeatureContext contextual information on feature type
-   * @param entityDataStore datastore to use
+   * @param fullOutputPath of the file to persist in, its data store is created only when there is an entity to write
    * @param featureSchemaName to use
    * @param planitEntities to persist
    * @param <TT> type of entity written as a feature, a PLANit entity or a row derived from one
@@ -158,12 +167,12 @@ public abstract class GeometryIoWriter<T> extends CrsWriterImpl<T> implements Au
   protected <TT> void writeGeometryLayerForEntity(
           SimpleFeatureType featureType,
           PlanitEntityFeatureTypeContext<TT> planitEntityFeatureContext,
-          DataStore entityDataStore,
+          Path fullOutputPath,
           String featureSchemaName,
           Iterable<TT> planitEntities) {
 
     writeGeometryLayerForEntity(
-            featureType, planitEntityFeatureContext,"", entityDataStore, featureSchemaName, planitEntities);
+            featureType, planitEntityFeatureContext,"", fullOutputPath, featureSchemaName, planitEntities);
   }
 
   /**

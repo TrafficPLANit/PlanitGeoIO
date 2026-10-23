@@ -4,7 +4,7 @@ import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.util.ModeShortNameConverter;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
-import org.goplanit.utils.graph.EdgeUtils;
+import org.goplanit.utils.graph.directed.EdgeSegmentUtils;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.mode.Mode;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
@@ -25,37 +25,6 @@ import java.util.stream.Stream;
  */
 public class PlanitMacroscopicLinkSegmentFeatureTypeContext
         extends PlanitEntityFeatureTypeContext<MacroscopicLinkSegment> {
-
-  /**
-   * Create or obtain link geometry. When no dedicated geometry is present it is created in link segment direction
-   * from edge vertices
-   *
-   * @param linkSegment to use
-   * @return geometry found
-   */
-  public static LineString createOrGetLinkSegmentGeometry(MacroscopicLinkSegment linkSegment){
-    var geometry = linkSegment.getParent().getGeometry();
-    if(geometry == null){
-      geometry = EdgeUtils.createLineStringFromVertexLocations(linkSegment.getParent(), linkSegment.isDirectionAb());
-    }
-    return geometry;
-  }
-
-  /**
-   * Create or obtain link geometry running in the direction of travel of the link segment, so it starts at the
-   * upstream node and ends at the downstream node. The link geometry is reversed only when it runs opposite to the
-   * link segment; a geometry created from the edge vertices already runs in link segment direction.
-   *
-   * @param linkSegment to use
-   * @return geometry in the direction of travel, the link geometry itself when it already runs in that direction
-   */
-  public static LineString createOrGetLinkSegmentGeometryInTravelDirection(MacroscopicLinkSegment linkSegment){
-    var geometry = createOrGetLinkSegmentGeometry(linkSegment);
-    if(linkSegment.hasGeometry() && !linkSegment.isParentGeometryInSegmentDirection(true)){
-      geometry = geometry.reverse();
-    }
-    return geometry;
-  }
 
   /**
    * The mapping from PLANIT link segment instance to fixed GIS attributes of link segment (without geometry)
@@ -146,7 +115,7 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContext
     Triple<String,String, Function<MacroscopicLinkSegment, ?>> geometryFeature =
             Triple.of(DEFAULT_GEOMETRY_ATTRIBUTE_KEY, "LineString",
                 ls -> PlanitJtsUtils.transformGeometrySafe(
-                        createOrGetLinkSegmentGeometry(ls),destinationCrsTransformer));
+                        EdgeSegmentUtils.createOrGetParentGeometry(ls),destinationCrsTransformer));
 
     allFeatures.add(geometryFeature);
     return allFeatures;

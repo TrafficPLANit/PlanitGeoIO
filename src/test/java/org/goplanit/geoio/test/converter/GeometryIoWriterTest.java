@@ -70,7 +70,7 @@ public class GeometryIoWriterTest {
           context, PlanitJtsCrsUtils.CARTESIANCRS, schemaName);
       var outputFile = Path.of(getSettings().getOutputDirectory(), schemaName + getSettings().getFormat().extension());
       try {
-        writeGeometryLayerForEntity(featureType, context, findDataStore(outputFile), schemaName, entities);
+        writeGeometryLayerForEntity(featureType, context, outputFile, schemaName, entities);
       } finally {
         GeoIODataStoreManager.reset();
       }

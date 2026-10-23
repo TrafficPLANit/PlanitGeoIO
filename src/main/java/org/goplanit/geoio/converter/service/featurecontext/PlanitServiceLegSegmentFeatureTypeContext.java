@@ -5,7 +5,6 @@ import org.goplanit.converter.idmapping.ServiceNetworkIdMapper;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
-import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.goplanit.utils.network.layer.service.ServiceLegSegment;
 import org.geotools.api.referencing.operation.MathTransform;
 
@@ -45,8 +44,7 @@ public class PlanitServiceLegSegmentFeatureTypeContext extends PlanitEntityFeatu
             Triple.of("phys_segs", "String",
                     sls -> !sls.hasPhysicalParentSegments() ? "" :
                     sls.getPhysicalParentSegments().stream().map(
-                            ls -> networkIdMapper.getMacroscopicLinkSegmentIdMapper().apply(
-                                    (MacroscopicLinkSegment) ls)).collect(Collectors.joining(","))),
+                            networkIdMapper.getLinkSegmentIdMapper()).collect(Collectors.joining(","))),
             Triple.of("snode_up", "String",
                     sls -> serviceNetworkIdMapper.getServiceNodeIdMapper().apply(sls.getUpstreamServiceNode())),
             Triple.of("snode_down", "String",

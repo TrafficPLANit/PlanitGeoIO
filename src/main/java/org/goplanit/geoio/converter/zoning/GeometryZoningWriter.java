@@ -1,6 +1,5 @@
 package org.goplanit.geoio.converter.zoning;
 
-import org.geotools.api.data.DataStore;
 import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.goplanit.converter.idmapping.ZoningIdMapper;
 import org.goplanit.converter.zoning.ZoningWriter;
@@ -181,16 +180,13 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
         zoneFeatureContext.getPlanitEntityClass().getSimpleName(),
         zoneFeatureContext.getGeometryTypeClass().getSimpleName(), zones.size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore zoneByGeometryTypeDataStore =
-        findDataStore(createFullPathFromFileName(baseFileName, zoneFeatureContext.getGeometryTypeClass()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
         featureType,
         zoneFeatureContext,
         "",
-        zoneByGeometryTypeDataStore,
+        createFullPathFromFileName(baseFileName, zoneFeatureContext.getGeometryTypeClass()),
         createGeometryAwareBaseFileName(baseFileName, zoneFeatureContext.getGeometryTypeClass()),
         zones);
   }
@@ -212,15 +208,12 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
           featureDescription.getPlanitEntityClass().getSimpleName());
     }
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore theDataStore =
-        findDataStore(createFullPathFromFileName(connectoidSchemaName));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
         featureType,
         featureDescription,
-        theDataStore,
+        createFullPathFromFileName(connectoidSchemaName),
         connectoidSchemaName, /* schema name = file name */
         connectoids);
   }
@@ -318,15 +311,12 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     }
     LOGGER.info(String.format("Connectoid edges: %d", virtualNetwork.getLayer().getConnectoidLinks().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore connectoidEdgesDataStore =
-            findDataStore(createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
         featureType,
         featureDescription,
-        connectoidEdgesDataStore,
+        createFullPathFromFileName(getSettings().getConnectoidEdgesFileName()),
         getSettings().getConnectoidEdgesFileName(), /* schema name = file name */
         virtualNetwork.getLayer().getConnectoidLinks());
   }
@@ -351,15 +341,12 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
     }
     LOGGER.info(String.format("Connectoid segments: %d", virtualNetwork.getLayer().getConnectoidLinks().size()));
 
-    /* data store, e.g., underlying shape file(s) */
-    DataStore connectoidSegmentsDataStore =
-        findDataStore(createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()));
 
     /* perform persistence */
     writeGeometryLayerForEntity(
         featureType,
         featureDescription,
-        connectoidSegmentsDataStore,
+        createFullPathFromFileName(getSettings().getConnectoidSegmentsFileName()),
         getSettings().getConnectoidSegmentsFileName(), /* schema name = file name */
         virtualNetwork.getLayer().getConnectoidSegments());
   }

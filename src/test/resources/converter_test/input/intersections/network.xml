@@ -177,7 +177,7 @@
                     <approaches>
                         <approach ref="0"/>
                         <approach ref="2"/>
-                        <approach ref="4"/>
+                        <approach ref="4" signal="false" satflowfactor="0.5"/>
                         <approach ref="7"/>
                     </approaches>
                 </intersection>
@@ -189,11 +189,20 @@
                 </intersection>
                 <spatialintersection id="i3" externalid="ext-3" noderefs="5,6" control="signalised" types="junction">
                     <approaches>
-                        <approach ref="8"/>
+                        <approach ref="8" greenratio="0.44" satflowfactor="0.9"/>
                         <approach ref="12"/>
                         <approach ref="14"/>
                     </approaches>
-                    <internalsegments refs="10,11"/>
+                    <internalsegments refs="10"/>
+                    <internalsignalsegments>
+                        <internalsignalsegment ref="11" greenratio="0.6" satflowfactor="0.9"/>
+                    </internalsignalsegments>
+                    <movements>
+                        <movement id="m1" fromlsref="8" tolsref="15" length="0.1" directban="true" greenratio="0.15"/>
+                        <movement id="m4" fromlsref="8" tolsref="13" length="0.0" greenratio="1" satflowfactor="0.8"/>
+                        <movement id="m2" fromlsref="12" tolsref="9" length="0.0"/>
+                        <movement id="m3" fromlsref="14" tolsref="9" length="0.1" bannedmoderefs="car"/>
+                    </movements>
                 </spatialintersection>
             </intersections>
         </layer>
