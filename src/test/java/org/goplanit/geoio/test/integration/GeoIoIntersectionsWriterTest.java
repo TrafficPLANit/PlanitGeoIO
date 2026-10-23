@@ -78,9 +78,9 @@ public class GeoIoIntersectionsWriterTest {
     var intersections = GeoIoOutputReaderUtils.readFeatures(outputPath, INTERSECTION_NODES_TABLE, format);
     assertEquals(3, intersections.size());
     assertTrue(intersections.stream().allMatch(f -> f.getDefaultGeometry() instanceof MultiPoint));
-    var i3 = intersections.stream().filter(f -> "i3".equals(f.getAttribute("mapped_id"))).findFirst().orElseThrow();
+    var i3 = intersections.stream().filter(f -> "i3".equals(f.getAttribute("isect_id"))).findFirst().orElseThrow();
     assertEquals("5,6", i3.getAttribute("node_ids"));
-    assertEquals("10,11", i3.getAttribute("internals"));
+    assertEquals("10,11", i3.getAttribute("intrnl_ids"));
     assertTrue(GeoIoOutputReaderUtils.getBooleanAttribute(i3, "junction"));
     assertFalse(GeoIoOutputReaderUtils.getBooleanAttribute(i3, "crossing"));
     assertEquals(2, ((MultiPoint) i3.getDefaultGeometry()).getNumGeometries());

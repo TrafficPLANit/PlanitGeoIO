@@ -51,7 +51,7 @@ public class GeoIoIntermodalWriterSettingsAppliedTest {
 
   /**
    * Create an intermodal writer for an emptied output directory, writing shapefiles with cartesian coordinates for
-   * both network and zoning
+   * the network, zoning, service network and routed services
    *
    * @param outputPath directory to empty and write to
    * @return created writer
@@ -60,9 +60,10 @@ public class GeoIoIntermodalWriterSettingsAppliedTest {
     FileUtils.deleteDirectory(outputPath.toFile());
     var writer = GeometryIntermodalWriterFactory.create(outputPath.toString(), CountryNames.GLOBAL);
     writer.getSettings().getNetworkSettings().setFormat(GeoIoFormat.SHAPE);
-    writer.getSettings().getNetworkSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.CARTESIANCRS);
     writer.getSettings().getZoningSettings().setFormat(GeoIoFormat.SHAPE);
-    writer.getSettings().getZoningSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.CARTESIANCRS);
+    writer.getSettings().getServiceNetworkSettings().setFormat(GeoIoFormat.SHAPE);
+    writer.getSettings().getRoutedServicesSettings().setFormat(GeoIoFormat.SHAPE);
+    writer.getSettings().setDestinationCoordinateReferenceSystem(PlanitJtsCrsUtils.CARTESIANCRS);
     return writer;
   }
 

@@ -343,7 +343,7 @@ public class GeoIoStandardConvertersTest {
       planitReader.getSettings().setInputDirectory(MELBOURNE_INPUT_PATH);
 
       /* writer */
-      var geometryWriter = GeometryIntermodalWriterFactory.create(MELBOURNE_SHAPE_OUTPUT_PATH, CountryNames.AUSTRALIA);
+      var geometryWriter = GeometryIntermodalWriterFactory.create(MELBOURNE_GPKG_OUTPUT_PATH, CountryNames.AUSTRALIA);
 
       /* persist connectoids as well */
       geometryWriter.getSettings().getZoningSettings().setPersistVirtualNetwork(true);
@@ -356,7 +356,7 @@ public class GeoIoStandardConvertersTest {
 
       assertNodeLinkAndLinkSegmentRowCounts(
           PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read(),
-          Path.of(MELBOURNE_SHAPE_OUTPUT_PATH),
+          Path.of(MELBOURNE_GPKG_OUTPUT_PATH),
           "",
           GeoIoFormat.GEOPACKAGE);
 

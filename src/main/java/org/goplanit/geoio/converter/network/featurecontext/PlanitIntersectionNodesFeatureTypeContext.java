@@ -15,17 +15,29 @@ import org.locationtech.jts.geom.Point;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
- * Track contextual relevant information for PLANit intersection type that is persisted. Lists of member nodes and
- * segments hold their mapped ids, sorted as text and joined with commas. The geometry holds the positions of the
- * member nodes.
+ * Track contextual relevant information for PLANit intersection type that is persisted, one entry per intersection.
+ * The geometry holds a point per member node with a position, and the node ids list those nodes in the same order, so
+ * the k-th id is the node of the k-th point. The lists of approach and internal segments hold their mapped ids, sorted
+ * as text and joined with commas.
  *
  * @author markr
  */
 public class PlanitIntersectionNodesFeatureTypeContext extends PlanitEntityFeatureTypeContext<Intersection> {
+
+  /**
+   * The member nodes of an intersection that have a position, in the order of its member nodes: those its multi point
+   * holds a point for, see {@link #createMemberNodesMultiPoint}
+   *
+   * @param intersection to use
+   * @return the member nodes with a position
+   */
+  private static List<Node> findMemberNodesWithPosition(Intersection intersection){
+    return intersection.getMemberNodes().stream().filter(Node::hasPosition).collect(Collectors.toList());
+  }
 
   /**
    * Create the multi point of the positions of the member nodes. Member nodes without a position are left out.
@@ -34,8 +46,8 @@ public class PlanitIntersectionNodesFeatureTypeContext extends PlanitEntityFeatu
    * @return multi point of the member node positions
    */
   public static MultiPoint createMemberNodesMultiPoint(Intersection intersection){
-    return PlanitJtsUtils.createMultiPoint(intersection.getMemberNodes().stream().map(Node::getPosition).filter(
-        Objects::nonNull).toArray(Point[]::new));
+    return PlanitJtsUtils.createMultiPoint(
+        findMemberNodesWithPosition(intersection).stream().map(Node::getPosition).toArray(Point[]::new));
   }
 
   /**
@@ -48,8 +60,7 @@ public class PlanitIntersectionNodesFeatureTypeContext extends PlanitEntityFeatu
   private static List<Triple<String,String, Function<Intersection, ?>>> createFeatureDescription(
       final NetworkIdMapper networkIdMapper, final MathTransform destinationCrsTransformer){
     var features = new ArrayList<Triple<String,String, Function<Intersection, ?>>>();
-    features.add(Triple.of("mapped_id", "String", networkIdMapper.getIntersectionIdMapper()));
-    features.add(Triple.of("id", "java.lang.Long", Intersection::getId));
+    features.add(Triple.of("isect_id", "String", networkIdMapper.getIntersectionIdMapper()));
     features.add(Triple.of("xml_id", "String", i -> i.hasXmlId() ? i.getXmlId() : ""));
     features.add(Triple.of("ext_id", "String", i -> i.hasExternalId() ? i.getExternalId() : ""));
     features.add(Triple.of("control", "String", i -> i.getControlType().value()));
@@ -59,12 +70,13 @@ public class PlanitIntersectionNodesFeatureTypeContext extends PlanitEntityFeatu
       features.add(Triple.of(type.value(), "Boolean", i -> i.getTypes().contains(type)));
     }
 
-    features.add(Triple.of("node_ids", "String",
-        i -> StringUtils.toSortedCommaSeparatedString(i.getMemberNodes(), networkIdMapper.getVertexIdMapper())));
-    features.add(Triple.of("approaches", "String",
+    /* in the order of the points of the geometry */
+    features.add(Triple.of("node_ids", "String", i -> findMemberNodesWithPosition(i).stream()
+        .map(networkIdMapper.getVertexIdMapper()).collect(Collectors.joining(","))));
+    features.add(Triple.of("apprch_ids", "String",
         i -> StringUtils.toSortedCommaSeparatedString(
             i.getApproachSegments(), networkIdMapper.getLinkSegmentIdMapper())));
-    features.add(Triple.of("internals", "String",
+    features.add(Triple.of("intrnl_ids", "String",
         i -> StringUtils.toSortedCommaSeparatedString(
             IntersectionUtils.getInternalSegmentsOf(i), networkIdMapper.getLinkSegmentIdMapper())));
     features.add(Triple.of("node_count", "Integer", i -> i.getMemberNodes().size()));

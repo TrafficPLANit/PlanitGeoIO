@@ -10,6 +10,7 @@ import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.misc.Triple;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.intersection.Intersection;
+import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionControlType;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +20,7 @@ import org.locationtech.jts.geom.MultiPoint;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -100,8 +102,7 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
   @Test
   public void twoNodeIntersectionAttributes() {
     var i3 = intersection("i3");
-    assertEquals("i3", attribute("mapped_id", i3));
-    assertEquals(i3.getId(), attribute("id", i3));
+    assertEquals("i3", attribute("isect_id", i3));
     assertEquals("i3", attribute("xml_id", i3));
     assertEquals("ext-3", attribute("ext_id", i3));
     assertEquals("signalised", attribute("control", i3));
@@ -109,8 +110,8 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
     assertEquals(false, attribute("crossing", i3));
     assertEquals("5,6", attribute("node_ids", i3));
     /* mapped ids are sorted as text, as in PLANit XML */
-    assertEquals("12,14,8", attribute("approaches", i3));
-    assertEquals("10,11", attribute("internals", i3));
+    assertEquals("12,14,8", attribute("apprch_ids", i3));
+    assertEquals("10,11", attribute("intrnl_ids", i3));
     assertEquals(2, attribute("node_count", i3));
     assertEquals(3, attribute("appr_count", i3));
 
@@ -129,8 +130,8 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
     assertEquals(false, attribute("junction", i2));
     assertEquals(true, attribute("crossing", i2));
     assertEquals("4", attribute("node_ids", i2));
-    assertEquals("6,9", attribute("approaches", i2));
-    assertEquals("", attribute("internals", i2));
+    assertEquals("6,9", attribute("apprch_ids", i2));
+    assertEquals("", attribute("intrnl_ids", i2));
     assertEquals(1, attribute("node_count", i2));
     assertEquals(2, attribute("appr_count", i2));
     var geometry = (MultiPoint) attribute(PlanitEntityFeatureTypeContext.DEFAULT_GEOMETRY_ATTRIBUTE_KEY, i2);
@@ -140,6 +141,22 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
     assertEquals("ext-1", attribute("ext_id", i1));
     assertEquals(true, attribute("junction", i1));
     assertEquals(true, attribute("crossing", i1));
-    assertEquals("0,2,4,7", attribute("approaches", i1));
+    assertEquals("0,2,4,7", attribute("apprch_ids", i1));
+  }
+
+  /**
+   * The node ids follow the points of the geometry, so the k-th id is the node of the k-th point, also when the member
+   * nodes are not in the order of their ids: here node 6 at (300,0) comes before node 5 at (200,0)
+   */
+  @Test
+  public void nodeIdsFollowThePointsOfTheGeometry() {
+    var intersection = layer.getIntersections().getFactory().createSpatial(
+        List.of(layer.getNodes().getByXmlId("6"), layer.getNodes().getByXmlId("5")),
+        IntersectionControlType.SIGNALISED, List.of(IntersectionType.JUNCTION));
+
+    assertEquals("6,5", attribute("node_ids", intersection));
+    var geometry = (MultiPoint) attribute(PlanitEntityFeatureTypeContext.DEFAULT_GEOMETRY_ATTRIBUTE_KEY, intersection);
+    assertEquals(new Coordinate(300, 0), geometry.getGeometryN(0).getCoordinate());
+    assertEquals(new Coordinate(200, 0), geometry.getGeometryN(1).getCoordinate());
   }
 }
