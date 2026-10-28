@@ -1,8 +1,7 @@
-package org.goplanit.geoio.test.util;
+package org.goplanit.geoio.util;
 
 import org.geotools.api.data.DataStore;
 import org.geotools.api.feature.simple.SimpleFeature;
-import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitGeoDataStoreUtils;
 import org.goplanit.utils.misc.Pair;

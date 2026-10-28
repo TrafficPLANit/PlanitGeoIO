@@ -31,8 +31,10 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-import static org.goplanit.geoio.test.util.NetworkOutputAssertionUtils.assertIntersectionNodeAndSegmentRowCounts;
-import static org.goplanit.geoio.test.util.NetworkOutputAssertionUtils.assertNodeLinkAndLinkSegmentRowCounts;
+import static org.goplanit.geoio.util.NetworkOutputAssertionUtils.assertIntersectionNodeAndSegmentRowCounts;
+import static org.goplanit.geoio.util.NetworkOutputAssertionUtils.assertNodeLinkAndLinkSegmentRowCounts;
+import static org.goplanit.geoio.util.NetworkOutputAssertionUtils.assertPersistedNodeLinkAndLinkSegmentRowCounts;
+import static org.goplanit.geoio.util.ZoningOutputAssertionUtils.assertPersistedConnectoidRowCounts;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -351,14 +353,12 @@ public class GeoIoStandardConvertersTest {
       /* id mapping based on XML, easier to read (and knowing XML ids are unique in this case*/
       geometryWriter.setIdMapperType(IdMapperType.XML);
 
-      /* convert */
-      IntermodalConverterFactory.create(planitReader, geometryWriter).convertWithServices();
+      /* read, then write, keeping what was read to check the files against */
+      var result = planitReader.readWithServices();
+      geometryWriter.writeWithServices(result.first(), result.second(), result.third(), result.fourth());
 
-      assertNodeLinkAndLinkSegmentRowCounts(
-          PlanitNetworkReaderFactory.create(MELBOURNE_INPUT_PATH).read(),
-          Path.of(MELBOURNE_GPKG_OUTPUT_PATH),
-          "",
-          GeoIoFormat.GEOPACKAGE);
+      assertPersistedNodeLinkAndLinkSegmentRowCounts(result.first(), geometryWriter.getSettings().getNetworkSettings());
+      assertPersistedConnectoidRowCounts(result.second(), geometryWriter.getSettings().getZoningSettings());
 
     } catch (Exception e) {
       LOGGER.severe(e.getMessage());

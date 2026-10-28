@@ -6,7 +6,7 @@ import org.goplanit.geoio.converter.intermodal.GeometryIntermodalWriter;
 import org.goplanit.geoio.converter.intermodal.GeometryIntermodalWriterFactory;
 import org.goplanit.geoio.converter.service.GeometryRoutedServicesWriterSettings;
 import org.goplanit.geoio.converter.service.GeometryServiceNetworkWriterSettings;
-import org.goplanit.geoio.test.util.GeoIoOutputReaderUtils;
+import org.goplanit.geoio.util.GeoIoOutputReaderUtils;
 import org.goplanit.geoio.test.util.NetworkTestUtils;
 import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.io.converter.intermodal.PlanitIntermodalReaderFactory;

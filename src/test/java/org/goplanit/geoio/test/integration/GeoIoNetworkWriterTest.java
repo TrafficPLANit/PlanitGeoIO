@@ -1,6 +1,6 @@
 package org.goplanit.geoio.test.integration;
 
-import org.goplanit.geoio.test.util.GeoIoOutputReaderUtils;
+import org.goplanit.geoio.util.GeoIoOutputReaderUtils;
 import org.goplanit.geoio.test.util.NetworkTestUtils;
 import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;
@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import static org.goplanit.geoio.test.util.NetworkOutputAssertionUtils.assertRowCount;
+import static org.goplanit.geoio.util.NetworkOutputAssertionUtils.assertRowCount;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

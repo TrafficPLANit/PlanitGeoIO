@@ -1,5 +1,6 @@
 package org.goplanit.geoio.test.util;
 
+import org.goplanit.geoio.util.GeoIoOutputReaderUtils;
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterFactory;
 import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.logging.Logging;

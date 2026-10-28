@@ -1,7 +1,7 @@
 package org.goplanit.geoio.test.integration;
 
 import org.goplanit.geoio.converter.network.GeometryNetworkWriter;
-import org.goplanit.geoio.test.util.GeoIoOutputReaderUtils;
+import org.goplanit.geoio.util.GeoIoOutputReaderUtils;
 import org.goplanit.geoio.test.util.NetworkTestUtils;
 import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.io.converter.network.PlanitNetworkReaderFactory;

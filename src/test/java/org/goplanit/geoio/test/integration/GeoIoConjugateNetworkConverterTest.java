@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-import static org.goplanit.geoio.test.util.NetworkOutputAssertionUtils.assertNodeLinkAndLinkSegmentRowCounts;
+import static org.goplanit.geoio.util.NetworkOutputAssertionUtils.assertNodeLinkAndLinkSegmentRowCounts;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
