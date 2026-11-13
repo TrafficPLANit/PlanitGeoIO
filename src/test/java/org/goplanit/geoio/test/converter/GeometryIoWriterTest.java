@@ -6,10 +6,13 @@ import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.geoio.util.GeoIoFormat;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.logging.Logging;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.geo.PlanitJtsCrsUtils;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.misc.Triple;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -26,6 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author markr
  */
 public class GeometryIoWriterTest {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
 
   private static final Path OUTPUT_PATH =
       Path.of("src", "test", "resources", "converter_test", "outputs", "io_writer");
@@ -75,6 +82,24 @@ public class GeometryIoWriterTest {
         GeoIODataStoreManager.reset();
       }
     }
+  }
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUp() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(GeometryIoWriterTest.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDown() {
+    Logging.closeLogger(LOGGER);
   }
 
   /** An attribute function that throws makes the write fail */

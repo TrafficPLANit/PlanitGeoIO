@@ -75,18 +75,7 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
         LOGGER.severe("Stopping logging on zone features with missing zone Id field, auto-ignoring all");
       }
 
-      if(zoneIdMapperType.equals(IdMapperType.XML)){
-        // sync source -> xml and external
-        // sync internal -> nothing
-        zone.setXmlId(zoneSourceId);
-      }else if(zoneIdMapperType.equals(IdMapperType.EXTERNAL_ID)){
-        // sync source -> external
-        // sync internal -> xml
-        zone.setXmlId(zone.getId());
-      }else{
-        throw new PlanItRunTimeException("Unsupported zone id mapping");
-      }
-      zone.setExternalId(zoneSourceId);
+      zone.setIdsFromSourceId(zoneSourceId, zoneIdMapperType);
 
       if (zoneFeature.getDefaultGeometry() instanceof Geometry) {
         var geometry = (Geometry) zoneFeature.getDefaultGeometry();

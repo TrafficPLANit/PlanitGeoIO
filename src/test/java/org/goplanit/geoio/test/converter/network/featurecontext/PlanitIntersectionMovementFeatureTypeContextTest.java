@@ -5,6 +5,7 @@ import org.goplanit.geoio.converter.network.featurecontext.PlanitIntersectionMov
 import org.goplanit.geoio.test.util.NetworkTestUtils;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.misc.Triple;
@@ -12,6 +13,7 @@ import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.SpatialMovement;
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionType;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -21,6 +23,7 @@ import org.locationtech.jts.geom.MultiLineString;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,6 +47,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author markr
  */
 public class PlanitIntersectionMovementFeatureTypeContextTest {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
 
   private MacroscopicNetworkLayer layer;
 
@@ -101,6 +107,24 @@ public class PlanitIntersectionMovementFeatureTypeContextTest {
   @AfterAll
   public static void tearDown() {
     IdGenerator.reset();
+  }
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUpLogger() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(PlanitIntersectionMovementFeatureTypeContextTest.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDownLogger() {
+    Logging.closeLogger(LOGGER);
   }
 
   /**

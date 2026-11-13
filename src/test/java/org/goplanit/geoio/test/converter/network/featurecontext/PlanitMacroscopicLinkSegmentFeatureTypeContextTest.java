@@ -3,6 +3,7 @@ package org.goplanit.geoio.test.converter.network.featurecontext;
 import org.goplanit.converter.idmapping.NetworkIdMapper;
 import org.goplanit.geoio.converter.network.featurecontext.PlanitMacroscopicLinkSegmentFeatureTypeContext;
 import org.goplanit.geoio.test.util.NetworkTestUtils;
+import org.goplanit.logging.Logging;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.graph.directed.EdgeSegmentUtils;
 import org.goplanit.utils.id.IdGenerator;
@@ -10,10 +11,12 @@ import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.network.layer.MacroscopicNetworkLayer;
 import org.goplanit.utils.network.layer.macroscopic.MacroscopicLinkSegment;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author markr
  */
 public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
 
   /**
    * Apply the geom_opp attribute function of the link segment context to a link segment
@@ -48,6 +54,24 @@ public class PlanitMacroscopicLinkSegmentFeatureTypeContextTest {
   @AfterAll
   public static void tearDown() {
     IdGenerator.reset();
+  }
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUpLogger() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(PlanitMacroscopicLinkSegmentFeatureTypeContextTest.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDownLogger() {
+    Logging.closeLogger(LOGGER);
   }
 
   /** On a link with geometry from a to b, the b_a segment is reversed to run in the direction of travel, the a_b

@@ -5,6 +5,7 @@ import org.goplanit.geoio.converter.network.featurecontext.PlanitIntersectionNod
 import org.goplanit.geoio.test.util.NetworkTestUtils;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.logging.Logging;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.id.IdMapperType;
 import org.goplanit.utils.misc.Triple;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author markr
  */
 public class PlanitIntersectionNodesFeatureTypeContextTest {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
 
   private static MacroscopicNetworkLayer layer;
 
@@ -78,6 +83,24 @@ public class PlanitIntersectionNodesFeatureTypeContextTest {
   @AfterAll
   public static void tearDown() {
     IdGenerator.reset();
+  }
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUpLogger() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(PlanitIntersectionNodesFeatureTypeContextTest.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDownLogger() {
+    Logging.closeLogger(LOGGER);
   }
 
   /** Attribute names are unique and fit a shapefile, one Boolean column per intersection type, geometry last */

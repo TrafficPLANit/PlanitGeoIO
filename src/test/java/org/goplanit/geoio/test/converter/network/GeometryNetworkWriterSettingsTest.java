@@ -1,7 +1,12 @@
 package org.goplanit.geoio.test.converter.network;
 
 import org.goplanit.geoio.converter.network.GeometryNetworkWriterSettings;
+import org.goplanit.logging.Logging;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,6 +18,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author markr
  */
 public class GeometryNetworkWriterSettingsTest {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUp() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(GeometryNetworkWriterSettingsTest.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDown() {
+    Logging.closeLogger(LOGGER);
+  }
 
   /** Intersections, their segments and their movements are persisted by default, under their default file names, and
    * the geometry of a movement runs through the internal segments it passes */

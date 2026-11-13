@@ -6,7 +6,10 @@ import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.DataUtilities;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFormat;
+import org.goplanit.logging.Logging;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author markr
  */
 public class GeoIODataStoreManagerTest {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
 
   private static final Path OUTPUT_PATH =
       Path.of("src", "test", "resources", "converter_test", "outputs", "data_store_manager");
@@ -91,6 +97,24 @@ public class GeoIODataStoreManagerTest {
       GeoIODataStoreManager.registerFeatureOnDataStore(dataStore, featureType(typeName));
     }
     return dataStore;
+  }
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUpLogger() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(GeoIODataStoreManagerTest.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDownLogger() {
+    Logging.closeLogger(LOGGER);
   }
 
   /**

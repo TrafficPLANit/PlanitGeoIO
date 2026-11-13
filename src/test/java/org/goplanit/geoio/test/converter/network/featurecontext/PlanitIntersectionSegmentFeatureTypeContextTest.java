@@ -5,6 +5,7 @@ import org.goplanit.geoio.converter.network.featurecontext.PlanitIntersectionSeg
 import org.goplanit.geoio.test.util.NetworkTestUtils;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
 import org.goplanit.geoio.util.PlanitEntityFeatureTypeContext;
+import org.goplanit.logging.Logging;
 import org.goplanit.utils.geo.PlanitJtsUtils;
 import org.goplanit.utils.id.IdGenerator;
 import org.goplanit.utils.id.IdMapperType;
@@ -17,6 +18,7 @@ import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionTyp
 import org.goplanit.utils.network.layer.macroscopic.intersection.IntersectionUtils;
 import org.goplanit.utils.network.layer.physical.LinkSegment;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -25,6 +27,7 @@ import org.locationtech.jts.geom.LineString;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,6 +43,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author markr
  */
 public class PlanitIntersectionSegmentFeatureTypeContextTest {
+
+  /** the logger, giving the log output PLANit's format */
+  private static Logger LOGGER = null;
 
   private MacroscopicNetworkLayer layer;
 
@@ -76,6 +82,24 @@ public class PlanitIntersectionSegmentFeatureTypeContextTest {
    */
   private LineString geometry(MacroscopicLinkSegment row) {
     return (LineString) attribute(PlanitEntityFeatureTypeContext.DEFAULT_GEOMETRY_ATTRIBUTE_KEY, row);
+  }
+
+  /**
+   * Create the logger once for all tests of the class
+   *
+   * @throws Exception when the log file cannot be opened
+   */
+  @BeforeAll
+  public static void setUpLogger() throws Exception {
+    if (LOGGER == null) {
+      LOGGER = Logging.createLogger(PlanitIntersectionSegmentFeatureTypeContextTest.class);
+    }
+  }
+
+  /** Close the logger after all tests of the class */
+  @AfterAll
+  public static void tearDownLogger() {
+    Logging.closeLogger(LOGGER);
   }
 
   /**
