@@ -51,7 +51,7 @@ public class GeometryZoningReaderFactory {
     return create(
         settings,
         referenceNetwork,
-        new Zoning(referenceNetwork.getIdGroupingToken(), referenceNetwork.getNetworkGroupingTokenId()));
+        new Zoning(referenceNetwork.getIdGroupingToken(), referenceNetwork));
   }
 
   /** Create a GeometryZoningReader
