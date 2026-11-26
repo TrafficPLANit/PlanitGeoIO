@@ -86,14 +86,15 @@ public class GeometryRoutedServicesWriterSettings extends GeoIoWriterSettings im
   }
 
   /**
-   * Convenience method to log all the current settings
+   * {@inheritDoc}
    */
-  public void logSettings() {
+  @Override
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("Geometry Routed Services Writer Settings"));
-    super.logSettings();
-    LOGGER.info(LoggingUtils.settingsValue("Persist services", isPersistServices(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist trips schedule", isPersistTripsSchedule(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist trips frequency", isPersistTripsFrequency(), 0));
+    super.logSettings(level);
+    LOGGER.info(LoggingUtils.settingsValue("Persist services", isPersistServices(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist trips schedule", isPersistTripsSchedule(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist trips frequency", isPersistTripsFrequency(), level));
   }  
 
   /**

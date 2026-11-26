@@ -380,20 +380,21 @@ public class GeometryNetworkWriterSettings extends GeoIoWriterSettings implement
   }
 
   /**
-   * Convenience method to log all the current settings
+   * {@inheritDoc}
    */
-  public void logSettings() {
+  @Override
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("Geometry Network Writer Settings"));
-    super.logSettings();
-    LOGGER.info(LoggingUtils.settingsValue("Persist nodes", isPersistNodes(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist links", isPersistLinks(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist link segments", isPersistLinkSegments(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist intersection nodes", isPersistIntersectionNodes(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist intersection segments", isPersistIntersectionSegments(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist intersection movements", isPersistIntersectionMovements(), 0));
+    super.logSettings(level);
+    LOGGER.info(LoggingUtils.settingsValue("Persist nodes", isPersistNodes(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist links", isPersistLinks(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist link segments", isPersistLinkSegments(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist intersection nodes", isPersistIntersectionNodes(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist intersection segments", isPersistIntersectionSegments(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist intersection movements", isPersistIntersectionMovements(), level));
     LOGGER.info(LoggingUtils.settingsValue("Intersection movement geometry through internal segments",
-        isIntersectionMovementGeometryThroughInternalSegments(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist conjugate network", isPersistConjugateNetwork(), 0));
+        isIntersectionMovementGeometryThroughInternalSegments(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist conjugate network", isPersistConjugateNetwork(), level));
   }  
 
   /**

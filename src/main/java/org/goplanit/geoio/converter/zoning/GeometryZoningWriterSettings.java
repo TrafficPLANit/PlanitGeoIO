@@ -110,16 +110,17 @@ public class GeometryZoningWriterSettings extends GeoIoWriterSettings implements
   }
 
   /**
-   * Convenience method to log all the current settings
+   * {@inheritDoc}
    */
-  public void logSettings() {
+  @Override
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("Geometry Zoning Writer Settings"));
-    super.logSettings();
-    LOGGER.info(LoggingUtils.settingsValue("Persist OD zones", isPersistOdZones(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist OD connectoids", isPersistOdConnectoids(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist transfer zones", isPersistTransferZones(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist transfer connectoids", isPersistTransferConnectoids(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist virtual network", isPersistVirtualNetwork(), 0));
+    super.logSettings(level);
+    LOGGER.info(LoggingUtils.settingsValue("Persist OD zones", isPersistOdZones(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist OD connectoids", isPersistOdConnectoids(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist transfer zones", isPersistTransferZones(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist transfer connectoids", isPersistTransferConnectoids(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist virtual network", isPersistVirtualNetwork(), level));
   }
 
   /**

@@ -7,6 +7,7 @@ import org.goplanit.geoio.converter.GeometryIoWriter;
 import org.goplanit.geoio.converter.zoning.featurecontext.*;
 import org.goplanit.geoio.util.GeoIODataStoreManager;
 import org.goplanit.geoio.util.GeoIoFeatureTypeBuilder;
+import org.goplanit.network.MacroscopicNetwork;
 import org.goplanit.utils.exceptions.PlanItRunTimeException;
 import org.goplanit.utils.locale.CountryNames;
 import org.goplanit.utils.network.virtual.physical.ConnectoidLink;
@@ -78,6 +79,9 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
       String outputFileName, Class<? extends Geometry> geometryType){
     return String.join("_",outputFileName,geometryType.getSimpleName().toLowerCase());
   }
+
+  /** the network the zoning refers to, given by the zoning converter; writing the geometry does not use it */
+  private MacroscopicNetwork referenceNetwork;
 
   /**
    * Place zones in separate collections based on the underlying geometry types
@@ -537,5 +541,21 @@ public class GeometryZoningWriter extends GeometryIoWriter<Zoning> implements Zo
   @Override
   public ZoningIdMapper getPrimaryIdMapper() {
     return getComponentIdMappers().getZoningIdMappers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setReferenceNetwork(MacroscopicNetwork referenceNetwork) {
+    this.referenceNetwork = referenceNetwork;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public MacroscopicNetwork getReferenceNetwork() {
+    return referenceNetwork;
   }
 }

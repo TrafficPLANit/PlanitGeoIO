@@ -291,9 +291,9 @@ public class GeometryZoningReader extends CrsReaderImpl<Zoning> implements Zonin
   }
 
   /**
-   * Access to reference network
-   * @return reference network
+   * {@inheritDoc}
    */
+  @Override
   public MacroscopicNetwork getReferenceNetwork(){
     return referenceNetwork;
   }

@@ -50,12 +50,13 @@ public class GeoIoWriterSettings extends FileBasedConverterWriterSettings implem
   }
 
   /**
-   * Convenience method to log all the current settings
+   * {@inheritDoc}
    */
-  public void logSettings() {
-    LOGGER.info(LoggingUtils.settingsValue("GEO format", getFormat(), 0));
-    super.logSettings();
-  }  
+  @Override
+  public void logSettings(int level) {
+    super.logSettings(level);
+    LOGGER.info(LoggingUtils.settingsValue("GEO format", getFormat(), level));
+  }
 
   /**
    * Reset content

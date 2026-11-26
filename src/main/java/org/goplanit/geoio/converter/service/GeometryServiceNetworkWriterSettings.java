@@ -195,14 +195,15 @@ public class GeometryServiceNetworkWriterSettings extends GeoIoWriterSettings im
   }
 
   /**
-   * Convenience method to log all the current settings
+   * {@inheritDoc}
    */
-  public void logSettings() {
+  @Override
+  public void logSettings(int level) {
     LOGGER.info(LoggingUtils.settingsHeader("Geometry Service Network Writer Settings"));
-    super.logSettings();
-    LOGGER.info(LoggingUtils.settingsValue("Persist service nodes", isPersistServiceNodes(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist service legs", isPersistServiceLegs(), 0));
-    LOGGER.info(LoggingUtils.settingsValue("Persist service leg segments", isPersistServiceLegSegments(), 0));
+    super.logSettings(level);
+    LOGGER.info(LoggingUtils.settingsValue("Persist service nodes", isPersistServiceNodes(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist service legs", isPersistServiceLegs(), level));
+    LOGGER.info(LoggingUtils.settingsValue("Persist service leg segments", isPersistServiceLegSegments(), level));
   }  
 
   /**
