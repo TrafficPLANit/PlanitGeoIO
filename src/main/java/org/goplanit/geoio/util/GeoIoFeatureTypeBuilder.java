@@ -308,16 +308,18 @@ public final class GeoIoFeatureTypeBuilder {
   }
 
   /**
-   * Initialise all known supported simple feature types for the physical network (for the given layer). Schema names for
-   * each feature are constructed via {@link #createFeatureTypeSchemaName(UntypedDirectedGraphLayer, Function, String)}. Hence,
-   * when registering on a datastore and then retrieving a feature writer for this feature, make sure to use the same schema name
-   * by using this method to retrieve the correct registered schema
+   * Initialise the simple feature types of all supported features of the given physical network layer. Each feature's
+   * schema name is made by {@link #createFeatureTypeSchemaName(UntypedDirectedGraphLayer, Function, String)}. When
+   * registering a feature type on a datastore and then retrieving its feature writer, use that method to get the same
+   * schema name, so the correct registered schema is retrieved
    *
    * @param layerFeatures                    write the provided supported features for the layer
    * @param layer                                to create the simple features for
    * @param destinationCoordinateReferenceSystem to use
-   * @param planitEntityBaseFileNames            to use which gets prefixed with layer information and post fixed with extension
-   * @param layerPrefixProducer                  function that provides a prefix to each layer created feature type's name (may be null)
+   * @param planitEntityBaseFileNames            to use which gets prefixed with layer information and post fixed
+   *                                             with extension
+   * @param layerPrefixProducer                  function that provides a prefix to each layer created feature type's
+   *                                             name (may be null)
    * @return the feature types that have been created by physical network layer and all supported PLANit entities
    */
   public static List<Pair<SimpleFeatureType, PlanitEntityFeatureTypeContext<? extends ManagedId>>>

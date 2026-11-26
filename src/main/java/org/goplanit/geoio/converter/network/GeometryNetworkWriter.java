@@ -44,8 +44,7 @@ public class GeometryNetworkWriter extends GeometryIoWriter<LayeredNetwork<?,?>>
   private Function<UntypedDirectedGraphLayer<?,?,?>, String> layerPrefixProducer = null;
 
   /**
-   * Based on the settings construct the correct mapping between file names and the PLANit entities
-   * Currently supports:
+   * Map each supported PLANit entity class to its file name in the settings:
    * <ul>
    *   <li>Node.class for (conjugate) node entities</li>
    *   <li>Link.class for (conjugate) link entities</li>
